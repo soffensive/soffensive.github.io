@@ -1,0 +1,16 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>symbolic execution - Tag - soffensive blog</title>
+        <link>http://localhost:1313/tags/symbolic-execution/</link>
+        <description>symbolic execution - Tag - soffensive blog</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 21 Feb 2018 04:27:00 -0800</lastBuildDate><atom:link href="http://localhost:1313/tags/symbolic-execution/" rel="self" type="application/rss+xml" /><item>
+    <title>Using angr and symbolic execution for reverse engineering challenges (RPI MBE Labs)</title>
+    <link>http://localhost:1313/posts/2018-02-21-using-angr-and-symbolic-execution-for-reverse-engineering-challenges-rpi-mbe-labs/</link>
+    <pubDate>Wed, 21 Feb 2018 04:27:00 -0800</pubDate>
+    <author>Author</author>
+    <guid>http://localhost:1313/posts/2018-02-21-using-angr-and-symbolic-execution-for-reverse-engineering-challenges-rpi-mbe-labs/</guid>
+    <description><![CDATA[This blog posts will highlight how you can utilize the angr dynamic binary analysis framework and symbolic execution for reverse engineering tasks.
+More precisely, we will look at the first two tasks in the lab1 of the RPISEC MBE labs.
+While angr&rsquo;s internals are quite complex and require substantial effort for mastering, getting started for our simple examples requires not too much knowledge. lab1C The first example we will look at is lab1C from lab01, which requires the user to enter a certain password:]]></description>
+</item></channel>
+</rss>

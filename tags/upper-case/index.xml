@@ -1,0 +1,17 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>Upper Case - Tag - soffensive blog</title>
+        <link>http://localhost:1313/tags/upper-case/</link>
+        <description>Upper Case - Tag - soffensive blog</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 05 Apr 2017 04:03:00 -0700</lastBuildDate><atom:link href="http://localhost:1313/tags/upper-case/" rel="self" type="application/rss+xml" /><item>
+    <title>Cross-Site Scripting Attacks with adverse Conditions: Upper-Case XSS</title>
+    <link>http://localhost:1313/posts/2017-04-05-cross-site-scripting-attacks-with-adverse-conditions-upper-case-xss/</link>
+    <pubDate>Wed, 05 Apr 2017 04:03:00 -0700</pubDate>
+    <author>Author</author>
+    <guid>http://localhost:1313/posts/2017-04-05-cross-site-scripting-attacks-with-adverse-conditions-upper-case-xss/</guid>
+    <description><![CDATA[Several times I have encountered web applications that convert user-provided input to capital letters. For example, the application may behave as follows:
+
+The injected JavaScript code (after escaping from the quotes, of course) will not be executed in the browser. Why is this the case? Remember that the HTML tag names themselves, including &lt;SCRIPT&gt; are not case-sensitive, whereas the contents inside them are in fact case-sensitive.
+You can circumvent this limitation by using a different injection technique that involves, for instance, &lt;img&gt; tags and converting the JavaScript code into HTML entities.]]></description>
+</item></channel>
+</rss>

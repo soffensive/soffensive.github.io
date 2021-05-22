@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>Using angr and symbolic execution for reverse engineering challenges (RPI MBE Labs) - soffensive blog</title><meta name="Description" content=""><meta property="og:title" content="Using angr and symbolic execution for reverse engineering challenges (RPI MBE Labs)" />
+<meta property="og:description" content="This blog posts will highlight how you can utilize the angr dynamic binary analysis framework and symbolic execution for reverse engineering tasks.
+More precisely, we will look at the first two tasks in the lab1 of the RPISEC MBE labs.
+While angr&rsquo;s internals are quite complex and require substantial effort for mastering, getting started for our simple examples requires not too much knowledge. lab1C The first example we will look at is lab1C from lab01, which requires the user to enter a certain password:" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/posts/2018-02-21-using-angr-and-symbolic-execution-for-reverse-engineering-challenges-rpi-mbe-labs/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2018-02-21T04:27:00-08:00" />
+<meta property="article:modified_time" content="2018-02-21T04:27:00-08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Using angr and symbolic execution for reverse engineering challenges (RPI MBE Labs)"/>
+<meta name="twitter:description" content="This blog posts will highlight how you can utilize the angr dynamic binary analysis framework and symbolic execution for reverse engineering tasks.
+More precisely, we will look at the first two tasks in the lab1 of the RPISEC MBE labs.
+While angr&rsquo;s internals are quite complex and require substantial effort for mastering, getting started for our simple examples requires not too much knowledge. lab1C The first example we will look at is lab1C from lab01, which requires the user to enter a certain password:"/>
+<meta name="application-name" content="soffensive blog">
+<meta name="apple-mobile-web-app-title" content="soffensive blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://localhost:1313/posts/2018-02-21-using-angr-and-symbolic-execution-for-reverse-engineering-challenges-rpi-mbe-labs/" /><link rel="prev" href="http://localhost:1313/posts/2018-01-23-pwnable-kr-crypto1-challenge/" /><link rel="next" href="http://localhost:1313/posts/2018-04-23-exploiting-misconfigured-cors-null-origin/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Using angr and symbolic execution for reverse engineering challenges (RPI MBE Labs)",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/localhost:1313\/posts\/2018-02-21-using-angr-and-symbolic-execution-for-reverse-engineering-challenges-rpi-mbe-labs\/"
+        },"genre": "posts","keywords": "binary analysis, ctf, symbolic execution, angr, reverse engineering","wordcount":  1167 ,
+        "url": "http:\/\/localhost:1313\/posts\/2018-02-21-using-angr-and-symbolic-execution-for-reverse-engineering-challenges-rpi-mbe-labs\/","datePublished": "2018-02-21T04:27:00-08:00","dateModified": "2018-02-21T04:27:00-08:00","publisher": {
+            "@type": "Organization",
+            "name": "soffensive"},"author": {
+                "@type": "Person",
+                "name": "soffensive"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="soffensive blog"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw'></i></span>soffensive</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i>  </a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i>  </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="soffensive blog"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw'></i></span>soffensive</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i></a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i></a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">Using angr and symbolic execution for reverse engineering challenges (RPI MBE Labs)</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>soffensive</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2018-02-21">2018-02-21</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;1167 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;6 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#lab1c">lab1C</a>
+      <ul>
+        <li><a href="#disassembly">Disassembly</a></li>
+        <li><a href="#angr-script">angr Script</a></li>
+      </ul>
+    </li>
+    <li><a href="#lab1b">lab1B</a>
+      <ul>
+        <li><a href="#disassembly-1">Disassembly</a></li>
+        <li><a href="#angr-script-1">angr Script</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><p>This blog posts will highlight how you can utilize the angr dynamic binary analysis framework and symbolic execution for reverse engineering tasks.</p>
+<p>More precisely, we will look at the first two tasks in the <code>lab1</code> of the <a href="https://github.com/RPISEC/MBE/tree/master/src/lab01" target="_blank" rel="noopener noreffer">RPISEC MBE labs</a>.</p>
+<p>While angr&rsquo;s internals are quite complex and require substantial effort for mastering, getting started for our simple examples requires not too much knowledge.  </p>
+<h2 id="lab1c">lab1C</h2>
+<p>The first example we will look at is <code>lab1C</code> from <code>lab01</code>, which requires the user to enter a certain password:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="sr">./lab1C</span>
+<span class="err">-----------------------------</span>
+<span class="err">---</span> <span class="n">RPISEC</span><span class="o"> - </span><span class="n">CrackMe</span> <span class="n">v1</span><span class="mf">.0</span> <span class="err">---</span>
+<span class="err">-----------------------------</span>
+
+<span class="n">Password</span><span class="p">:</span> <span class="n">bluab</span>
+
+<span class="n">Invalid</span> <span class="n">Password</span><span class="o">!!!</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="disassembly">Disassembly</h3>
+<p>When inspecting the program&rsquo;s disassembly, we see the <code>system()</code> function is initialized and called from address <code>0x08048711</code> onwards:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="nf">Disassembly</span> <span class="nv">of</span> <span class="nv">lab1C</span><span class="p">:</span>
+
+   <span class="err">0</span><span class="nf">x080486ad</span> <span class="o">&lt;+</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">push</span>   <span class="nb">ebp</span>
+   <span class="err">0</span><span class="nf">x080486ae</span> <span class="o">&lt;+</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="nb">ebp</span><span class="p">,</span><span class="nb">esp</span>
+   <span class="err">0</span><span class="nf">x080486b0</span> <span class="o">&lt;+</span><span class="mi">3</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">and</span>    <span class="nb">esp</span><span class="p">,</span><span class="mh">0xfffffff0</span>
+   <span class="err">0</span><span class="nf">x080486b3</span> <span class="o">&lt;+</span><span class="mi">6</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">sub</span>    <span class="nb">esp</span><span class="p">,</span><span class="mh">0x20</span>
+   <span class="err">0</span><span class="nf">x080486b6</span> <span class="o">&lt;+</span><span class="mi">9</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="p">],</span><span class="mh">0x80487d0</span>
+   <span class="err">0</span><span class="nf">x080486bd</span> <span class="o">&lt;+</span><span class="mi">16</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">call</span>   <span class="mh">0x8048560</span> <span class="o">&lt;</span><span class="nv">puts@plt</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x080486c2</span> <span class="o">&lt;+</span><span class="mi">21</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="p">],</span><span class="mh">0x80487ee</span>
+   <span class="err">0</span><span class="nf">x080486c9</span> <span class="o">&lt;+</span><span class="mi">28</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">call</span>   <span class="mh">0x8048560</span> <span class="o">&lt;</span><span class="nv">puts@plt</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x080486ce</span> <span class="o">&lt;+</span><span class="mi">33</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="p">],</span><span class="mh">0x80487d0</span>
+   <span class="err">0</span><span class="nf">x080486d5</span> <span class="o">&lt;+</span><span class="mi">40</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">call</span>   <span class="mh">0x8048560</span> <span class="o">&lt;</span><span class="nv">puts@plt</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x080486da</span> <span class="o">&lt;+</span><span class="mi">45</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="p">],</span><span class="mh">0x804880c</span>
+   <span class="err">0</span><span class="nf">x080486e1</span> <span class="o">&lt;+</span><span class="mi">52</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">call</span>   <span class="mh">0x8048550</span> <span class="o">&lt;</span><span class="nv">printf@plt</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x080486e6</span> <span class="o">&lt;+</span><span class="mi">57</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">lea</span>    <span class="nb">eax</span><span class="p">,[</span><span class="nb">esp</span><span class="o">+</span><span class="mh">0x1c</span><span class="p">]</span>
+   <span class="err">0</span><span class="nf">x080486ea</span> <span class="o">&lt;+</span><span class="mi">61</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="o">+</span><span class="mh">0x4</span><span class="p">],</span><span class="nb">eax</span>
+   <span class="err">0</span><span class="nf">x080486ee</span> <span class="o">&lt;+</span><span class="mi">65</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="p">],</span><span class="mh">0x8048818</span>
+   <span class="err">0</span><span class="nf">x080486f5</span> <span class="o">&lt;+</span><span class="mi">72</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">call</span>   <span class="mh">0x80485a0</span> <span class="o">&lt;</span><span class="nv">__isoc99_scanf@plt</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x080486fa</span> <span class="o">&lt;+</span><span class="mi">77</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="nb">eax</span><span class="p">,</span><span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="o">+</span><span class="mh">0x1c</span><span class="p">]</span>
+   <span class="err">0</span><span class="nf">x080486fe</span> <span class="o">&lt;+</span><span class="mi">81</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">cmp</span>    <span class="nb">eax</span><span class="p">,</span><span class="mh">0x149a</span>
+   <span class="err">0</span><span class="nf">x08048703</span> <span class="o">&lt;+</span><span class="mi">86</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">jne</span>    <span class="mh">0x8048724</span> <span class="o">&lt;</span><span class="nv">main</span><span class="o">+</span><span class="mi">119</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x08048705</span> <span class="o">&lt;+</span><span class="mi">88</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="p">],</span><span class="mh">0x804881b</span>
+   <span class="err">0</span><span class="nf">x0804870c</span> <span class="o">&lt;+</span><span class="mi">95</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">call</span>   <span class="mh">0x8048560</span> <span class="o">&lt;</span><span class="nv">puts@plt</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x08048711</span> <span class="o">&lt;+</span><span class="mi">100</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="p">],</span><span class="mh">0x804882b</span>
+   <span class="err">0</span><span class="nf">x08048718</span> <span class="o">&lt;+</span><span class="mi">107</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">call</span>   <span class="mh">0x8048570</span> <span class="o">&lt;</span><span class="nv">system@plt</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x0804871d</span> <span class="o">&lt;+</span><span class="mi">112</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="nb">eax</span><span class="p">,</span><span class="mh">0x0</span>
+   <span class="err">0</span><span class="nf">x08048722</span> <span class="o">&lt;+</span><span class="mi">117</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">jmp</span>    <span class="mh">0x8048735</span> <span class="o">&lt;</span><span class="nv">main</span><span class="o">+</span><span class="mi">136</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x08048724</span> <span class="o">&lt;+</span><span class="mi">119</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="p">],</span><span class="mh">0x8048833</span>
+   <span class="err">0</span><span class="nf">x0804872b</span> <span class="o">&lt;+</span><span class="mi">126</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">call</span>   <span class="mh">0x8048560</span> <span class="o">&lt;</span><span class="nv">puts@plt</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x08048730</span> <span class="o">&lt;+</span><span class="mi">131</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="nb">eax</span><span class="p">,</span><span class="mh">0x1</span>
+   <span class="err">0</span><span class="nf">x08048735</span> <span class="o">&lt;+</span><span class="mi">136</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">leave</span>  
+   <span class="err">0</span><span class="nf">x08048736</span> <span class="o">&lt;+</span><span class="mi">137</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">ret</span>    
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="angr-script">angr Script</h3>
+<p>Without looking further at the program logic, we have enough information to create a little script that will invoke angr and let us help with the challenge:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">angr</span>
+
+<span class="c1"># generate angr project</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">angr</span><span class="o">.</span><span class="n">Project</span><span class="p">(</span><span class="s1">&#39;./lab1C&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># get a generic representation of the possible program states at the program&#39;s entry point</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">entry_state</span><span class="p">()</span>
+
+
+<span class="c1"># get a SimulationManager to handle the flow of the symbolic execution engine</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">simulation_manager</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+
+<span class="n">sm</span><span class="o">.</span><span class="n">explore</span><span class="p">(</span><span class="n">find</span><span class="o">=</span><span class="mh">0x08048711</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sm</span><span class="o">.</span><span class="n">found</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+	<span class="nb">exit</span><span class="p">(</span><span class="s2">&#34;Could not find an input to reach the target address!&#34;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+	<span class="n">targetstate</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="k">print</span><span class="p">(</span><span class="s2">&#34;We found a satisfying input: {}&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">targetstate</span><span class="o">.</span><span class="n">posix</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">)))</span>
+	
+</code></pre></td></tr></table>
+</div>
+</div><p>The main part of angr that is relevant to us is the <code>SimulationManager</code> object that guides the symbolic execution engine. We specify that we want to find an execution that reaches address <code>0x08048711</code> and start the symbolic execution of the program. After an execution has reached the address, we are interested in the input that led to the satisfying execution, which we can retrieve by specifying the file descriptor of stdin, which is 0.</p>
+<p>Within a few seconds, the following output is generated:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="n">python</span> <span class="n">solve-lab1C</span><span class="o">.</span><span class="n">py</span>
+<span class="n">WARNING</span> <span class="err">|</span> <span class="err">2018-02</span><span class="mi">-21</span> <span class="mi">13</span><span class="p">:</span><span class="mi">12</span><span class="p">:</span><span class="mi">01</span><span class="err">,</span><span class="mi">239</span> <span class="err">|</span> <span class="n">angr</span><span class="o">.</span><span class="n">analyses</span><span class="o">.</span><span class="n">disassembly_utils</span> <span class="err">|</span> <span class="n">Your</span> <span class="n">verison</span> <span class="n">of</span> <span class="n">capstone</span> <span class="n">does</span> <span class="n">not</span> <span class="n">support</span> <span class="n">MIPS</span> <span class="n">instruction</span> <span class="n">groups</span><span class="o">.</span>
+<span class="n">WARNING</span> <span class="err">|</span> <span class="err">2018-02</span><span class="mi">-21</span> <span class="mi">13</span><span class="p">:</span><span class="mi">12</span><span class="p">:</span><span class="mi">02</span><span class="err">,</span><span class="mi">652</span> <span class="err">|</span> <span class="n">angr</span><span class="o">.</span><span class="n">state_plugins</span><span class="o">.</span><span class="n">symbolic_memory</span> <span class="err">|</span> <span class="n">Concretizing</span> <span class="n">symbolic</span> <span class="n">length</span><span class="o">.</span> <span class="n">Much</span> <span class="n">sad</span><span class="p">;</span> <span class="n">think</span> <span class="n">about</span> <span class="n">implementing</span><span class="o">.</span>
+<span class="n">We</span> <span class="n">found</span> <span class="n">a</span> <span class="n">satisfying</span> <span class="n">input</span><span class="p">:</span> <span class="o">+</span><span class="mi">0000005274</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="lab1b">lab1B</h2>
+<p>While the program <code>lab1C</code> just compares the input to a hard-coded value, <code>lab1B</code> is a little bit more complicated. For the user it looks the same as <code>lab1B</code>, as a password has to be provided:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="sr">./lab1B</span> 
+<span class="o">.</span><span class="err">---------------------------</span><span class="o">.</span>
+<span class="err">|--</span> <span class="n">RPISEC</span><span class="o"> - </span><span class="n">CrackMe</span> <span class="n">v2</span><span class="mf">.0</span> <span class="err">--|</span>
+<span class="err">&#39;---------------------------&#39;</span>
+
+<span class="n">Password</span><span class="p">:</span> <span class="n">asas</span>
+
+<span class="n">Invalid</span> <span class="n">Password</span><span class="o">!</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="disassembly-1">Disassembly</h3>
+<p>Again, we first have a look at its disassembly, in particular the <code>decrypt</code> function:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="nf">Dump</span> <span class="nv">of</span> <span class="nv">assembler</span> <span class="nv">code</span> <span class="nv">for</span> <span class="nv">function</span> <span class="nv">decrypt</span><span class="p">:</span>
+   <span class="err">0</span><span class="nf">x080489b7</span> <span class="o">&lt;+</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">push</span>   <span class="nb">ebp</span>
+   <span class="err">0</span><span class="nf">x080489b8</span> <span class="o">&lt;+</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="nb">ebp</span><span class="p">,</span><span class="nb">esp</span>
+   <span class="err">0</span><span class="nf">x080489ba</span> <span class="o">&lt;+</span><span class="mi">3</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">sub</span>    <span class="nb">esp</span><span class="p">,</span><span class="mh">0x38</span>
+   <span class="err">0</span><span class="nf">x080489bd</span> <span class="o">&lt;+</span><span class="mi">6</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="nb">eax</span><span class="p">,</span><span class="nb">gs</span><span class="p">:</span><span class="mh">0x14</span>
+   <span class="err">0</span><span class="nf">x080489c3</span> <span class="o">&lt;+</span><span class="mi">12</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0xc</span><span class="p">],</span><span class="nb">eax</span>
+   <span class="err">0</span><span class="nf">x080489c6</span> <span class="o">&lt;+</span><span class="mi">15</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">xor</span>    <span class="nb">eax</span><span class="p">,</span><span class="nb">eax</span>
+   <span class="err">0</span><span class="nf">x080489c8</span> <span class="o">&lt;+</span><span class="mi">17</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x1d</span><span class="p">],</span><span class="mh">0x757c7d51</span>
+   <span class="err">0</span><span class="nf">x080489cf</span> <span class="o">&lt;+</span><span class="mi">24</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x19</span><span class="p">],</span><span class="mh">0x67667360</span>
+   <span class="err">0</span><span class="nf">x080489d6</span> <span class="o">&lt;+</span><span class="mi">31</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x15</span><span class="p">],</span><span class="mh">0x7b66737e</span>
+   <span class="err">0</span><span class="nf">x080489dd</span> <span class="o">&lt;+</span><span class="mi">38</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x11</span><span class="p">],</span><span class="mh">0x33617c7d</span>
+   <span class="err">0</span><span class="nf">x080489e4</span> <span class="o">&lt;+</span><span class="mi">45</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">BYTE</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0xd</span><span class="p">],</span><span class="mh">0x0</span>
+   <span class="err">0</span><span class="nf">x080489e8</span> <span class="o">&lt;+</span><span class="mi">49</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">push</span>   <span class="nb">eax</span>
+   <span class="err">0</span><span class="nf">x080489e9</span> <span class="o">&lt;+</span><span class="mi">50</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">xor</span>    <span class="nb">eax</span><span class="p">,</span><span class="nb">eax</span>
+   <span class="err">0</span><span class="nf">x080489eb</span> <span class="o">&lt;+</span><span class="mi">52</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">je</span>     <span class="mh">0x80489f0</span> <span class="o">&lt;</span><span class="nv">decrypt</span><span class="o">+</span><span class="mi">57</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x080489ed</span> <span class="o">&lt;+</span><span class="mi">54</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">add</span>    <span class="nb">esp</span><span class="p">,</span><span class="mh">0x4</span>
+   <span class="err">0</span><span class="nf">x080489f0</span> <span class="o">&lt;+</span><span class="mi">57</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">pop</span>    <span class="nb">eax</span>
+   <span class="err">0</span><span class="nf">x080489f1</span> <span class="o">&lt;+</span><span class="mi">58</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">lea</span>    <span class="nb">eax</span><span class="p">,[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x1d</span><span class="p">]</span>
+   <span class="err">0</span><span class="nf">x080489f4</span> <span class="o">&lt;+</span><span class="mi">61</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="p">],</span><span class="nb">eax</span>
+   <span class="err">0</span><span class="nf">x080489f7</span> <span class="o">&lt;+</span><span class="mi">64</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">call</span>   <span class="mh">0x8048810</span> <span class="o">&lt;</span><span class="nv">strlen@plt</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x080489fc</span> <span class="o">&lt;+</span><span class="mi">69</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x24</span><span class="p">],</span><span class="nb">eax</span>
+   <span class="err">0</span><span class="nf">x080489ff</span> <span class="o">&lt;+</span><span class="mi">72</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x28</span><span class="p">],</span><span class="mh">0x0</span>
+   <span class="err">0</span><span class="nf">x08048a06</span> <span class="o">&lt;+</span><span class="mi">79</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">jmp</span>    <span class="mh">0x8048a28</span> <span class="o">&lt;</span><span class="nv">decrypt</span><span class="o">+</span><span class="mi">113</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x08048a08</span> <span class="o">&lt;+</span><span class="mi">81</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">lea</span>    <span class="nb">edx</span><span class="p">,[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x1d</span><span class="p">]</span>
+   <span class="err">0</span><span class="nf">x08048a0b</span> <span class="o">&lt;+</span><span class="mi">84</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="nb">eax</span><span class="p">,</span><span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x28</span><span class="p">]</span>
+   <span class="err">0</span><span class="nf">x08048a0e</span> <span class="o">&lt;+</span><span class="mi">87</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">add</span>    <span class="nb">eax</span><span class="p">,</span><span class="nb">edx</span>
+   <span class="err">0</span><span class="nf">x08048a10</span> <span class="o">&lt;+</span><span class="mi">89</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">movzx</span>  <span class="nb">eax</span><span class="p">,</span><span class="kt">BYTE</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">eax</span><span class="p">]</span>
+   <span class="err">0</span><span class="nf">x08048a13</span> <span class="o">&lt;+</span><span class="mi">92</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="nb">edx</span><span class="p">,</span><span class="nb">eax</span>
+   <span class="err">0</span><span class="nf">x08048a15</span> <span class="o">&lt;+</span><span class="mi">94</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="nb">eax</span><span class="p">,</span><span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="mh">0x8</span><span class="p">]</span>
+   <span class="err">0</span><span class="nf">x08048a18</span> <span class="o">&lt;+</span><span class="mi">97</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">xor</span>    <span class="nb">eax</span><span class="p">,</span><span class="nb">edx</span>
+   <span class="err">0</span><span class="nf">x08048a1a</span> <span class="o">&lt;+</span><span class="mi">99</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">lea</span>    <span class="nb">ecx</span><span class="p">,[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x1d</span><span class="p">]</span>
+   <span class="err">0</span><span class="nf">x08048a1d</span> <span class="o">&lt;+</span><span class="mi">102</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="nb">edx</span><span class="p">,</span><span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x28</span><span class="p">]</span>
+   <span class="err">0</span><span class="nf">x08048a20</span> <span class="o">&lt;+</span><span class="mi">105</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">add</span>    <span class="nb">edx</span><span class="p">,</span><span class="nb">ecx</span>
+   <span class="err">0</span><span class="nf">x08048a22</span> <span class="o">&lt;+</span><span class="mi">107</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">BYTE</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">edx</span><span class="p">],</span><span class="nb">al</span>
+   <span class="err">0</span><span class="nf">x08048a24</span> <span class="o">&lt;+</span><span class="mi">109</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">add</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x28</span><span class="p">],</span><span class="mh">0x1</span>
+   <span class="err">0</span><span class="nf">x08048a28</span> <span class="o">&lt;+</span><span class="mi">113</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="nb">eax</span><span class="p">,</span><span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x28</span><span class="p">]</span>
+   <span class="err">0</span><span class="nf">x08048a2b</span> <span class="o">&lt;+</span><span class="mi">116</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">cmp</span>    <span class="nb">eax</span><span class="p">,</span><span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x24</span><span class="p">]</span>
+   <span class="err">0</span><span class="nf">x08048a2e</span> <span class="o">&lt;+</span><span class="mi">119</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">jb</span>     <span class="mh">0x8048a08</span> <span class="o">&lt;</span><span class="nv">decrypt</span><span class="o">+</span><span class="mi">81</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x08048a30</span> <span class="o">&lt;+</span><span class="mi">121</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="o">+</span><span class="mh">0x4</span><span class="p">],</span><span class="mh">0x8048d03</span>
+   <span class="err">0</span><span class="nf">x08048a38</span> <span class="o">&lt;+</span><span class="mi">129</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">lea</span>    <span class="nb">eax</span><span class="p">,[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0x1d</span><span class="p">]</span>
+   <span class="err">0</span><span class="nf">x08048a3b</span> <span class="o">&lt;+</span><span class="mi">132</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="p">],</span><span class="nb">eax</span>
+   <span class="err">0</span><span class="nf">x08048a3e</span> <span class="o">&lt;+</span><span class="mi">135</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">call</span>   <span class="mh">0x8048770</span> <span class="o">&lt;</span><span class="nv">strcmp@plt</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x08048a43</span> <span class="o">&lt;+</span><span class="mi">140</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">test</span>   <span class="nb">eax</span><span class="p">,</span><span class="nb">eax</span>
+   <span class="err">0</span><span class="nf">x08048a45</span> <span class="o">&lt;+</span><span class="mi">142</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">jne</span>    <span class="mh">0x8048a55</span> <span class="o">&lt;</span><span class="nv">decrypt</span><span class="o">+</span><span class="mi">158</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x08048a47</span> <span class="o">&lt;+</span><span class="mi">144</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="p">],</span><span class="mh">0x8048d14</span>
+   <span class="err">0</span><span class="nf">x08048a4e</span> <span class="o">&lt;+</span><span class="mi">151</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">call</span>   <span class="mh">0x80487e0</span> <span class="o">&lt;</span><span class="nv">system@plt</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x08048a53</span> <span class="o">&lt;+</span><span class="mi">156</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">jmp</span>    <span class="mh">0x8048a61</span> <span class="o">&lt;</span><span class="nv">decrypt</span><span class="o">+</span><span class="mi">170</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x08048a55</span> <span class="o">&lt;+</span><span class="mi">158</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">esp</span><span class="p">],</span><span class="mh">0x8048d1c</span>
+   <span class="err">0</span><span class="nf">x08048a5c</span> <span class="o">&lt;+</span><span class="mi">165</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">call</span>   <span class="mh">0x80487d0</span> <span class="o">&lt;</span><span class="nv">puts@plt</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x08048a61</span> <span class="o">&lt;+</span><span class="mi">170</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">mov</span>    <span class="nb">eax</span><span class="p">,</span><span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">-</span><span class="mh">0xc</span><span class="p">]</span>
+   <span class="err">0</span><span class="nf">x08048a64</span> <span class="o">&lt;+</span><span class="mi">173</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">xor</span>    <span class="nb">eax</span><span class="p">,</span><span class="kt">DWORD</span> <span class="nv">PTR</span> <span class="nb">gs</span><span class="p">:</span><span class="mh">0x14</span>
+   <span class="err">0</span><span class="nf">x08048a6b</span> <span class="o">&lt;+</span><span class="mi">180</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">je</span>     <span class="mh">0x8048a72</span> <span class="o">&lt;</span><span class="nv">decrypt</span><span class="o">+</span><span class="mi">187</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x08048a6d</span> <span class="o">&lt;+</span><span class="mi">182</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">call</span>   <span class="mh">0x80487c0</span> <span class="o">&lt;</span><span class="nv">__stack_chk_fail@plt</span><span class="o">&gt;</span>
+   <span class="err">0</span><span class="nf">x08048a72</span> <span class="o">&lt;+</span><span class="mi">187</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">leave</span>  
+   <span class="err">0</span><span class="nf">x08048a73</span> <span class="o">&lt;+</span><span class="mi">188</span><span class="o">&gt;</span><span class="p">:</span> <span class="nv">ret</span>    
+<span class="nf">End</span> <span class="nv">of</span> <span class="nv">assembler</span> <span class="nv">dump.</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>The goal of the program is here likewise the call of the <code>system()</code> function with a specific argument, starting from address <code>0x08048a47</code>. The solving-script is thus almost identical to the previous example:</p>
+<h3 id="angr-script-1">angr Script</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">angr</span>
+
+<span class="c1"># generate angr project</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">angr</span><span class="o">.</span><span class="n">Project</span><span class="p">(</span><span class="s1">&#39;./lab1B&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># get a generic representation of the possible program states at the program&#39;s entry point</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">entry_state</span><span class="p">()</span>
+
+
+<span class="c1"># get a SimulationManager to handle the flow of the symbolic execution engine</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">simulation_manager</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+
+<span class="n">sm</span><span class="o">.</span><span class="n">explore</span><span class="p">(</span><span class="n">find</span><span class="o">=</span><span class="mh">0x08048a47</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sm</span><span class="o">.</span><span class="n">found</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+	<span class="nb">exit</span><span class="p">(</span><span class="s2">&#34;Could not find an input to reach the target address!&#34;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+	<span class="n">targetstate</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="k">print</span><span class="p">(</span><span class="s2">&#34;We found a satisfying input: {}&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">targetstate</span><span class="o">.</span><span class="n">posix</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">)))</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Running, however, requires more time due to the exploration of several <code>if</code>-conditions and checking their satisfiability:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="n">python</span> <span class="n">solve-lab1B</span><span class="o">.</span><span class="n">py</span> 
+<span class="n">WARNING</span> <span class="err">|</span> <span class="err">2018-02</span><span class="mi">-21</span> <span class="mi">12</span><span class="p">:</span><span class="mi">35</span><span class="p">:</span><span class="mi">23</span><span class="err">,</span><span class="mi">576</span> <span class="err">|</span> <span class="n">angr</span><span class="o">.</span><span class="n">analyses</span><span class="o">.</span><span class="n">disassembly_utils</span> <span class="err">|</span> <span class="n">Your</span> <span class="n">verison</span> <span class="n">of</span> <span class="n">capstone</span> <span class="n">does</span> <span class="n">not</span> <span class="n">support</span> <span class="n">MIPS</span> <span class="n">instruction</span> <span class="n">groups</span><span class="o">.</span>
+<span class="n">WARNING</span> <span class="err">|</span> <span class="err">2018-02</span><span class="mi">-21</span> <span class="mi">12</span><span class="p">:</span><span class="mi">35</span><span class="p">:</span><span class="mi">25</span><span class="err">,</span><span class="mi">180</span> <span class="err">|</span> <span class="n">angr</span><span class="o">.</span><span class="n">state_plugins</span><span class="o">.</span><span class="n">symbolic_memory</span> <span class="err">|</span> <span class="n">Concretizing</span> <span class="n">symbolic</span> <span class="n">length</span><span class="o">.</span> <span class="n">Much</span> <span class="n">sad</span><span class="p">;</span> <span class="n">think</span> <span class="n">about</span> <span class="n">implementing</span><span class="o">.</span>
+<span class="n">We</span> <span class="n">found</span> <span class="n">a</span> <span class="n">satisfying</span> <span class="n">input</span><span class="p">:</span> <span class="o">+</span><span class="err">0322424827</span><span class="n">Z</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Further examples that showcase applying angr to challenges of this kind are available on the <a href="https://github.com/angr/angr-doc/tree/master/examples" target="_blank" rel="noopener noreffer">Github repository</a> of the angr developers.</p>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2018-02-21</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/2018-02-21-using-angr-and-symbolic-execution-for-reverse-engineering-challenges-rpi-mbe-labs/" data-title="Using angr and symbolic execution for reverse engineering challenges (RPI MBE Labs)" data-via="evisneffos" data-hashtags="binary analysis,ctf,symbolic execution,angr,reverse engineering"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/2018-02-21-using-angr-and-symbolic-execution-for-reverse-engineering-challenges-rpi-mbe-labs/" data-hashtag="binary analysis"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="http://localhost:1313/posts/2018-02-21-using-angr-and-symbolic-execution-for-reverse-engineering-challenges-rpi-mbe-labs/"><i class="fab fa-linkedin fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://localhost:1313/posts/2018-02-21-using-angr-and-symbolic-execution-for-reverse-engineering-challenges-rpi-mbe-labs/" data-title="Using angr and symbolic execution for reverse engineering challenges (RPI MBE Labs)" data-web><i class="fab fa-whatsapp fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/binary-analysis/">binary analysis</a>,&nbsp;<a href="/tags/ctf/">ctf</a>,&nbsp;<a href="/tags/symbolic-execution/">symbolic execution</a>,&nbsp;<a href="/tags/angr/">angr</a>,&nbsp;<a href="/tags/reverse-engineering/">reverse engineering</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/2018-01-23-pwnable-kr-crypto1-challenge/" class="prev" rel="prev" title="pwnable.kr: crypto1 challenge"><i class="fas fa-angle-left fa-fw"></i>pwnable.kr: crypto1 challenge</a>
+            <a href="/posts/2018-04-23-exploiting-misconfigured-cors-null-origin/" class="next" rel="next" title="Exploiting misconfigured CORS Null Origin">Exploiting misconfigured CORS Null Origin<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.83.1">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2017 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank"></a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":1000},"comment":{}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>
