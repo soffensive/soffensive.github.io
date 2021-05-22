@@ -5,10 +5,10 @@
         <description>pwnable.kr - Tag - soffensive blog</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Tue, 23 Jan 2018 03:29:00 -0800</lastBuildDate><atom:link href="http://localhost:1313/tags/pwnable.kr/" rel="self" type="application/rss+xml" /><item>
     <title>pwnable.kr: crypto1 challenge</title>
-    <link>http://localhost:1313/posts/2018-01-23-pwnable-kr-crypto1-challenge/</link>
+    <link>http://localhost:1313/posts/ctf/2018-01-23-pwnable-kr-crypto1-challenge/</link>
     <pubDate>Tue, 23 Jan 2018 03:29:00 -0800</pubDate>
     <author>Author</author>
-    <guid>http://localhost:1313/posts/2018-01-23-pwnable-kr-crypto1-challenge/</guid>
+    <guid>http://localhost:1313/posts/ctf/2018-01-23-pwnable-kr-crypto1-challenge/</guid>
     <description><![CDATA[In the pwnable.kr challenge crypto1 in the rookies section, we are given the following two files client.py and server.py:
 client.py 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67  #!]]></description>
 </item></channel>

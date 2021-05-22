@@ -5,58 +5,58 @@
         <description>x64 - Tag - soffensive blog</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 20 Sep 2017 02:37:00 -0700</lastBuildDate><atom:link href="http://localhost:1313/tags/x64/" rel="self" type="application/rss+xml" /><item>
     <title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11</title>
-    <link>http://localhost:1313/posts/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/</link>
+    <link>http://localhost:1313/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/</link>
     <pubDate>Wed, 20 Sep 2017 02:37:00 -0700</pubDate>
     <author>Author</author>
-    <guid>http://localhost:1313/posts/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/</guid>
+    <guid>http://localhost:1313/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/</guid>
     <description><![CDATA[Read the Virtual Memory chapter in Intel Software Developer Manual, Volume 3 and AMD64 Architecture Programmer’s Manual, Volume 2: System Programming. Perform a few virtual address to physical address translations yourself and verify the result with a kernel debugger. Explain how data execution prevention (DEP) works.
  For this exercise, we first have to set up a remote kernel debugging session. (see https://codemetrix.net/windows-kernel-debugging-setup/, https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/ and http://securityblog.gr/3023/windows-kernel-debugging/ for excellent explanations)]]></description>
 </item><item>
     <title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 10</title>
-    <link>http://localhost:1313/posts/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/</link>
+    <link>http://localhost:1313/posts/practical-reverse-engineering/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/</link>
     <pubDate>Sun, 17 Sep 2017 05:34:00 -0700</pubDate>
     <author>Author</author>
-    <guid>http://localhost:1313/posts/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/</guid>
+    <guid>http://localhost:1313/posts/practical-reverse-engineering/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/</guid>
     <description><![CDATA[Our task:
  If the current privilege level is encoded in CS, which is modifiable by user-mode code, why can’t user-mode code modify CS to change CPL?
  For a change, this is now a more theoretical than hands-on challenge. In order to address the exercise appropriately, we have to make sure we understood it correctly.
 CS (code segment) is the CPU segment register that contains the current ring level in bits 0 and 1.]]></description>
 </item><item>
     <title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 9</title>
-    <link>http://localhost:1313/posts/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/</link>
+    <link>http://localhost:1313/posts/practical-reverse-engineering/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/</link>
     <pubDate>Fri, 15 Sep 2017 02:49:00 -0700</pubDate>
     <author>Author</author>
-    <guid>http://localhost:1313/posts/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/</guid>
+    <guid>http://localhost:1313/posts/practical-reverse-engineering/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/</guid>
     <description><![CDATA[Our task:
  Sample L. Explain what function sub_1000CEA0 does and then decompile it back to C.
  Here we have the function&rsquo;s disassembly:
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28  push ebp mov ebp, esp push edi mov edi, [ebp+8] xor eax, eax or ecx, 0FFFFFFFFh repne scasb add ecx, 1 neg ecx sub edi, 1 mov al, [ebp+0Ch] std repne scasb add edi, 1 cmp [edi], al jz short loc_1000CEC7 xor eax, eax jmp short loc_1000CEC9 loc_1000CEC7: mov eax, edi loc_1000CEC9: cld pop edi leave retn endp   Firstly, the function takes two arguments, at ebp+0x8 (arg1) and ebp+0x0C (arg2) respectively.]]></description>
 </item><item>
     <title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 8</title>
-    <link>http://localhost:1313/posts/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/</link>
+    <link>http://localhost:1313/posts/practical-reverse-engineering/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/</link>
     <pubDate>Thu, 14 Sep 2017 05:12:00 -0700</pubDate>
     <author>Author</author>
-    <guid>http://localhost:1313/posts/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/</guid>
+    <guid>http://localhost:1313/posts/practical-reverse-engineering/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/</guid>
     <description><![CDATA[Our task as formulated in exercise 8:
  Sample H. Decompile sub_11732 and explain the most likely programming construct used in the original code.
  The function&rsquo;s disassembly:
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44  sub_1172E: push esi mov esi, [esp+8] dec esi jz short loc_1175F dec esi jz short loc_11755 dec esi jz short loc_1174B sub esi, 9 jnz short loc_1176B mov esi, [eax+8] shr esi, 1 add eax, 0Ch jmp short loc_11767 ; --------------------------------------------------------------------------- loc_1174B: mov esi, [eax+3Ch] shr esi, 1 add eax, 5Eh jmp short loc_11767 ; --------------------------------------------------------------------------- loc_11755: mov esi, [eax+3Ch] shr esi, 1 add eax, 44h jmp short loc_11767 ; --------------------------------------------------------------------------- loc_1175F: mov esi, [eax+3Ch] shr esi, 1 add eax, 40h loc_11767: mov [ecx], esi mov [edx], eax loc_1176B: pop esi retn 4   Obviously, the sought-after programming construct in this case is a switch.]]></description>
 </item><item>
     <title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 7</title>
-    <link>http://localhost:1313/posts/2017-07-30-practical-reverse-engineering-exercise-solutions-page-35-exercise-7/</link>
+    <link>http://localhost:1313/posts/practical-reverse-engineering/2017-07-30-practical-reverse-engineering-exercise-solutions-page-35-exercise-7/</link>
     <pubDate>Sun, 30 Jul 2017 03:55:00 -0700</pubDate>
     <author>Author</author>
-    <guid>http://localhost:1313/posts/2017-07-30-practical-reverse-engineering-exercise-solutions-page-35-exercise-7/</guid>
+    <guid>http://localhost:1313/posts/practical-reverse-engineering/2017-07-30-practical-reverse-engineering-exercise-solutions-page-35-exercise-7/</guid>
     <description><![CDATA[Exercise 7 on page 35:
  Sample H. The function sub_10BB6 has a loop searching for something. First recover the function prototype and then infer the types based on the context. Hint: You should probably have a copy of the PE specification nearby.
  Due to alignment issues, our routine is located at 10BB2 and has the following disassembly:
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40  sub_10BB2: mov eax, [esp+4] push ebx push esi mov esi, [eax+3Ch] add esi, eax movzx eax, word ptr [esi+14h] xor ebx, ebx cmp [esi+6], bx push edi lea edi, [eax+esi+18h] jbe short loc_10BEB loc_10BCE: push [esp+0Ch+arg_4] push edi call ds:dword_169A4 test eax, eax pop ecx pop ecx jz short loc_10BF3 movzx eax, word ptr [esi+6] add edi, 28h inc ebx cmp ebx, eax jb short loc_10BCE loc_10BEB: xor eax, eax loc_10BED: pop edi pop esi pop ebx retn 8 loc_10BF3: mov eax, edi jmp short loc_10BED   The PE file format and offsets have been described in detail here: http://www.]]></description>
 </item><item>
     <title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 6</title>
-    <link>http://localhost:1313/posts/2017-07-22-practical-reverse-engineering-exercise-solutions-page-35-exercise-6/</link>
+    <link>http://localhost:1313/posts/practical-reverse-engineering/2017-07-22-practical-reverse-engineering-exercise-solutions-page-35-exercise-6/</link>
     <pubDate>Sat, 22 Jul 2017 23:49:00 -0700</pubDate>
     <author>Author</author>
-    <guid>http://localhost:1313/posts/2017-07-22-practical-reverse-engineering-exercise-solutions-page-35-exercise-6/</guid>
+    <guid>http://localhost:1313/posts/practical-reverse-engineering/2017-07-22-practical-reverse-engineering-exercise-solutions-page-35-exercise-6/</guid>
     <description><![CDATA[Exercise 6 on page 35 of the book Practical Reverse Engineering presents us with a malware samples.
 These can be downloaded at the following page:
 https://grsecurity.net/malware_research/
@@ -64,34 +64,34 @@ In this exercise, we are expected to have a look at the following routine sub_13
 1 2 3 4 5 6 7 8 9 10 11 12 13 14  .text:00013842 sub_13842 .text:00013842 mov eax, [ecx+60h] .text:00013845 push esi .text:00013846 mov esi, [edx+8] .text:00013849 dec byte ptr [ecx+23h] .]]></description>
 </item><item>
     <title>Practical Reverse Engineering Exercise Solutions: RtlValidateUnicodeString</title>
-    <link>http://localhost:1313/posts/2017-07-16-practical-reverse-engineering-exercise-solutions-rtlvalidateunicodestring/</link>
+    <link>http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-rtlvalidateunicodestring/</link>
     <pubDate>Sun, 16 Jul 2017 12:50:00 -0700</pubDate>
     <author>Author</author>
-    <guid>http://localhost:1313/posts/2017-07-16-practical-reverse-engineering-exercise-solutions-rtlvalidateunicodestring/</guid>
+    <guid>http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-rtlvalidateunicodestring/</guid>
     <description><![CDATA[This blog post contains my solution for the decompilation exercise of the RtlValidateUnicodeString function in the Windows Kernel. The following contains the disassembly without annotations:
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20  kd&gt; uf rtlvalidateunicodestring ntdll!RtlValidateUnicodeString: 77686f6c 8bff mov edi,edi 77686f6e 55 push ebp 77686f6f 8bec mov ebp,esp 77686f71 837d0800 cmp dword ptr [ebp+8],0 77686f75 0f85fc380300 jne ntdll!]]></description>
 </item><item>
     <title>Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet</title>
-    <link>http://localhost:1313/posts/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</link>
+    <link>http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</link>
     <pubDate>Sun, 16 Jul 2017 05:45:00 -0700</pubDate>
     <author>Author</author>
-    <guid>http://localhost:1313/posts/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</guid>
+    <guid>http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</guid>
     <description><![CDATA[Here are a couple of commands I regularly use for reverse engineering:
  uf &lt;function&gt;: Unassemble function dt nt!_ktss: Show the definition of the data structure _ktss ?? sizeof(_ktss): Show the size the data structure _ktss occupies in memory .hh uf: Show help for the function uf x nt!*createfile*: Search all functions having the string createfile in its name !vtop &lt;PDPT-pointer&gt; &lt;virtualAddress&gt;: Compute physical address of given virtual address and the pointer to the page directory pointer table  ]]></description>
 </item><item>
     <title>Practical Reverse Engineering Exercise Solutions: KiInitializeTSS</title>
-    <link>http://localhost:1313/posts/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/</link>
+    <link>http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/</link>
     <pubDate>Sun, 16 Jul 2017 05:33:00 -0700</pubDate>
     <author>Author</author>
-    <guid>http://localhost:1313/posts/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/</guid>
+    <guid>http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/</guid>
     <description><![CDATA[Another exercise for us is the decompilation of the KiInitializeTSS function:
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  nt!KiInitializeTSS: 82847359 8bff mov edi,edi 8284735b 55 push ebp 8284735c 8bec mov ebp,esp 8284735e 8b4508 mov eax,dword ptr [ebp+8] 82847361 b9ac200000 mov ecx,20ACh 82847366 66894866 mov word ptr [eax+66h],cx 8284736a 33c9 xor ecx,ecx 8284736c 6a10 push 10h 8284736e 66894864 mov word ptr [eax+64h],cx 82847372 66894860 mov word ptr [eax+60h],cx 82847376 59 pop ecx 82847377 66894808 mov word ptr [eax+8],cx 8284737b 5d pop ebp 8284737c c20400 ret 4   We obtain the function prototype: (source)]]></description>
 </item><item>
     <title>Practical Reverse Engineering Exercise Solutions: KeReadyThread</title>
-    <link>http://localhost:1313/posts/2017-07-16-practical-reverse-engineering-exercise-solutions-kereadythread/</link>
+    <link>http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kereadythread/</link>
     <pubDate>Sun, 16 Jul 2017 03:44:00 -0700</pubDate>
     <author>Author</author>
-    <guid>http://localhost:1313/posts/2017-07-16-practical-reverse-engineering-exercise-solutions-kereadythread/</guid>
+    <guid>http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kereadythread/</guid>
     <description><![CDATA[Unfortunately I had no time in the past days to continue with the exercises. We continue with the decompilation of the KeReadyThread function in Windows 7.
 The following listing shows the disassembly:
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20  nt!KeReadyThread: 828a8125 8bff mov edi,edi 828a8127 56 push esi 828a8128 8bf0 mov esi,eax 828a812a 8b4650 mov eax,dword ptr [esi+50h] 828a812d 8b4874 mov ecx,dword ptr [eax+74h] 828a8130 f6c107 test cl,7 828a8133 7409 je nt!]]></description>

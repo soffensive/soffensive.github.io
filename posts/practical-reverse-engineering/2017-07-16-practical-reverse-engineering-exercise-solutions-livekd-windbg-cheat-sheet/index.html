@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet - soffensive blog</title><meta name="Description" content=""><meta property="og:title" content="Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet" />
+<meta property="og:description" content="Here are a couple of commands I regularly use for reverse engineering:
+ uf &lt;function&gt;: Unassemble function dt nt!_ktss: Show the definition of the data structure _ktss ?? sizeof(_ktss): Show the size the data structure _ktss occupies in memory .hh uf: Show help for the function uf x nt!*createfile*: Search all functions having the string createfile in its name !vtop &lt;PDPT-pointer&gt; &lt;virtualAddress&gt;: Compute physical address of given virtual address and the pointer to the page directory pointer table  " />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2017-07-16T05:45:00-07:00" />
+<meta property="article:modified_time" content="2017-07-16T05:45:00-07:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet"/>
+<meta name="twitter:description" content="Here are a couple of commands I regularly use for reverse engineering:
+ uf &lt;function&gt;: Unassemble function dt nt!_ktss: Show the definition of the data structure _ktss ?? sizeof(_ktss): Show the size the data structure _ktss occupies in memory .hh uf: Show help for the function uf x nt!*createfile*: Search all functions having the string createfile in its name !vtop &lt;PDPT-pointer&gt; &lt;virtualAddress&gt;: Compute physical address of given virtual address and the pointer to the page directory pointer table  "/>
+<meta name="application-name" content="soffensive blog">
+<meta name="apple-mobile-web-app-title" content="soffensive blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/" /><link rel="prev" href="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/" /><link rel="next" href="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-rtlvalidateunicodestring/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/localhost:1313\/posts\/practical-reverse-engineering\/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet\/"
+        },"genre": "posts","keywords": "Practical Reverse Engineering, Windbg, x64, x86","wordcount":  77 ,
+        "url": "http:\/\/localhost:1313\/posts\/practical-reverse-engineering\/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet\/","datePublished": "2017-07-16T05:45:00-07:00","dateModified": "2017-07-16T05:45:00-07:00","publisher": {
+            "@type": "Organization",
+            "name": "soffensive"},"author": {
+                "@type": "Person",
+                "name": "soffensive"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="soffensive blog"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw'></i></span>soffensive</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i>  </a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i>  </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="soffensive blog"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw'></i></span>soffensive</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i></a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i></a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>soffensive</a></span>&nbsp;<span class="post-category">included in <a href="/categories/practical-reverse-engineering/"><i class="far fa-folder fa-fw"></i>practical reverse engineering</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2017-07-16">2017-07-16</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;77 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;One minute&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents"></nav></div>
+            </div><div class="content" id="content"><p>Here are a couple of commands I regularly use for reverse engineering:</p>
+<ul>
+<li><code>uf &lt;function&gt;</code>: Unassemble function</li>
+<li><code>dt nt!_ktss</code>: Show the definition of the data structure <code>_ktss</code></li>
+<li><code>?? sizeof(_ktss)</code>: Show the size the data structure <code>_ktss</code> occupies in memory</li>
+<li><code>.hh uf</code>: Show help for the function <code>uf</code></li>
+<li><code>x nt!*createfile*</code>: Search all functions having the string <code>createfile</code> in its name</li>
+<li><code>!vtop &lt;PDPT-pointer&gt; &lt;virtualAddress&gt;</code>: Compute physical address of given virtual address and the pointer to the page directory pointer table</li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2017-07-16</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/" data-title="Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet" data-via="evisneffos" data-hashtags="Practical Reverse Engineering,Windbg,x64,x86"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/" data-hashtag="Practical Reverse Engineering"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/"><i class="fab fa-linkedin fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/" data-title="Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet" data-web><i class="fab fa-whatsapp fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/practical-reverse-engineering/">Practical Reverse Engineering</a>,&nbsp;<a href="/tags/windbg/">Windbg</a>,&nbsp;<a href="/tags/x64/">x64</a>,&nbsp;<a href="/tags/x86/">x86</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/" class="prev" rel="prev" title="Practical Reverse Engineering Exercise Solutions: KiInitializeTSS"><i class="fas fa-angle-left fa-fw"></i>Practical Reverse Engineering Exercise Solutions: KiInitializeTSS</a>
+            <a href="/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-rtlvalidateunicodestring/" class="next" rel="next" title="Practical Reverse Engineering Exercise Solutions: RtlValidateUnicodeString">Practical Reverse Engineering Exercise Solutions: RtlValidateUnicodeString<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.83.1">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2017 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank"></a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":1000},"comment":{}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

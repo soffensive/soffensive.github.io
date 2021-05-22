@@ -5,10 +5,10 @@
         <description>DTD - Tag - soffensive blog</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 18 May 2019 05:35:00 -0700</lastBuildDate><atom:link href="http://localhost:1313/tags/dtd/" rel="self" type="application/rss+xml" /><item>
     <title>XXE with .NET in 2019</title>
-    <link>http://localhost:1313/posts/2019-05-18-xxe-with-net-in-2019/</link>
+    <link>http://localhost:1313/posts/web-app-sec/2019-05-18-xxe-with-net-in-2019/</link>
     <pubDate>Sat, 18 May 2019 05:35:00 -0700</pubDate>
     <author>Author</author>
-    <guid>http://localhost:1313/posts/2019-05-18-xxe-with-net-in-2019/</guid>
+    <guid>http://localhost:1313/posts/web-app-sec/2019-05-18-xxe-with-net-in-2019/</guid>
     <description><![CDATA[After the seminal blog post by James Jardine in 2016 on XXE exploitation in .NET applications back in 2016, Microsoft seems to have implemented some additional changes regarding the default behavior of XML parsers.
 We work through the different XML methods provided and their corresponding vulnerable configurations. For all experiments, .NET framework 4.6 was chosen.
 TL;DR  In order to create an XXE vulnerability for applications using .NET framework 4.6+, you have to instantiate a vulnerable XmlResolver beforehand.]]></description>

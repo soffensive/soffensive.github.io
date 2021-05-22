@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 9 - soffensive blog</title><meta name="Description" content=""><meta property="og:title" content="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 9" />
+<meta property="og:description" content="Our task:
+ Sample L. Explain what function sub_1000CEA0 does and then decompile it back to C.
+ Here we have the function&rsquo;s disassembly:
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28  push ebp mov ebp, esp push edi mov edi, [ebp&#43;8] xor eax, eax or ecx, 0FFFFFFFFh repne scasb add ecx, 1 neg ecx sub edi, 1 mov al, [ebp&#43;0Ch] std repne scasb add edi, 1 cmp [edi], al jz short loc_1000CEC7 xor eax, eax jmp short loc_1000CEC9 loc_1000CEC7: mov eax, edi loc_1000CEC9: cld pop edi leave retn endp   Firstly, the function takes two arguments, at ebp&#43;0x8 (arg1) and ebp&#43;0x0C (arg2) respectively." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/posts/practical-reverse-engineering/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2017-09-15T02:49:00-07:00" />
+<meta property="article:modified_time" content="2017-09-15T02:49:00-07:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 9"/>
+<meta name="twitter:description" content="Our task:
+ Sample L. Explain what function sub_1000CEA0 does and then decompile it back to C.
+ Here we have the function&rsquo;s disassembly:
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28  push ebp mov ebp, esp push edi mov edi, [ebp&#43;8] xor eax, eax or ecx, 0FFFFFFFFh repne scasb add ecx, 1 neg ecx sub edi, 1 mov al, [ebp&#43;0Ch] std repne scasb add edi, 1 cmp [edi], al jz short loc_1000CEC7 xor eax, eax jmp short loc_1000CEC9 loc_1000CEC7: mov eax, edi loc_1000CEC9: cld pop edi leave retn endp   Firstly, the function takes two arguments, at ebp&#43;0x8 (arg1) and ebp&#43;0x0C (arg2) respectively."/>
+<meta name="application-name" content="soffensive blog">
+<meta name="apple-mobile-web-app-title" content="soffensive blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://localhost:1313/posts/practical-reverse-engineering/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/" /><link rel="prev" href="http://localhost:1313/posts/practical-reverse-engineering/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/" /><link rel="next" href="http://localhost:1313/posts/practical-reverse-engineering/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 9",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/localhost:1313\/posts\/practical-reverse-engineering\/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9\/"
+        },"genre": "posts","keywords": "Practical Reverse Engineering, x64, x86","wordcount":  728 ,
+        "url": "http:\/\/localhost:1313\/posts\/practical-reverse-engineering\/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9\/","datePublished": "2017-09-15T02:49:00-07:00","dateModified": "2017-09-15T02:49:00-07:00","publisher": {
+            "@type": "Organization",
+            "name": "soffensive"},"author": {
+                "@type": "Person",
+                "name": "soffensive"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="soffensive blog"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw'></i></span>soffensive</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i>  </a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i>  </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="soffensive blog"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw'></i></span>soffensive</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i></a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i></a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 9</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>soffensive</a></span>&nbsp;<span class="post-category">included in <a href="/categories/practical-reverse-engineering/"><i class="far fa-folder fa-fw"></i>practical reverse engineering</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2017-09-15">2017-09-15</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;728 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;4 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents"></nav></div>
+            </div><div class="content" id="content"><p>Our task:</p>
+<blockquote>
+<p>Sample L. Explain what function <code>sub_1000CEA0</code> does and then decompile it back to C.</p>
+</blockquote>
+<p>Here we have the function&rsquo;s disassembly:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-nasm" data-lang="nasm">                <span class="nf">push</span>    <span class="nb">ebp</span>
+                <span class="nf">mov</span>     <span class="nb">ebp</span><span class="p">,</span> <span class="nb">esp</span>
+                <span class="nf">push</span>    <span class="nb">edi</span>
+                <span class="nf">mov</span>     <span class="nb">edi</span><span class="p">,</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="mi">8</span><span class="p">]</span>
+                <span class="nf">xor</span>     <span class="nb">eax</span><span class="p">,</span> <span class="nb">eax</span>
+                <span class="nf">or</span>      <span class="nb">ecx</span><span class="p">,</span> <span class="mh">0FFFFFFFFh</span>
+                <span class="nf">repne</span> <span class="nv">scasb</span>
+                <span class="nf">add</span>     <span class="nb">ecx</span><span class="p">,</span> <span class="mi">1</span>
+                <span class="nf">neg</span>     <span class="nb">ecx</span>
+                <span class="nf">sub</span>     <span class="nb">edi</span><span class="p">,</span> <span class="mi">1</span>
+                <span class="nf">mov</span>     <span class="nb">al</span><span class="p">,</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="mh">0Ch</span><span class="p">]</span>
+                <span class="nf">std</span>
+                <span class="nf">repne</span> <span class="nv">scasb</span>
+                <span class="nf">add</span>     <span class="nb">edi</span><span class="p">,</span> <span class="mi">1</span>
+                <span class="nf">cmp</span>     <span class="p">[</span><span class="nb">edi</span><span class="p">],</span> <span class="nb">al</span>
+                <span class="nf">jz</span>      <span class="nv">short</span> <span class="nv">loc_1000CEC7</span>
+                <span class="nf">xor</span>     <span class="nb">eax</span><span class="p">,</span> <span class="nb">eax</span>
+                <span class="nf">jmp</span>     <span class="nv">short</span> <span class="nv">loc_1000CEC9</span>
+
+<span class="nl">loc_1000CEC7:</span>                       
+                <span class="nf">mov</span>     <span class="nb">eax</span><span class="p">,</span> <span class="nb">edi</span>
+
+<span class="nl">loc_1000CEC9:</span>              
+                <span class="nf">cld</span>
+                <span class="nf">pop</span>     <span class="nb">edi</span>
+                <span class="nf">leave</span>
+                <span class="nf">retn</span>
+  <span class="nf">endp</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Firstly, the function takes two arguments, at <code>ebp+0x8</code> (arg1) and <code>ebp+0x0C</code> (arg2) respectively. It follows the <strong>stdcall</strong> convention that arguments are pushed from right to left on the stack and the callee cleaning up the stack.</p>
+<p>Presumably, arg1 is a string as the function makes use of the <code>scasb</code> function.</p>
+<p>As I keep constantly forgetting about the meaning of scasb in conjunction with repne, here is an excellent refresher from stackoverflow, which I shamelessly copy/paste (<a href="https://reverseengineering.stackexchange.com/questions/2774/what-does-the-assembly-instruction-repne-scas-byte-ptr-esedi">https://reverseengineering.stackexchange.com/questions/2774/what-does-the-assembly-instruction-repne-scas-byte-ptr-esedi</a>, thanks peter ferrie):</p>
+<blockquote>
+<p>The <code>SCAS</code> instruction is used to scan a string (<code>SCAS</code> = SCan A String). It compares the content of the accumulator (<code>AL</code>, <code>AX</code>, or <code>EAX</code>) against the current value pointed at by <code>ES:[EDI]</code>.</p>
+<p>When used together with the <code>REPNE</code> prefix (<em>REPeat while Not Equal</em>), <code>SCAS</code> scans the string searching for the first string element which is equal to the value in the accumulator.</p>
+</blockquote>
+<p>As we put simply the value <code>0x0</code> in the <code>eax</code> register, the function searches for the first occurrence of a null byte value in arg1. Meanwhile, it <strong>increments</strong> the value of edi and <strong>decrements</strong> ecx for every compared character. When the null byte has been found, the value in ecx is incremented by one and a bitwise not operation is performed, to get the two&rsquo;s complement value of ecx.  In other words, we thereby obtain the length of the string stored in arg1 (including the trailing null byte).</p>
+<p>The function continues to store the byte value of arg2 (i.e. type char) in the register al and uses the interesting function std, which I haven&rsquo;t heard of yet. The std command in assembly sets the direction flag, which actually reverses the way string operations such as scasb work. Instead of <strong>incrementing</strong> the value stored in edi for every processed character, edi is being <strong>decremented</strong> and the string therefore is processed from the end to start.</p>
+<p>In order to ignore the null byte, <code>edi</code> is decremented beforehand. Afterwards, <code>repne scasb</code> is performed again to search for the last occurrence of the character arg2 in the string arg1. Note that it is crucial for <code>ecx</code> to hold the length of the string at the start of the <code>respne scasb</code> procedure, as otherwise the function would have no knowledge when the inspected string in <code>edi</code> ends.</p>
+<p>When the <code>repne scasb</code> function is completed, the value of <code>edi</code> is incremented and the character compared to the passed arg2 value. If it matches, we have found the last occurrence of arg2 in the string arg1 and the function returns the pointer to the corresponding memory address.</p>
+<p>In the other case, a null value is returned. Furthermore, it is worthwhile to mention that the operation <code>cld</code> is invoked to clear the previously set direction flag.</p>
+<p>Finally, we provide a C-decompilation of the function with more comprehensible variable names:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">char</span><span class="o">*</span> <span class="nf">getLastOccurrenceOfCharacter</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">string</span><span class="p">,</span> <span class="kt">char</span> <span class="n">key</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">countChars</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="o">*</span><span class="n">string</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">countChars</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">string</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">countChars</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="o">==</span> <span class="o">*</span><span class="n">string</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">string</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">countChars</span> <span class="o">--</span><span class="p">;</span>
+        <span class="n">string</span> <span class="o">--</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>UPDATE:</strong></p>
+<p>Unfortunately, there is a bug in the disassembly from above. When the last and only occurrence of key in string is at the very first character, the function will not return the pointer correctly. Therefore, we have to adjust the second while-loop to take into consideration position 0 as well:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">char</span><span class="o">*</span> <span class="nf">getLastOccurrenceOfCharacter</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">string</span><span class="p">,</span> <span class="kt">char</span> <span class="n">key</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">countChars</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="o">*</span><span class="n">string</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">countChars</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">string</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">countChars</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="o">==</span> <span class="o">*</span><span class="n">string</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">string</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">countChars</span> <span class="o">--</span><span class="p">;</span>
+        <span class="n">string</span> <span class="o">--</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div></div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2017-09-15</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/" data-title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 9" data-via="evisneffos" data-hashtags="Practical Reverse Engineering,x64,x86"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/" data-hashtag="Practical Reverse Engineering"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/"><i class="fab fa-linkedin fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/" data-title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 9" data-web><i class="fab fa-whatsapp fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/practical-reverse-engineering/">Practical Reverse Engineering</a>,&nbsp;<a href="/tags/x64/">x64</a>,&nbsp;<a href="/tags/x86/">x86</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/practical-reverse-engineering/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/" class="prev" rel="prev" title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 8"><i class="fas fa-angle-left fa-fw"></i>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 8</a>
+            <a href="/posts/practical-reverse-engineering/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/" class="next" rel="next" title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 10">Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 10<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.83.1">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2017 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank"></a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":1000},"comment":{}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

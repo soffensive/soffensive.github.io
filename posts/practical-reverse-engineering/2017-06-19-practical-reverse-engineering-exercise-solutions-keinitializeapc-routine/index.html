@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>Practical Reverse Engineering Exercise Solutions: KeInitializeApc Routine - soffensive blog</title><meta name="Description" content=""><meta property="og:title" content="Practical Reverse Engineering Exercise Solutions: KeInitializeApc Routine" />
+<meta property="og:description" content="To keep me motivated and document my progress, I will create a series of blog posts with answers to some of the exercises from the book &ldquo;Practical Reverse Engineering&rdquo; by Dang, Gazet and Bachaalany.
+In the last post, we introduced the Windows Kernel Debugger (KD) and some of the functions. I have learned that rather than using KD directly, we can use WinDbg&rsquo;s interface which is more user-friendly. When calling livekd, simply append the &ldquo;-w&rdquo; parameter and WinDbg will start up:" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/posts/practical-reverse-engineering/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2017-06-19T02:36:00-07:00" />
+<meta property="article:modified_time" content="2017-06-19T02:36:00-07:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Practical Reverse Engineering Exercise Solutions: KeInitializeApc Routine"/>
+<meta name="twitter:description" content="To keep me motivated and document my progress, I will create a series of blog posts with answers to some of the exercises from the book &ldquo;Practical Reverse Engineering&rdquo; by Dang, Gazet and Bachaalany.
+In the last post, we introduced the Windows Kernel Debugger (KD) and some of the functions. I have learned that rather than using KD directly, we can use WinDbg&rsquo;s interface which is more user-friendly. When calling livekd, simply append the &ldquo;-w&rdquo; parameter and WinDbg will start up:"/>
+<meta name="application-name" content="soffensive blog">
+<meta name="apple-mobile-web-app-title" content="soffensive blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://localhost:1313/posts/practical-reverse-engineering/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine/" /><link rel="prev" href="http://localhost:1313/posts/practical-reverse-engineering/2017-06-17-practical-reverse-engineering-exercise-solutions-windows-kernel-routines/" /><link rel="next" href="http://localhost:1313/posts/practical-reverse-engineering/2017-06-29-practical-reverse-engineering-exercise-solutions-obfastdereferenceobject/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Practical Reverse Engineering Exercise Solutions: KeInitializeApc Routine",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/localhost:1313\/posts\/practical-reverse-engineering\/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine\/"
+        },"genre": "posts","keywords": "Practical Reverse Engineering, x64, x86","wordcount":  1434 ,
+        "url": "http:\/\/localhost:1313\/posts\/practical-reverse-engineering\/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine\/","datePublished": "2017-06-19T02:36:00-07:00","dateModified": "2017-06-19T02:36:00-07:00","publisher": {
+            "@type": "Organization",
+            "name": "soffensive"},"author": {
+                "@type": "Person",
+                "name": "soffensive"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="soffensive blog"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw'></i></span>soffensive</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i>  </a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i>  </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="soffensive blog"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw'></i></span>soffensive</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i></a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i></a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">Practical Reverse Engineering Exercise Solutions: KeInitializeApc Routine</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>soffensive</a></span>&nbsp;<span class="post-category">included in <a href="/categories/practical-reverse-engineering/"><i class="far fa-folder fa-fw"></i>practical reverse engineering</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2017-06-19">2017-06-19</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;1434 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;7 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents"></nav></div>
+            </div><div class="content" id="content"><p>To keep me motivated and document my progress, I will create a series of
+blog posts with answers to some of the exercises from the book
+&ldquo;Practical Reverse Engineering&rdquo; by Dang, Gazet and Bachaalany.</p>
+<p>In the last post, we introduced the Windows Kernel Debugger (KD) and some of the functions. I have learned that rather than using KD directly, we can use WinDbg&rsquo;s interface which is more user-friendly.  When calling livekd, simply append the &ldquo;-w&rdquo; parameter and WinDbg will start up:</p>
+<p><a href="../images/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-001.png" rel=""><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-001.png"
+        data-srcset="../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-001.png, ../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-001.png 1.5x, ../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-001.png 2x"
+        data-sizes="auto"
+        alt="../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-001.png"
+        title="../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-001.png" /></a></p>
+<p>Let us now proceed with the task of decompiling the Windows Kernel routine <strong>KeInitializeApc</strong>.</p>
+<p><a href="../images/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-002.png" rel=""><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-002.png"
+        data-srcset="../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-002.png, ../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-002.png 1.5x, ../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-002.png 2x"
+        data-sizes="auto"
+        alt="../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-002.png"
+        title="../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-002.png" /></a></p>
+<p>The first odditiy that caught my attention was the  instruction <code>mov edi, edi</code> right at the beginning of the function. What is its purpose?</p>
+<p>According to the blog post at <a href="https://blogs.msdn.microsoft.com/oldnewthing/20110921-00/?p=9583">https://blogs.msdn.microsoft.com/oldnewthing/20110921-00/?p=9583</a>, </p>
+<p>this instruction is a common practice in Windows and acts as a two-byte <code>NOP</code>, which is inserted to allow for hot-patching. In a nutshell, it is used for dynamically replacing the <code>mov edi, edi</code> instruction with a <code>JUMP</code> instruction.</p>
+<dl>
+<dt>Returning to the <code>KeInitializeApc</code> function, we should examine its signature first. Unfortunately, the function is not officially documented at MSDN. Nevertheless, it is documented in several forums</dt>
+<dt>(e.g.,</dt>
+<dt><a href="https://forum.sysinternals.com/howto-capture-kernel-stack-traces_topic19356.html">https://forum.sysinternals.com/howto-capture-kernel-stack-traces_topic19356.html</a>)</dt>
+<dd></dd>
+</dl>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">NTKERNELAPI</span> <span class="n">VOID</span> <span class="nf">KeInitializeApc</span><span class="p">(</span>
+    <span class="n">PKAPC</span> <span class="n">Apc</span><span class="p">,</span>
+    <span class="n">PKTHREAD</span> <span class="n">Thread</span><span class="p">,</span>
+    <span class="n">KAPC_ENVIRONMENT</span> <span class="n">Environment</span><span class="p">,</span>
+    <span class="n">PKKERNEL_ROUTINE</span> <span class="n">KernelRoutine</span><span class="p">,</span>
+    <span class="n">PKRUNDOWN_ROUTINE</span> <span class="n">RundownRoutine</span><span class="p">,</span>
+    <span class="n">PKNORMAL_ROUTINE</span> <span class="n">NormalRoutine</span><span class="p">,</span>
+    <span class="n">KPROCESSOR_MODE</span> <span class="n">ProcessorMode</span><span class="p">,</span>
+    <span class="n">PVOID</span> <span class="n">NormalContext</span>
+    <span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>The <code>PKAPC</code> structure is defined as follows:</p>
+<p><a href="../images/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-003.png" rel=""><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-003.png"
+        data-srcset="../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-003.png, ../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-003.png 1.5x, ../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-003.png 2x"
+        data-sizes="auto"
+        alt="../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-003.png"
+        title="../images/thumbnails/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine-003.png" /></a></p>
+<p>The <code>KTHREAD</code> structure is defined as follows: (the only referred property is at <code>0x134</code>)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="mi">0</span><span class="p">:</span> <span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">nt</span><span class="o">!</span><span class="n">_kthread</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x000</span> <span class="n">Header</span>           <span class="p">:</span> <span class="n">_DISPATCHER_HEADER</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x010</span> <span class="n">CycleTime</span>        <span class="p">:</span> <span class="n">Uint8B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x018</span> <span class="n">HighCycleTime</span>    <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x020</span> <span class="n">QuantumTarget</span>    <span class="p">:</span> <span class="n">Uint8B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x028</span> <span class="n">InitialStack</span>     <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">Void</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x02c</span> <span class="n">StackLimit</span>       <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">Void</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x030</span> <span class="n">KernelStack</span>      <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">Void</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x034</span> <span class="n">ThreadLock</span>       <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x038</span> <span class="n">WaitRegister</span>     <span class="p">:</span> <span class="n">_KWAIT_STATUS_REGISTER</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x039</span> <span class="n">Running</span>          <span class="p">:</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03a</span> <span class="n">Alerted</span>          <span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">KernelStackResident</span> <span class="p">:</span> <span class="n">Pos</span> <span class="mi">0</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">ReadyTransition</span>  <span class="p">:</span> <span class="n">Pos</span> <span class="mi">1</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">ProcessReadyQueue</span> <span class="p">:</span> <span class="n">Pos</span> <span class="mi">2</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">WaitNext</span>         <span class="p">:</span> <span class="n">Pos</span> <span class="mi">3</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">SystemAffinityActive</span> <span class="p">:</span> <span class="n">Pos</span> <span class="mi">4</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">Alertable</span>        <span class="p">:</span> <span class="n">Pos</span> <span class="mi">5</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">GdiFlushActive</span>   <span class="p">:</span> <span class="n">Pos</span> <span class="mi">6</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">UserStackWalkActive</span> <span class="p">:</span> <span class="n">Pos</span> <span class="mi">7</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">ApcInterruptRequest</span> <span class="p">:</span> <span class="n">Pos</span> <span class="mi">8</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">ForceDeferSchedule</span> <span class="p">:</span> <span class="n">Pos</span> <span class="mi">9</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">QuantumEndMigrate</span> <span class="p">:</span> <span class="n">Pos</span> <span class="mi">10</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">UmsDirectedSwitchEnable</span> <span class="p">:</span> <span class="n">Pos</span> <span class="mi">11</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">TimerActive</span>      <span class="p">:</span> <span class="n">Pos</span> <span class="mi">12</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">SystemThread</span>     <span class="p">:</span> <span class="n">Pos</span> <span class="mi">13</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">Reserved</span>         <span class="p">:</span> <span class="n">Pos</span> <span class="mi">14</span><span class="err">,</span> <span class="mi">18</span> <span class="n">Bits</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">MiscFlags</span>        <span class="p">:</span> <span class="n">Int4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x040</span> <span class="n">ApcState</span>         <span class="p">:</span> <span class="n">_KAPC_STATE</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x040</span> <span class="n">ApcStateFill</span>     <span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">]</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x057</span> <span class="n">Priority</span>         <span class="p">:</span> <span class="n">Char</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x058</span> <span class="n">NextProcessor</span>    <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x05c</span> <span class="n">DeferredProcessor</span> <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x060</span> <span class="n">ApcQueueLock</span>     <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x064</span> <span class="n">ContextSwitches</span>  <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x068</span> <span class="n">State</span>            <span class="p">:</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x069</span> <span class="n">NpxState</span>         <span class="p">:</span> <span class="n">Char</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x06a</span> <span class="n">WaitIrql</span>         <span class="p">:</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x06b</span> <span class="n">WaitMode</span>         <span class="p">:</span> <span class="n">Char</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x06c</span> <span class="n">WaitStatus</span>       <span class="p">:</span> <span class="n">Int4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x070</span> <span class="n">WaitBlockList</span>    <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">_KWAIT_BLOCK</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x074</span> <span class="n">WaitListEntry</span>    <span class="p">:</span> <span class="n">_LIST_ENTRY</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x074</span> <span class="n">SwapListEntry</span>    <span class="p">:</span> <span class="n">_SINGLE_LIST_ENTRY</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x07c</span> <span class="n">Queue</span>            <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">_KQUEUE</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x080</span> <span class="n">WaitTime</span>         <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x084</span> <span class="n">KernelApcDisable</span> <span class="p">:</span> <span class="n">Int2B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x086</span> <span class="n">SpecialApcDisable</span> <span class="p">:</span> <span class="n">Int2B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x084</span> <span class="n">CombinedApcDisable</span> <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x088</span> <span class="n">Teb</span>              <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">Void</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x090</span> <span class="n">Timer</span>            <span class="p">:</span> <span class="n">_KTIMER</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0b8</span> <span class="n">AutoAlignment</span>    <span class="p">:</span> <span class="n">Pos</span> <span class="mi">0</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0b8</span> <span class="n">DisableBoost</span>     <span class="p">:</span> <span class="n">Pos</span> <span class="mi">1</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0b8</span> <span class="n">EtwStackTraceApc1Inserted</span> <span class="p">:</span> <span class="n">Pos</span> <span class="mi">2</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0b8</span> <span class="n">EtwStackTraceApc2Inserted</span> <span class="p">:</span> <span class="n">Pos</span> <span class="mi">3</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0b8</span> <span class="n">CalloutActive</span>    <span class="p">:</span> <span class="n">Pos</span> <span class="mi">4</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0b8</span> <span class="n">ApcQueueable</span>     <span class="p">:</span> <span class="n">Pos</span> <span class="mi">5</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0b8</span> <span class="n">EnableStackSwap</span>  <span class="p">:</span> <span class="n">Pos</span> <span class="mi">6</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0b8</span> <span class="n">GuiThread</span>        <span class="p">:</span> <span class="n">Pos</span> <span class="mi">7</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0b8</span> <span class="n">UmsPerformingSyscall</span> <span class="p">:</span> <span class="n">Pos</span> <span class="mi">8</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0b8</span> <span class="n">VdmSafe</span>          <span class="p">:</span> <span class="n">Pos</span> <span class="mi">9</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0b8</span> <span class="n">UmsDispatched</span>    <span class="p">:</span> <span class="n">Pos</span> <span class="mi">10</span><span class="err">,</span> <span class="mi">1</span> <span class="n">Bit</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0b8</span> <span class="n">ReservedFlags</span>    <span class="p">:</span> <span class="n">Pos</span> <span class="mi">11</span><span class="err">,</span> <span class="mi">21</span> <span class="n">Bits</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0b8</span> <span class="n">ThreadFlags</span>      <span class="p">:</span> <span class="n">Int4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0bc</span> <span class="n">ServiceTable</span>     <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">Void</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x0c0</span> <span class="n">WaitBlock</span>        <span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="n">_KWAIT_BLOCK</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x120</span> <span class="n">QueueListEntry</span>   <span class="p">:</span> <span class="n">_LIST_ENTRY</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x128</span> <span class="n">TrapFrame</span>        <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">_KTRAP_FRAME</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x12c</span> <span class="n">FirstArgument</span>    <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">Void</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x130</span> <span class="n">CallbackStack</span>    <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">Void</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x130</span> <span class="n">CallbackDepth</span>    <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">**+</span><span class="err">0</span><span class="n">x134</span> <span class="n">ApcStateIndex</span>    <span class="p">:</span> <span class="n">UChar</span><span class="o">**</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x135</span> <span class="n">BasePriority</span>     <span class="p">:</span> <span class="n">Char</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x136</span> <span class="n">PriorityDecrement</span> <span class="p">:</span> <span class="n">Char</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x136</span> <span class="n">ForegroundBoost</span>  <span class="p">:</span> <span class="n">Pos</span> <span class="mi">0</span><span class="err">,</span> <span class="mi">4</span> <span class="n">Bits</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x136</span> <span class="n">UnusualBoost</span>     <span class="p">:</span> <span class="n">Pos</span> <span class="mi">4</span><span class="err">,</span> <span class="mi">4</span> <span class="n">Bits</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x137</span> <span class="n">Preempted</span>        <span class="p">:</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x138</span> <span class="n">AdjustReason</span>     <span class="p">:</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x139</span> <span class="n">AdjustIncrement</span>  <span class="p">:</span> <span class="n">Char</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x13a</span> <span class="n">PreviousMode</span>     <span class="p">:</span> <span class="n">Char</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x13b</span> <span class="n">Saturation</span>       <span class="p">:</span> <span class="n">Char</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x13c</span> <span class="n">SystemCallNumber</span> <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x140</span> <span class="n">FreezeCount</span>      <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x144</span> <span class="n">UserAffinity</span>     <span class="p">:</span> <span class="n">_GROUP_AFFINITY</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x150</span> <span class="n">Process</span>          <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">_KPROCESS</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x154</span> <span class="n">Affinity</span>         <span class="p">:</span> <span class="n">_GROUP_AFFINITY</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x160</span> <span class="n">IdealProcessor</span>   <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x164</span> <span class="n">UserIdealProcessor</span> <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x168</span> <span class="n">ApcStatePointer</span>  <span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="n">Ptr32</span> <span class="n">_KAPC_STATE</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x170</span> <span class="n">SavedApcState</span>    <span class="p">:</span> <span class="n">_KAPC_STATE</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x170</span> <span class="n">SavedApcStateFill</span> <span class="p">:</span> <span class="p">[</span><span class="mi">23</span><span class="p">]</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x187</span> <span class="n">WaitReason</span>       <span class="p">:</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x188</span> <span class="n">SuspendCount</span>     <span class="p">:</span> <span class="n">Char</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x189</span> <span class="n">Spare1</span>           <span class="p">:</span> <span class="n">Char</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x18a</span> <span class="n">OtherPlatformFill</span> <span class="p">:</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x18c</span> <span class="n">Win32Thread</span>      <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">Void</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x190</span> <span class="n">StackBase</span>        <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">Void</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x194</span> <span class="n">SuspendApc</span>       <span class="p">:</span> <span class="n">_KAPC</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x194</span> <span class="n">SuspendApcFill0</span>  <span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x195</span> <span class="n">ResourceIndex</span>    <span class="p">:</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x194</span> <span class="n">SuspendApcFill1</span>  <span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x197</span> <span class="n">QuantumReset</span>     <span class="p">:</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x194</span> <span class="n">SuspendApcFill2</span>  <span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x198</span> <span class="n">KernelTime</span>       <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x194</span> <span class="n">SuspendApcFill3</span>  <span class="p">:</span> <span class="p">[</span><span class="mi">36</span><span class="p">]</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x1b8</span> <span class="n">WaitPrcb</span>         <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">_KPRCB</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x194</span> <span class="n">SuspendApcFill4</span>  <span class="p">:</span> <span class="p">[</span><span class="mi">40</span><span class="p">]</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x1bc</span> <span class="n">LegoData</span>         <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">Void</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x194</span> <span class="n">SuspendApcFill5</span>  <span class="p">:</span> <span class="p">[</span><span class="mi">47</span><span class="p">]</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x1c3</span> <span class="n">LargeStack</span>       <span class="p">:</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x1c4</span> <span class="n">UserTime</span>         <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x1c8</span> <span class="n">SuspendSemaphore</span> <span class="p">:</span> <span class="n">_KSEMAPHORE</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x1c8</span> <span class="n">SuspendSemaphorefill</span> <span class="p">:</span> <span class="p">[</span><span class="mi">20</span><span class="p">]</span> <span class="n">UChar</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x1dc</span> <span class="n">SListFaultCount</span>  <span class="p">:</span> <span class="n">Uint4B</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x1e0</span> <span class="n">ThreadListEntry</span>  <span class="p">:</span> <span class="n">_LIST_ENTRY</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x1e8</span> <span class="n">MutantListHead</span>   <span class="p">:</span> <span class="n">_LIST_ENTRY</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x1f0</span> <span class="n">SListFaultAddress</span> <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">Void</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x1f4</span> <span class="n">ThreadCounters</span>   <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">_KTHREAD_COUNTERS</span>
+   <span class="o">+</span><span class="err">0</span><span class="n">x1f8</span> <span class="n">XStateSave</span>       <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">_XSTATE_SAVE</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Lastly, the <code>_KAPC_ENVIRONMENT</code> data type is an enum type:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">enum</span> <span class="n">_KAPC_ENVIRONMENT</span>
+<span class="p">{</span>
+    <span class="n">OriginalApcEnvironment</span><span class="p">,</span>
+    <span class="n">AttachedApcEnvironment</span><span class="p">,</span>
+    <span class="n">CurrentApcEnvironment</span><span class="p">,</span>
+    <span class="n">InsertApcEnvironment</span>
+<span class="p">}</span> <span class="n">KAPC_ENVIRONMENT</span><span class="p">,</span> <span class="o">*</span><span class="n">PKAPC_ENVIRONMENT</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>The initial attempt to translate the routine from above plainly into C/C++ code results in the following pseudo code:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">eax</span> <span class="o">=</span> <span class="n">apc</span> <span class="p">(</span><span class="n">ebp</span><span class="o">+</span><span class="mh">0x8</span><span class="p">)</span>
+<span class="n">edx</span> <span class="o">=</span> <span class="n">environment</span> <span class="p">(</span><span class="n">ebp</span><span class="o">+</span><span class="mh">0x10</span><span class="p">)</span>
+<span class="n">ecx</span> <span class="o">=</span> <span class="kr">thread</span> <span class="p">(</span><span class="n">ebp</span><span class="o">+</span><span class="mh">0xC</span><span class="p">)</span>
+<span class="n">eax</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">=</span> <span class="mh">0x12</span>
+<span class="n">eax</span><span class="o">-&gt;</span><span class="n">size</span> <span class="o">=</span> <span class="mh">0x30</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">edx</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">)</span> <span class="k">goto</span> <span class="mh">0x20</span>
+
+<span class="n">edx</span> <span class="o">=</span> <span class="n">ecx</span> <span class="o">-&gt;</span><span class="n">ApcStateIndex</span> <span class="p">(</span><span class="n">offset</span> <span class="mh">0x134</span><span class="p">)</span>
+
+<span class="mh">0x20</span><span class="o">:</span> 
+<span class="n">eax</span><span class="o">-&gt;</span><span class="n">Thread</span> <span class="o">=</span> <span class="n">ecx</span>
+<span class="n">ecx</span> <span class="o">=</span> <span class="n">KernelRoutine</span> <span class="p">(</span><span class="n">ebp</span><span class="o">+</span><span class="mh">0x14</span><span class="p">)</span>
+<span class="n">eax</span><span class="o">-&gt;</span><span class="n">KernelRoutine</span> <span class="o">=</span> <span class="n">KernelRoutine</span>
+<span class="n">ecx</span> <span class="o">=</span> <span class="n">RundownRoutine</span> <span class="p">(</span><span class="n">ebp</span><span class="o">+</span><span class="mh">0x18</span><span class="p">)</span>
+<span class="n">eax</span><span class="o">-&gt;</span><span class="n">RundownRoutine</span> <span class="o">=</span> <span class="n">RundownRoutine</span>
+<span class="n">eax</span><span class="o">-&gt;</span><span class="n">ApcStateIndex</span> <span class="o">=</span> <span class="n">edx</span>
+<span class="n">ecx</span> <span class="o">=</span> <span class="n">NormalRoutine</span> <span class="p">(</span><span class="n">ebp</span><span class="o">+</span><span class="mh">0x1C</span><span class="p">)</span>
+<span class="n">eax</span><span class="o">-&gt;</span><span class="n">NormalRoutine</span> <span class="o">=</span> <span class="n">NormalRoutine</span>
+<span class="n">edx</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">NormalRoutine</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">goto</span> <span class="mh">0x4C</span>
+
+<span class="n">ecx</span> <span class="o">=</span> <span class="n">ProcessorMode</span> <span class="p">(</span><span class="n">ebp</span><span class="o">+</span><span class="mh">0x20</span><span class="p">)</span>
+<span class="n">eax</span><span class="o">-&gt;</span><span class="n">ApcMode</span> <span class="o">=</span> <span class="n">ecx</span>
+<span class="n">ecx</span> <span class="o">=</span> <span class="n">NormalContext</span> <span class="p">(</span><span class="n">ebp</span><span class="o">+</span><span class="mh">0x24</span><span class="p">)</span>
+<span class="n">eax</span><span class="o">-&gt;</span><span class="n">NormalContext</span> <span class="o">=</span> <span class="n">ecx</span>
+<span class="k">goto</span> <span class="mh">0x52</span>
+
+<span class="mh">0x4C</span><span class="o">:</span>
+<span class="n">eax</span><span class="o">-&gt;</span><span class="n">ApcMode</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">eax</span><span class="o">-&gt;</span><span class="n">NormalContext</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="mh">0x52</span><span class="o">:</span>
+<span class="n">eax</span><span class="o">-&gt;</span><span class="n">InsertedMode</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">return</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Obviously, this can be improved. The first if-statement compares the environment value to the integer value 2. According to the <code>KAPC_ENVIRONMENT</code> datatype, the corresponding value for the integer 2 is <code>CurrentApcEnvironment</code> (starting from 0).</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">NTKERNELAPI</span> <span class="n">VOID</span> <span class="nf">KeInitializeApc</span><span class="p">(</span>
+    <span class="n">PKAPC</span> <span class="n">Apc</span><span class="p">,</span>
+    <span class="n">PKTHREAD</span> <span class="n">Thread</span><span class="p">,</span>
+    <span class="n">KAPC_ENVIRONMENT</span> <span class="n">Environment</span><span class="p">,</span>
+    <span class="n">PKKERNEL_ROUTINE</span> <span class="n">KernelRoutine</span><span class="p">,</span>
+    <span class="n">PKRUNDOWN_ROUTINE</span> <span class="n">RundownRoutine</span><span class="p">,</span>
+    <span class="n">PKNORMAL_ROUTINE</span> <span class="n">NormalRoutine</span><span class="p">,</span>
+    <span class="n">KPROCESSOR_MODE</span> <span class="n">ProcessorMode</span><span class="p">,</span>
+    <span class="n">PVOID</span> <span class="n">NormalContext</span>
+    <span class="p">)</span> <span class="p">{</span>
+<span class="n">Apc</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">=</span> <span class="mh">0x12</span><span class="p">;</span>
+<span class="n">Apc</span><span class="o">-&gt;</span><span class="n">size</span> <span class="o">=</span> <span class="mh">0x30</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">Environment</span> <span class="o">==</span> <span class="n">CurrentApcEnvironment</span><span class="p">){</span>
+<span class="n">Environment</span> <span class="o">=</span> <span class="n">Thread</span><span class="o">-&gt;</span><span class="n">ApcStateIndex</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nl">init</span><span class="p">:</span> 
+<span class="n">Apc</span><span class="o">-&gt;</span><span class="n">Thread</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">;</span>
+<span class="n">Apc</span><span class="o">-&gt;</span><span class="n">KernelRoutine</span> <span class="o">=</span> <span class="n">KernelRoutine</span><span class="p">;</span>
+<span class="n">Apc</span><span class="o">-&gt;</span><span class="n">RundownRoutine</span> <span class="o">=</span> <span class="n">RundownRoutine</span><span class="p">;</span>
+<span class="n">Apc</span><span class="o">-&gt;</span><span class="n">ApcStateIndex</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">;</span>
+<span class="n">Apc</span><span class="o">-&gt;</span><span class="n">NormalRoutine</span> <span class="o">=</span> <span class="n">NormalRoutine</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">NormalRoutine</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<span class="n">Apc</span><span class="o">-&gt;</span><span class="n">ApcMode</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">Apc</span><span class="o">-&gt;</span><span class="n">NormalContext</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="p">{</span>
+<span class="n">Apc</span><span class="o">-&gt;</span><span class="n">ApcMode</span> <span class="o">=</span> <span class="n">ProcessorMode</span><span class="p">;</span>
+<span class="n">Apc</span><span class="o">-&gt;</span><span class="n">NormalContext</span> <span class="o">=</span> <span class="n">NormalContext</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">Apc</span><span class="o">-&gt;</span><span class="n">InsertedMode</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>If you have found any mistakes in the decompilation, I would really appreciate your feedback.  For now we have more or less stupidly translated the routine to C/C++ without understanding any of the internal mechanics, let alone what Apc  actually stands for. As reverse engineering at Windows requires a deep knowledge of the Windows internals, let us approach MSDN (<a href="https://msdn.microsoft.com/de-de/library/windows/desktop/ms681951(v=vs.85).aspx):">https://msdn.microsoft.com/de-de/library/windows/desktop/ms681951(v=vs.85).aspx):</a></p>
+<p>It states:<br>
+An <em>asynchronous procedure call</em> (APC)
+is a function that executes asynchronously in the context of a
+particular thread. When an APC is queued to a thread, the system issues
+a software interrupt. The next time the thread is scheduled, it will run
+the APC function. An APC generated by the system is called
+a <em>kernel-mode APC</em>.
+An APC generated by an application is called a <em>user-mode
+APC</em>.
+A thread must be in an alertable state to run a user-mode APC.</p>
+<p>Thus, our function generates a kernel-mode asynchronous
+procedure call (APC) based on the data submitted in the parameters.</p>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2017-06-19</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine/" data-title="Practical Reverse Engineering Exercise Solutions: KeInitializeApc Routine" data-via="evisneffos" data-hashtags="Practical Reverse Engineering,x64,x86"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine/" data-hashtag="Practical Reverse Engineering"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine/"><i class="fab fa-linkedin fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine/" data-title="Practical Reverse Engineering Exercise Solutions: KeInitializeApc Routine" data-web><i class="fab fa-whatsapp fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/practical-reverse-engineering/">Practical Reverse Engineering</a>,&nbsp;<a href="/tags/x64/">x64</a>,&nbsp;<a href="/tags/x86/">x86</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/practical-reverse-engineering/2017-06-17-practical-reverse-engineering-exercise-solutions-windows-kernel-routines/" class="prev" rel="prev" title="Practical Reverse Engineering Exercise Solutions: Windows Kernel Routines"><i class="fas fa-angle-left fa-fw"></i>Practical Reverse Engineering Exercise Solutions: Windows Kernel Routines</a>
+            <a href="/posts/practical-reverse-engineering/2017-06-29-practical-reverse-engineering-exercise-solutions-obfastdereferenceobject/" class="next" rel="next" title="Practical Reverse Engineering Exercise Solutions: ObFastDereferenceObject">Practical Reverse Engineering Exercise Solutions: ObFastDereferenceObject<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.83.1">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2017 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank"></a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":1000},"comment":{}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

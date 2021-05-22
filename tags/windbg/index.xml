@@ -5,10 +5,10 @@
         <description>Windbg - Tag - soffensive blog</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sun, 16 Jul 2017 05:45:00 -0700</lastBuildDate><atom:link href="http://localhost:1313/tags/windbg/" rel="self" type="application/rss+xml" /><item>
     <title>Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet</title>
-    <link>http://localhost:1313/posts/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</link>
+    <link>http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</link>
     <pubDate>Sun, 16 Jul 2017 05:45:00 -0700</pubDate>
     <author>Author</author>
-    <guid>http://localhost:1313/posts/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</guid>
+    <guid>http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</guid>
     <description><![CDATA[Here are a couple of commands I regularly use for reverse engineering:
  uf &lt;function&gt;: Unassemble function dt nt!_ktss: Show the definition of the data structure _ktss ?? sizeof(_ktss): Show the size the data structure _ktss occupies in memory .hh uf: Show help for the function uf x nt!*createfile*: Search all functions having the string createfile in its name !vtop &lt;PDPT-pointer&gt; &lt;virtualAddress&gt;: Compute physical address of given virtual address and the pointer to the page directory pointer table  ]]></description>
 </item></channel>
