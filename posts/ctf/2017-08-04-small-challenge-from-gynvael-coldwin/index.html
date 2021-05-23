@@ -1,123 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="robots" content="noodp" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
-        <title>Small challenge from Gynvael Coldwin - soffensive blog</title><meta name="Description" content=""><meta property="og:title" content="Small challenge from Gynvael Coldwin" />
-<meta property="og:description" content="Gynvael Coldwin posted a small challenge at the end of his last podcast on Windows Kernel Debugging with Artem Shishkin:
-1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25  Welcome back agent 1336. No mail. &gt; mission --take MISSION 012 goo.gl/qudiHJ DIFFICULTY: ██░░░░░░░░ [2╱10] ┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅ Our agents managed to install a hardware keylogger in suspects computer." />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/ctf/2017-08-04-small-challenge-from-gynvael-coldwin/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2017-08-04T15:16:00-07:00" />
-<meta property="article:modified_time" content="2017-08-04T15:16:00-07:00" />
-
-<meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Small challenge from Gynvael Coldwin"/>
-<meta name="twitter:description" content="Gynvael Coldwin posted a small challenge at the end of his last podcast on Windows Kernel Debugging with Artem Shishkin:
-1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25  Welcome back agent 1336. No mail. &gt; mission --take MISSION 012 goo.gl/qudiHJ DIFFICULTY: ██░░░░░░░░ [2╱10] ┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅ Our agents managed to install a hardware keylogger in suspects computer."/>
-<meta name="application-name" content="soffensive blog">
-<meta name="apple-mobile-web-app-title" content="soffensive blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://localhost:1313/posts/ctf/2017-08-04-small-challenge-from-gynvael-coldwin/" /><link rel="prev" href="http://localhost:1313/posts/practical-reverse-engineering/2017-07-30-practical-reverse-engineering-exercise-solutions-page-35-exercise-7/" /><link rel="next" href="http://localhost:1313/posts/practical-reverse-engineering/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
-    {
-        "@context": "http://schema.org",
-        "@type": "BlogPosting",
-        "headline": "Small challenge from Gynvael Coldwin",
-        "inLanguage": "en",
-        "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": "http:\/\/localhost:1313\/posts\/ctf\/2017-08-04-small-challenge-from-gynvael-coldwin\/"
-        },"genre": "posts","keywords": "CTF","wordcount":  783 ,
-        "url": "http:\/\/localhost:1313\/posts\/ctf\/2017-08-04-small-challenge-from-gynvael-coldwin\/","datePublished": "2017-08-04T15:16:00-07:00","dateModified": "2017-08-04T15:16:00-07:00","publisher": {
-            "@type": "Organization",
-            "name": "soffensive"},"author": {
-                "@type": "Person",
-                "name": "soffensive"
-            },"description": ""
-    }
-    </script></head>
-    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
-
-        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
-    <div class="header-wrapper">
-        <div class="header-title">
-            <a href="/" title="soffensive blog">soffensive blog</a>
-        </div>
-        <div class="menu">
-            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i>  </a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i>  </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
-                    <i class="fas fa-adjust fa-fw"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-</header><header class="mobile" id="header-mobile">
-    <div class="header-container">
-        <div class="header-wrapper">
-            <div class="header-title">
-                <a href="/" title="soffensive blog">soffensive blog</a>
-            </div>
-            <div class="menu-toggle" id="menu-toggle-mobile">
-                <span></span><span></span><span></span>
-            </div>
-        </div>
-        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i></a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i></a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
-                <i class="fas fa-adjust fa-fw"></i>
-            </a></div>
-    </div>
-</header>
-<div class="search-dropdown desktop">
-    <div id="search-dropdown-desktop"></div>
-</div>
-<div class="search-dropdown mobile">
-    <div id="search-dropdown-mobile"></div>
-</div>
-<main class="main">
-                <div class="container"><div class="toc" id="toc-auto">
-            <h2 class="toc-title">Contents</h2>
-            <div class="toc-content" id="toc-content-auto"></div>
-        </div><article class="page single"><h1 class="single-title animated flipInX">Small challenge from Gynvael Coldwin</h1><div class="post-meta">
-            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>soffensive</a></span>&nbsp;<span class="post-category">included in <a href="/categories/ctf-challenges/"><i class="far fa-folder fa-fw"></i>CTF challenges</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2017-08-04">2017-08-04</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;783 words&nbsp;
-                <i class="far fa-clock fa-fw"></i>&nbsp;4 minutes&nbsp;</div>
-        </div><div class="details toc" id="toc-static"  kept="">
-                <div class="details-summary toc-title">
-                    <span>Contents</span>
-                    <span><i class="details-icon fas fa-angle-right"></i></span>
-                </div>
-                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents"></nav></div>
-            </div><div class="content" id="content"><p>Gynvael Coldwin posted a small challenge at the end of his last podcast on Windows Kernel Debugging with Artem Shishkin:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">Welcome back agent 1336.
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta http-equiv=x-ua-compatible content="IE=edge, chrome=1"><title>Small challenge from Gynvael Coldwin - soffensive blog</title><meta name=Description content><meta property="og:title" content="Small challenge from Gynvael Coldwin"><meta property="og:description" content="Gynvael Coldwin posted a small challenge at the end of his last podcast on Windows Kernel Debugging with Artem Shishkin:
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25  Welcome back agent 1336. No mail. > mission --take MISSION 012 goo.gl/qudiHJ DIFFICULTY: ██░░░░░░░░ [2╱10] ┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅ Our agents managed to install a hardware keylogger in suspects computer."><meta property="og:type" content="article"><meta property="og:url" content="https://www.soffensive.com/posts/ctf/2017-08-04-small-challenge-from-gynvael-coldwin/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2017-08-04T15:16:00-07:00"><meta property="article:modified_time" content="2017-08-04T15:16:00-07:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Small challenge from Gynvael Coldwin"><meta name=twitter:description content="Gynvael Coldwin posted a small challenge at the end of his last podcast on Windows Kernel Debugging with Artem Shishkin:
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25  Welcome back agent 1336. No mail. > mission --take MISSION 012 goo.gl/qudiHJ DIFFICULTY: ██░░░░░░░░ [2╱10] ┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅ Our agents managed to install a hardware keylogger in suspects computer."><meta name=application-name content="soffensive blog"><meta name=apple-mobile-web-app-title content="soffensive blog"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://www.soffensive.com/posts/ctf/2017-08-04-small-challenge-from-gynvael-coldwin/><link rel=prev href=https://www.soffensive.com/posts/practical-reverse-engineering/2017-07-30-practical-reverse-engineering-exercise-solutions-page-35-exercise-7/><link rel=next href=https://www.soffensive.com/posts/practical-reverse-engineering/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/><link rel=stylesheet href=/lib/normalize/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=/lib/fontawesome-free/all.min.css><link rel=stylesheet href=/lib/animate/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Small challenge from Gynvael Coldwin","inLanguage":"en","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/www.soffensive.com\/posts\/ctf\/2017-08-04-small-challenge-from-gynvael-coldwin\/"},"genre":"posts","keywords":"CTF","wordcount":783,"url":"https:\/\/www.soffensive.com\/posts\/ctf\/2017-08-04-small-challenge-from-gynvael-coldwin\/","datePublished":"2017-08-04T15:16:00-07:00","dateModified":"2017-08-04T15:16:00-07:00","publisher":{"@type":"Organization","name":"soffensive"},"author":{"@type":"Person","name":"soffensive"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':''==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:''==='dark')&&document.body.setAttribute('theme','dark')</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="soffensive blog">soffensive blog</a></div><div class=menu><div class=menu-inner><a class=menu-item href=/posts/>Posts </a><a class=menu-item href=/tags/>Tags </a><a class=menu-item href=/categories/>Categories </a><a class=menu-item href=/about/>About </a><a class=menu-item href=https://github.com/soffensive title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><a class=menu-item href=https://twitter.com/evisneffos title=Twitter rel="noopener noreffer" target=_blank><i class="fab fa-twitter fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title="Switch Theme"><i class="fas fa-adjust fa-fw"></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="soffensive blog">soffensive blog</a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>Posts</a><a class=menu-item href=/tags/ title>Tags</a><a class=menu-item href=/categories/ title>Categories</a><a class=menu-item href=/about/ title>About</a><a class=menu-item href=https://github.com/soffensive title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a class=menu-item href=https://twitter.com/evisneffos title=Twitter rel="noopener noreffer" target=_blank><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title="Switch Theme">
+<i class="fas fa-adjust fa-fw"></i></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>Contents</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Small challenge from Gynvael Coldwin</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=/ title=Author rel=" author" class=author><i class="fas fa-user-circle fa-fw"></i>soffensive</a></span>&nbsp;<span class=post-category>included in <a href=/categories/ctf-challenges/><i class="far fa-folder fa-fw"></i>CTF challenges</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2017-08-04>2017-08-04</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;783 words&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;4 minutes&nbsp;</div></div><div class="details toc" id=toc-static kept><div class="details-summary toc-title"><span>Contents</span>
+<span><i class="details-icon fas fa-angle-right"></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents></nav></div></div><div class=content id=content><p>Gynvael Coldwin posted a small challenge at the end of his last podcast on Windows Kernel Debugging with Artem Shishkin:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>Welcome back agent 1336.
 No mail.
 &gt; mission --take
 MISSION 012               goo.gl/qudiHJ             DIFFICULTY: ██░░░░░░░░ [2╱10]
@@ -142,192 +53,120 @@ If you decode the answer, put it in the comments under this video! If you write
 a blogpost / post your solution online, please add a link in the comments too!
 
 P.S. I&#39;ll show/explain the solution on the stream in ~two weeks.
-</code></pre></td></tr></table>
-</div>
-</div><p>Our first guess was that the characters use some well-known encoding such as ASCII, but this turned out to be wrong assumption.  In order to obtain some knowledge about the structure of the recorded data, we ran some statistical analysis of the different byte values:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nix" data-lang="nix">      <span class="mi">2</span> <span class="err">\</span><span class="n">x12</span>
-      <span class="mi">2</span> <span class="err">\</span><span class="n">x2c</span>
-      <span class="mi">2</span> <span class="err">\</span><span class="n">x31</span>
-      <span class="mi">2</span> <span class="err">\</span><span class="n">x32</span>
-      <span class="mi">2</span> <span class="err">\</span><span class="n">x41</span>
-      <span class="mi">2</span> <span class="err">\</span><span class="n">x43</span>
-      <span class="mi">2</span> <span class="err">\</span><span class="n">x49</span>
-      <span class="mi">2</span> <span class="err">\</span><span class="n">x4d</span>
-      <span class="mi">2</span> <span class="err">\</span><span class="n">x52</span>
-      <span class="mi">2</span> <span class="err">\</span><span class="n">x59</span>
-      <span class="mi">4</span> <span class="err">\</span><span class="n">x1b</span>
-      <span class="mi">4</span> <span class="err">\</span><span class="n">x1c</span>
-      <span class="mi">4</span> <span class="err">\</span><span class="n">x23</span>
-      <span class="mi">4</span> <span class="err">\</span><span class="n">x24</span>
-      <span class="mi">4</span> <span class="err">\</span><span class="n">x35</span>
-      <span class="mi">4</span> <span class="err">\</span><span class="n">x42</span>
-      <span class="mi">4</span> <span class="err">\</span><span class="n">x58</span>
-      <span class="mi">6</span> <span class="err">\</span><span class="n">x2d</span>
-      <span class="mi">6</span> <span class="err">\</span><span class="n">x44</span>
-      <span class="mi">8</span> <span class="err">\</span><span class="n">x29</span>
-     <span class="mi">34</span> <span class="err">\</span><span class="n">xf0</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>This shows that the byte <code>\xf0</code> is used far more often than the other ones, so our research continued in this direction. We realized that this byte is a part of the so-called scan code, which is sent whenever a key is pressed on a hardware keyboard. The following web page provides detailed information on this matter, especially the different scan code sets. The byte <code>\xf0</code> is frequently used in the scan code set 2:</p>
-<p><a href="http://www.computer-engineering.org/ps2keyboard/">http://www.computer-engineering.org/ps2keyboard/</a></p>
-<p>Quotation:</p>
-<ul>
-<li><a href="http://www.computer-engineering.org/ps2keyboard/scancodes1.html" target="_blank" rel="noopener noreffer">Scan Code Set 1</a> - Original XT scan code set; supported by some modern keyboards</li>
-<li><a href="http://www.computer-engineering.org/ps2keyboard/scancodes2.html" target="_blank" rel="noopener noreffer">Scan Code Set 2</a> - Default scan code set for all modern keyboards</li>
-<li><a href="http://www.computer-engineering.org/ps2keyboard/scancodes3.html" target="_blank" rel="noopener noreffer">Scan Code Set 3</a> - Optional PS/2 scan code set&ndash;rarely used</li>
-</ul>
-<p>When handling direct hardware input, the hardware obviously has no knowledge of ASCII encodings, keyboard layouts and so on - this is all handled by the operating system. We only know which scan and make codes are used and can infer which keys were pressed (and released).</p>
-<p>The basic logic is as follows:</p>
-<ul>
-<li>Key is pressed -&gt; <strong>MAKE CODE</strong></li>
-<li>Key is released -&gt; <strong>BREAK CODE</strong></li>
-</ul>
-<p>There are unique make and break codes for every key and can be looked up in the scan code set.</p>
-<p>To translate the number of bytes to text, we assume scan code set 2 has been used, both because of the usage of <code>\xf0</code> and due to the fact that it is used for all modern keyboards:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
-</span><span class="lnt">32
-</span><span class="lnt">33
-</span><span class="lnt">34
-</span><span class="lnt">35
-</span><span class="lnt">36
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-hexdump" data-lang="hexdump"> <span class="mh">58</span> <span class="mh">f0</span> <span class="mh">58</span> 	<span class="s">&lt;CAPS&gt;</span>
- <span class="mh">1b</span> <span class="mh">f0</span> <span class="mh">1b</span> 	<span class="s">S</span>
- <span class="mh">58</span> <span class="mh">f0</span> <span class="mh">58</span> 	<span class="s">&lt;CAPS&gt;</span>
- <span class="mh">44</span> <span class="mh">f0</span> <span class="mh">44</span> 	<span class="s">o</span>
- <span class="mh">2d</span> <span class="mh">f0</span> <span class="mh">2d</span> 	<span class="s">r</span>
- <span class="mh">2d</span> <span class="mh">f0</span> <span class="mh">2d</span> 	<span class="s">r</span>
- <span class="mh">35</span> <span class="mh">f0</span> <span class="mh">35</span> 	<span class="s">y</span>
- <span class="mh">41</span> <span class="mh">f0</span> <span class="mh">41</span> 	<span class="s">,</span>
- <span class="mh">29</span> <span class="mh">f0</span> <span class="mh">29</span> 	<span class="s">&lt;SPACE&gt;</span>
- <span class="mh">59</span>   		<span class="s">&lt;R SHIFT&gt; (MAKE)</span>
- <span class="mh">43</span> <span class="mh">f0</span> <span class="mh">43</span> 	<span class="s">I</span>
- <span class="mh">f0</span> <span class="mh">59</span>   <span class="s">	&lt;R SHIFT&gt; (BREAK)</span>
- <span class="mh">29</span> <span class="mh">f0</span> <span class="mh">29</span> 	<span class="s">&lt;SPACE&gt;</span>
- <span class="mh">23</span> <span class="mh">f0</span> <span class="mh">23</span> 	<span class="s">d</span>
- <span class="mh">44</span> <span class="mh">f0</span> <span class="mh">44</span> 	<span class="s">o</span>
- <span class="mh">31</span> <span class="mh">f0</span> <span class="mh">31</span> 	<span class="s">n</span>
- <span class="mh">52</span> <span class="mh">f0</span> <span class="mh">52</span> 	<span class="s">&#39;</span>
- <span class="mh">2c</span> <span class="mh">f0</span> <span class="mh">2c</span> 	<span class="s">t</span>
- <span class="mh">29</span> <span class="mh">f0</span> <span class="mh">29</span> 	<span class="s">&lt;SPACE&gt;</span>
- <span class="mh">1b</span> <span class="mh">f0</span> <span class="mh">1b</span> 	<span class="s">s</span>
- <span class="mh">4d</span> <span class="mh">f0</span> <span class="mh">4d</span> 	<span class="s">p</span>
- <span class="mh">24</span> <span class="mh">f0</span> <span class="mh">24</span> 	<span class="s">e</span>
- <span class="mh">1c</span> <span class="mh">f0</span> <span class="mh">1c</span> 	<span class="s">a</span>
- <span class="mh">42</span> <span class="mh">f0</span> <span class="mh">42</span> 	<span class="s">k</span>
- <span class="mh">29</span> <span class="mh">f0</span> <span class="mh">29</span> 	<span class="s">&lt;SPACE&gt;</span>
- <span class="mh">12</span>   <span class="s">		&lt;L SHIFT&gt; (MAKE) </span>
- <span class="mh">42</span> <span class="mh">f0</span> <span class="mh">42</span> 	<span class="s">k</span>
- <span class="mh">f0</span> <span class="mh">12</span>  	<span class="s">&lt;L SHIFT&gt; (BREAK)</span>
- <span class="mh">24</span> <span class="mh">f0</span> <span class="mh">24</span> 	<span class="s">e</span>
- <span class="mh">35</span> <span class="mh">f0</span> <span class="mh">35</span> 	<span class="s">y</span>
- <span class="mh">32</span> <span class="mh">f0</span> <span class="mh">32</span> 	<span class="s">b</span>
- <span class="mh">44</span> <span class="mh">f0</span> <span class="mh">44</span> 	<span class="s">o</span>
- <span class="mh">1c</span> <span class="mh">f0</span> <span class="mh">1c</span> 	<span class="s">a</span>
- <span class="mh">2d</span> <span class="mh">f0</span> <span class="mh">2d</span> 	<span class="s">r</span>
- <span class="mh">23</span> <span class="mh">f0</span> <span class="mh">23</span> 	<span class="s">d</span>
- <span class="mh">49</span> <span class="mh">f0</span> <span class="mh">49</span> 	<span class="s">.</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>Thus, we obtain the result text:</p>
-<p><code>Sorry, I don't speak Keyboard.</code></p>
-<p><code> </code><br>
-<code> </code></p>
-</div><div class="post-footer" id="post-footer">
-    <div class="post-info">
-        <div class="post-info-line">
-            <div class="post-info-mod">
-                <span>Updated on 2017-08-04</span>
-            </div>
-            <div class="post-info-license"></div>
-        </div>
-        <div class="post-info-line">
-            <div class="post-info-md"></div>
-            <div class="post-info-share">
-                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/ctf/2017-08-04-small-challenge-from-gynvael-coldwin/" data-title="Small challenge from Gynvael Coldwin" data-via="evisneffos" data-hashtags="CTF"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/ctf/2017-08-04-small-challenge-from-gynvael-coldwin/" data-hashtag="CTF"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="http://localhost:1313/posts/ctf/2017-08-04-small-challenge-from-gynvael-coldwin/"><i class="fab fa-linkedin fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://localhost:1313/posts/ctf/2017-08-04-small-challenge-from-gynvael-coldwin/" data-title="Small challenge from Gynvael Coldwin" data-web><i class="fab fa-whatsapp fa-fw"></i></a></span>
-            </div>
-        </div>
-    </div>
-
-    <div class="post-info-more">
-        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/ctf/">CTF</a></section>
-        <section>
-            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
-        </section>
-    </div>
-
-    <div class="post-nav"><a href="/posts/practical-reverse-engineering/2017-07-30-practical-reverse-engineering-exercise-solutions-page-35-exercise-7/" class="prev" rel="prev" title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 7"><i class="fas fa-angle-left fa-fw"></i>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 7</a>
-            <a href="/posts/practical-reverse-engineering/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/" class="next" rel="next" title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 8">Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 8<i class="fas fa-angle-right fa-fw"></i></a></div>
-</div>
-</article></div>
-            </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.83.1">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
-                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2017 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank"></a></span></div>
-        </div>
-    </footer></div>
-
-        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
-                <i class="fas fa-arrow-up fa-fw"></i>
-            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
-                <i class="fas fa-comment fa-fw"></i>
-            </a>
-        </div><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":1000},"comment":{}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
-</html>
+</code></pre></td></tr></table></div></div><p>Our first guess was that the characters use some well-known encoding such as ASCII, but this turned out to be wrong assumption. In order to obtain some knowledge about the structure of the recorded data, we ran some statistical analysis of the different byte values:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nix data-lang=nix>      <span class=mi>2</span> <span class=err>\</span><span class=n>x12</span>
+      <span class=mi>2</span> <span class=err>\</span><span class=n>x2c</span>
+      <span class=mi>2</span> <span class=err>\</span><span class=n>x31</span>
+      <span class=mi>2</span> <span class=err>\</span><span class=n>x32</span>
+      <span class=mi>2</span> <span class=err>\</span><span class=n>x41</span>
+      <span class=mi>2</span> <span class=err>\</span><span class=n>x43</span>
+      <span class=mi>2</span> <span class=err>\</span><span class=n>x49</span>
+      <span class=mi>2</span> <span class=err>\</span><span class=n>x4d</span>
+      <span class=mi>2</span> <span class=err>\</span><span class=n>x52</span>
+      <span class=mi>2</span> <span class=err>\</span><span class=n>x59</span>
+      <span class=mi>4</span> <span class=err>\</span><span class=n>x1b</span>
+      <span class=mi>4</span> <span class=err>\</span><span class=n>x1c</span>
+      <span class=mi>4</span> <span class=err>\</span><span class=n>x23</span>
+      <span class=mi>4</span> <span class=err>\</span><span class=n>x24</span>
+      <span class=mi>4</span> <span class=err>\</span><span class=n>x35</span>
+      <span class=mi>4</span> <span class=err>\</span><span class=n>x42</span>
+      <span class=mi>4</span> <span class=err>\</span><span class=n>x58</span>
+      <span class=mi>6</span> <span class=err>\</span><span class=n>x2d</span>
+      <span class=mi>6</span> <span class=err>\</span><span class=n>x44</span>
+      <span class=mi>8</span> <span class=err>\</span><span class=n>x29</span>
+     <span class=mi>34</span> <span class=err>\</span><span class=n>xf0</span>
+</code></pre></td></tr></table></div></div><p>This shows that the byte <code>\xf0</code> is used far more often than the other ones, so our research continued in this direction. We realized that this byte is a part of the so-called scan code, which is sent whenever a key is pressed on a hardware keyboard. The following web page provides detailed information on this matter, especially the different scan code sets. The byte <code>\xf0</code> is frequently used in the scan code set 2:</p><p><a href=http://www.computer-engineering.org/ps2keyboard/>http://www.computer-engineering.org/ps2keyboard/</a></p><p>Quotation:</p><ul><li><a href=http://www.computer-engineering.org/ps2keyboard/scancodes1.html target=_blank rel="noopener noreffer">Scan Code Set 1</a> - Original XT scan code set; supported by some modern keyboards</li><li><a href=http://www.computer-engineering.org/ps2keyboard/scancodes2.html target=_blank rel="noopener noreffer">Scan Code Set 2</a> - Default scan code set for all modern keyboards</li><li><a href=http://www.computer-engineering.org/ps2keyboard/scancodes3.html target=_blank rel="noopener noreffer">Scan Code Set 3</a> - Optional PS/2 scan code set&ndash;rarely used</li></ul><p>When handling direct hardware input, the hardware obviously has no knowledge of ASCII encodings, keyboard layouts and so on - this is all handled by the operating system. We only know which scan and make codes are used and can infer which keys were pressed (and released).</p><p>The basic logic is as follows:</p><ul><li>Key is pressed -> <strong>MAKE CODE</strong></li><li>Key is released -> <strong>BREAK CODE</strong></li></ul><p>There are unique make and break codes for every key and can be looked up in the scan code set.</p><p>To translate the number of bytes to text, we assume scan code set 2 has been used, both because of the usage of <code>\xf0</code> and due to the fact that it is used for all modern keyboards:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-hexdump data-lang=hexdump> <span class=mh>58</span> <span class=mh>f0</span> <span class=mh>58</span> 	<span class=s>&lt;CAPS&gt;</span>
+ <span class=mh>1b</span> <span class=mh>f0</span> <span class=mh>1b</span> 	<span class=s>S</span>
+ <span class=mh>58</span> <span class=mh>f0</span> <span class=mh>58</span> 	<span class=s>&lt;CAPS&gt;</span>
+ <span class=mh>44</span> <span class=mh>f0</span> <span class=mh>44</span> 	<span class=s>o</span>
+ <span class=mh>2d</span> <span class=mh>f0</span> <span class=mh>2d</span> 	<span class=s>r</span>
+ <span class=mh>2d</span> <span class=mh>f0</span> <span class=mh>2d</span> 	<span class=s>r</span>
+ <span class=mh>35</span> <span class=mh>f0</span> <span class=mh>35</span> 	<span class=s>y</span>
+ <span class=mh>41</span> <span class=mh>f0</span> <span class=mh>41</span> 	<span class=s>,</span>
+ <span class=mh>29</span> <span class=mh>f0</span> <span class=mh>29</span> 	<span class=s>&lt;SPACE&gt;</span>
+ <span class=mh>59</span>   		<span class=s>&lt;R SHIFT&gt; (MAKE)</span>
+ <span class=mh>43</span> <span class=mh>f0</span> <span class=mh>43</span> 	<span class=s>I</span>
+ <span class=mh>f0</span> <span class=mh>59</span>   <span class=s>	&lt;R SHIFT&gt; (BREAK)</span>
+ <span class=mh>29</span> <span class=mh>f0</span> <span class=mh>29</span> 	<span class=s>&lt;SPACE&gt;</span>
+ <span class=mh>23</span> <span class=mh>f0</span> <span class=mh>23</span> 	<span class=s>d</span>
+ <span class=mh>44</span> <span class=mh>f0</span> <span class=mh>44</span> 	<span class=s>o</span>
+ <span class=mh>31</span> <span class=mh>f0</span> <span class=mh>31</span> 	<span class=s>n</span>
+ <span class=mh>52</span> <span class=mh>f0</span> <span class=mh>52</span> 	<span class=s>&#39;</span>
+ <span class=mh>2c</span> <span class=mh>f0</span> <span class=mh>2c</span> 	<span class=s>t</span>
+ <span class=mh>29</span> <span class=mh>f0</span> <span class=mh>29</span> 	<span class=s>&lt;SPACE&gt;</span>
+ <span class=mh>1b</span> <span class=mh>f0</span> <span class=mh>1b</span> 	<span class=s>s</span>
+ <span class=mh>4d</span> <span class=mh>f0</span> <span class=mh>4d</span> 	<span class=s>p</span>
+ <span class=mh>24</span> <span class=mh>f0</span> <span class=mh>24</span> 	<span class=s>e</span>
+ <span class=mh>1c</span> <span class=mh>f0</span> <span class=mh>1c</span> 	<span class=s>a</span>
+ <span class=mh>42</span> <span class=mh>f0</span> <span class=mh>42</span> 	<span class=s>k</span>
+ <span class=mh>29</span> <span class=mh>f0</span> <span class=mh>29</span> 	<span class=s>&lt;SPACE&gt;</span>
+ <span class=mh>12</span>   <span class=s>		&lt;L SHIFT&gt; (MAKE) </span>
+ <span class=mh>42</span> <span class=mh>f0</span> <span class=mh>42</span> 	<span class=s>k</span>
+ <span class=mh>f0</span> <span class=mh>12</span>  	<span class=s>&lt;L SHIFT&gt; (BREAK)</span>
+ <span class=mh>24</span> <span class=mh>f0</span> <span class=mh>24</span> 	<span class=s>e</span>
+ <span class=mh>35</span> <span class=mh>f0</span> <span class=mh>35</span> 	<span class=s>y</span>
+ <span class=mh>32</span> <span class=mh>f0</span> <span class=mh>32</span> 	<span class=s>b</span>
+ <span class=mh>44</span> <span class=mh>f0</span> <span class=mh>44</span> 	<span class=s>o</span>
+ <span class=mh>1c</span> <span class=mh>f0</span> <span class=mh>1c</span> 	<span class=s>a</span>
+ <span class=mh>2d</span> <span class=mh>f0</span> <span class=mh>2d</span> 	<span class=s>r</span>
+ <span class=mh>23</span> <span class=mh>f0</span> <span class=mh>23</span> 	<span class=s>d</span>
+ <span class=mh>49</span> <span class=mh>f0</span> <span class=mh>49</span> 	<span class=s>.</span>
+</code></pre></td></tr></table></div></div><p>Thus, we obtain the result text:</p><p><code>Sorry, I don't speak Keyboard.</code></p><p><code></code><br><code></code></p></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>Updated on 2017-08-04</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href=javascript:void(0); title="Share on Twitter" data-sharer=twitter data-url=https://www.soffensive.com/posts/ctf/2017-08-04-small-challenge-from-gynvael-coldwin/ data-title="Small challenge from Gynvael Coldwin" data-via=evisneffos data-hashtags=CTF><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="Share on Facebook" data-sharer=facebook data-url=https://www.soffensive.com/posts/ctf/2017-08-04-small-challenge-from-gynvael-coldwin/ data-hashtag=CTF><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="Share on Linkedin" data-sharer=linkedin data-url=https://www.soffensive.com/posts/ctf/2017-08-04-small-challenge-from-gynvael-coldwin/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="Share on WhatsApp" data-sharer=whatsapp data-url=https://www.soffensive.com/posts/ctf/2017-08-04-small-challenge-from-gynvael-coldwin/ data-title="Small challenge from Gynvael Coldwin" data-web><i class="fab fa-whatsapp fa-fw"></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/ctf/>CTF</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>Back</a></span>&nbsp;|&nbsp;<span><a href=/>Home</a></span></section></div><div class=post-nav><a href=/posts/practical-reverse-engineering/2017-07-30-practical-reverse-engineering-exercise-solutions-page-35-exercise-7/ class=prev rel=prev title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 7"><i class="fas fa-angle-left fa-fw"></i>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 7</a>
+<a href=/posts/practical-reverse-engineering/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/ class=next rel=next title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 8">Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 8<i class="fas fa-angle-right fa-fw"></i></a></div></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>Powered by <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.83.1">Hugo</a> | Theme - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a></div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2021</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=/ target=_blank></a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title="Back to Top"><i class="fas fa-arrow-up fa-fw"></i>
+</a><a href=# id=view-comments class=fixed-button title="View Comments"><i class="fas fa-comment fa-fw"></i></a></div><script type=text/javascript src=/lib/smooth-scroll/smooth-scroll.min.js></script><script type=text/javascript src=/lib/lazysizes/lazysizes.min.js></script><script type=text/javascript src=/lib/clipboard/clipboard.min.js></script><script type=text/javascript src=/lib/sharer/sharer.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"Copy to clipboard",maxShownLines:1e3},comment:{}}</script><script type=text/javascript src=/js/theme.min.js></script></body></html>

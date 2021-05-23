@@ -1,579 +1,367 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="robots" content="noodp" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
-        <title>Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1 - soffensive blog</title><meta name="Description" content=""><meta property="og:title" content="Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1" />
-<meta property="og:description" content="This is the first blog post to a series of ARM challenges from the book Practical Reverse Engineering. In addition to the official ARM manual, the following web page turned out to be very helpful when solving the exercises, as it describes the different ARM instructions in great detail.
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta http-equiv=x-ua-compatible content="IE=edge, chrome=1"><title>Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1 - soffensive blog</title><meta name=Description content><meta property="og:title" content="Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1"><meta property="og:description" content="This is the first blog post to a series of ARM challenges from the book Practical Reverse Engineering. In addition to the official ARM manual, the following web page turned out to be very helpful when solving the exercises, as it describes the different ARM instructions in great detail.
 https://www.heyrick.co.uk/armwiki/Main_Page
-Without further ado, let us explore the first function. The extract below shows the ARM disassembly of a function named mystery1, which we are supposed to decompile into C code." />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2017-12-01T04:59:00-08:00" />
-<meta property="article:modified_time" content="2017-12-01T04:59:00-08:00" />
-
-<meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1"/>
-<meta name="twitter:description" content="This is the first blog post to a series of ARM challenges from the book Practical Reverse Engineering. In addition to the official ARM manual, the following web page turned out to be very helpful when solving the exercises, as it describes the different ARM instructions in great detail.
+Without further ado, let us explore the first function. The extract below shows the ARM disassembly of a function named mystery1, which we are supposed to decompile into C code."><meta property="og:type" content="article"><meta property="og:url" content="https://www.soffensive.com/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2017-12-01T04:59:00-08:00"><meta property="article:modified_time" content="2017-12-01T04:59:00-08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1"><meta name=twitter:description content="This is the first blog post to a series of ARM challenges from the book Practical Reverse Engineering. In addition to the official ARM manual, the following web page turned out to be very helpful when solving the exercises, as it describes the different ARM instructions in great detail.
 https://www.heyrick.co.uk/armwiki/Main_Page
-Without further ado, let us explore the first function. The extract below shows the ARM disassembly of a function named mystery1, which we are supposed to decompile into C code."/>
-<meta name="application-name" content="soffensive blog">
-<meta name="apple-mobile-web-app-title" content="soffensive blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://localhost:1313/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/" /><link rel="prev" href="http://localhost:1313/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/" /><link rel="next" href="http://localhost:1313/posts/practical-reverse-engineering/2017-12-02-practical-reverse-engineering-exercise-solutions-page-78-exercise-2/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
-    {
-        "@context": "http://schema.org",
-        "@type": "BlogPosting",
-        "headline": "Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1",
-        "inLanguage": "en",
-        "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": "http:\/\/localhost:1313\/posts\/practical-reverse-engineering\/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1\/"
-        },"genre": "posts","keywords": "ARM, Practical Reverse Engineering","wordcount":  2379 ,
-        "url": "http:\/\/localhost:1313\/posts\/practical-reverse-engineering\/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1\/","datePublished": "2017-12-01T04:59:00-08:00","dateModified": "2017-12-01T04:59:00-08:00","publisher": {
-            "@type": "Organization",
-            "name": "soffensive"},"author": {
-                "@type": "Person",
-                "name": "soffensive"
-            },"description": ""
-    }
-    </script></head>
-    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+Without further ado, let us explore the first function. The extract below shows the ARM disassembly of a function named mystery1, which we are supposed to decompile into C code."><meta name=application-name content="soffensive blog"><meta name=apple-mobile-web-app-title content="soffensive blog"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://www.soffensive.com/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/><link rel=prev href=https://www.soffensive.com/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/><link rel=next href=https://www.soffensive.com/posts/practical-reverse-engineering/2017-12-02-practical-reverse-engineering-exercise-solutions-page-78-exercise-2/><link rel=stylesheet href=/lib/normalize/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=/lib/fontawesome-free/all.min.css><link rel=stylesheet href=/lib/animate/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1","inLanguage":"en","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/www.soffensive.com\/posts\/practical-reverse-engineering\/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1\/"},"genre":"posts","keywords":"ARM, Practical Reverse Engineering","wordcount":2379,"url":"https:\/\/www.soffensive.com\/posts\/practical-reverse-engineering\/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1\/","datePublished":"2017-12-01T04:59:00-08:00","dateModified":"2017-12-01T04:59:00-08:00","publisher":{"@type":"Organization","name":"soffensive"},"author":{"@type":"Person","name":"soffensive"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':''==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:''==='dark')&&document.body.setAttribute('theme','dark')</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="soffensive blog">soffensive blog</a></div><div class=menu><div class=menu-inner><a class=menu-item href=/posts/>Posts </a><a class=menu-item href=/tags/>Tags </a><a class=menu-item href=/categories/>Categories </a><a class=menu-item href=/about/>About </a><a class=menu-item href=https://github.com/soffensive title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><a class=menu-item href=https://twitter.com/evisneffos title=Twitter rel="noopener noreffer" target=_blank><i class="fab fa-twitter fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title="Switch Theme"><i class="fas fa-adjust fa-fw"></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="soffensive blog">soffensive blog</a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>Posts</a><a class=menu-item href=/tags/ title>Tags</a><a class=menu-item href=/categories/ title>Categories</a><a class=menu-item href=/about/ title>About</a><a class=menu-item href=https://github.com/soffensive title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a class=menu-item href=https://twitter.com/evisneffos title=Twitter rel="noopener noreffer" target=_blank><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title="Switch Theme">
+<i class="fas fa-adjust fa-fw"></i></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>Contents</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=/ title=Author rel=" author" class=author><i class="fas fa-user-circle fa-fw"></i>soffensive</a></span>&nbsp;<span class=post-category>included in <a href=/categories/practical-reverse-engineering/><i class="far fa-folder fa-fw"></i>practical reverse engineering</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2017-12-01>2017-12-01</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;2379 words&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;12 minutes&nbsp;</div></div><div class="details toc" id=toc-static kept><div class="details-summary toc-title"><span>Contents</span>
+<span><i class="details-icon fas fa-angle-right"></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#disassembly-analysis>Disassembly Analysis</a></li><li><a href=#function-analysis>Function Analysis:</a></li></ul></nav></div></div><div class=content id=content><p>This is the first blog post to a series of ARM challenges from the book Practical Reverse Engineering. In addition to the official ARM manual, the following web page turned out to be very helpful when solving the exercises, as it describes the different ARM instructions in great detail.</p><p><a href=https://www.heyrick.co.uk/armwiki/Main_Page>https://www.heyrick.co.uk/armwiki/Main_Page</a></p><p>Without further ado, let us explore the first function. The extract below shows the ARM disassembly of a function named mystery1, which we are supposed to decompile into C code.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nasm data-lang=nasm><span class=err>01:</span>             <span class=nf>mystery1</span>
+<span class=err>02:</span> <span class=nf>F0</span> <span class=mi>01</span> <span class=mi>2</span><span class=nv>D</span> <span class=nv>E9</span>   <span class=nv>STMFD</span>    <span class=nb>SP</span><span class=err>!</span><span class=p>,</span> <span class=err>{</span><span class=nv>R4</span><span class=err>–</span><span class=nv>R8</span><span class=err>}</span>
+<span class=err>03:</span> <span class=err>00</span> <span class=err>30</span> <span class=nf>D0</span> <span class=nv>E5</span>   <span class=nv>LDRB</span>     <span class=nv>R3</span><span class=p>,</span> <span class=p>[</span><span class=nv>R0</span><span class=p>]</span> <span class=c1>; load one (unsigned) byte from memory location [R0] into R3, addressing mode: offset</span>
+<span class=err>04:</span> <span class=err>2</span><span class=nf>D</span> <span class=mi>00</span> <span class=mi>53</span> <span class=nv>E3</span>   <span class=nv>CMP</span>      <span class=nv>R3</span><span class=p>,</span> <span class=err>#</span><span class=mh>0x2D</span> <span class=c1>; perform R3 - 0x2D </span>
+<span class=err>05:</span> <span class=err>29</span> <span class=err>00</span> <span class=err>00</span> <span class=err>0</span><span class=nf>A</span>   <span class=nv>BEQ</span>      <span class=nv>loc_B348</span>
+<span class=err>06:</span> <span class=err>2</span><span class=nf>B</span> <span class=mi>00</span> <span class=mi>53</span> <span class=nv>E3</span>   <span class=nv>CMP</span>      <span class=nv>R3</span><span class=p>,</span> <span class=err>#</span><span class=mh>0x2B</span> <span class=c1>; perform R3 - 0x2B</span>
+<span class=err>07:</span> <span class=err>00</span> <span class=err>60</span> <span class=nf>A0</span> <span class=nv>E3</span>   <span class=nv>MOV</span>      <span class=nv>R6</span><span class=p>,</span> <span class=err>#</span><span class=mi>0</span> 
+<span class=err>08:</span> <span class=err>01</span> <span class=err>30</span> <span class=nf>F0</span> <span class=mi>05</span>   <span class=nv>LDREQB</span>   <span class=nv>R3</span><span class=p>,</span> <span class=p>[</span><span class=nv>R0</span><span class=p>,</span><span class=err>#</span><span class=mi>1</span><span class=p>]</span><span class=err>!</span> <span class=c1>; conditional load of one byte from memory at address R0+1 into R3, afterwards perform R0 = R0+1</span>
 
-        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
-    <div class="header-wrapper">
-        <div class="header-title">
-            <a href="/" title="soffensive blog">soffensive blog</a>
-        </div>
-        <div class="menu">
-            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i>  </a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i>  </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
-                    <i class="fas fa-adjust fa-fw"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-</header><header class="mobile" id="header-mobile">
-    <div class="header-container">
-        <div class="header-wrapper">
-            <div class="header-title">
-                <a href="/" title="soffensive blog">soffensive blog</a>
-            </div>
-            <div class="menu-toggle" id="menu-toggle-mobile">
-                <span></span><span></span><span></span>
-            </div>
-        </div>
-        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i></a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i></a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
-                <i class="fas fa-adjust fa-fw"></i>
-            </a></div>
-    </div>
-</header>
-<div class="search-dropdown desktop">
-    <div id="search-dropdown-desktop"></div>
-</div>
-<div class="search-dropdown mobile">
-    <div id="search-dropdown-mobile"></div>
-</div>
-<main class="main">
-                <div class="container"><div class="toc" id="toc-auto">
-            <h2 class="toc-title">Contents</h2>
-            <div class="toc-content" id="toc-content-auto"></div>
-        </div><article class="page single"><h1 class="single-title animated flipInX">Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1</h1><div class="post-meta">
-            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>soffensive</a></span>&nbsp;<span class="post-category">included in <a href="/categories/practical-reverse-engineering/"><i class="far fa-folder fa-fw"></i>practical reverse engineering</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2017-12-01">2017-12-01</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;2379 words&nbsp;
-                <i class="far fa-clock fa-fw"></i>&nbsp;12 minutes&nbsp;</div>
-        </div><div class="details toc" id="toc-static"  kept="">
-                <div class="details-summary toc-title">
-                    <span>Contents</span>
-                    <span><i class="details-icon fas fa-angle-right"></i></span>
-                </div>
-                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
-  <ul>
-    <li><a href="#disassembly-analysis">Disassembly Analysis</a></li>
-    <li><a href="#function-analysis">Function Analysis:</a></li>
-  </ul>
-</nav></div>
-            </div><div class="content" id="content"><p>This is the first blog post to a series of ARM challenges from the book Practical Reverse Engineering.  In addition to the official ARM manual, the following web page turned out to be very helpful when solving the exercises, as it describes the different ARM instructions in great detail.</p>
-<p><a href="https://www.heyrick.co.uk/armwiki/Main_Page">https://www.heyrick.co.uk/armwiki/Main_Page</a></p>
-<p>Without further ado, let us explore the first function.  The extract below shows the ARM disassembly of a function named mystery1, which we are supposed to decompile into C code.</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
-</span><span class="lnt">32
-</span><span class="lnt">33
-</span><span class="lnt">34
-</span><span class="lnt">35
-</span><span class="lnt">36
-</span><span class="lnt">37
-</span><span class="lnt">38
-</span><span class="lnt">39
-</span><span class="lnt">40
-</span><span class="lnt">41
-</span><span class="lnt">42
-</span><span class="lnt">43
-</span><span class="lnt">44
-</span><span class="lnt">45
-</span><span class="lnt">46
-</span><span class="lnt">47
-</span><span class="lnt">48
-</span><span class="lnt">49
-</span><span class="lnt">50
-</span><span class="lnt">51
-</span><span class="lnt">52
-</span><span class="lnt">53
-</span><span class="lnt">54
-</span><span class="lnt">55
-</span><span class="lnt">56
-</span><span class="lnt">57
-</span><span class="lnt">58
-</span><span class="lnt">59
-</span><span class="lnt">60
-</span><span class="lnt">61
-</span><span class="lnt">62
-</span><span class="lnt">63
-</span><span class="lnt">64
-</span><span class="lnt">65
-</span><span class="lnt">66
-</span><span class="lnt">67
-</span><span class="lnt">68
-</span><span class="lnt">69
-</span><span class="lnt">70
-</span><span class="lnt">71
-</span><span class="lnt">72
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="err">01:</span>             <span class="nf">mystery1</span>
-<span class="err">02:</span> <span class="nf">F0</span> <span class="mi">01</span> <span class="mi">2</span><span class="nv">D</span> <span class="nv">E9</span>   <span class="nv">STMFD</span>    <span class="nb">SP</span><span class="err">!</span><span class="p">,</span> <span class="err">{</span><span class="nv">R4</span><span class="err">–</span><span class="nv">R8</span><span class="err">}</span>
-<span class="err">03:</span> <span class="err">00</span> <span class="err">30</span> <span class="nf">D0</span> <span class="nv">E5</span>   <span class="nv">LDRB</span>     <span class="nv">R3</span><span class="p">,</span> <span class="p">[</span><span class="nv">R0</span><span class="p">]</span> <span class="c1">; load one (unsigned) byte from memory location [R0] into R3, addressing mode: offset</span>
-<span class="err">04:</span> <span class="err">2</span><span class="nf">D</span> <span class="mi">00</span> <span class="mi">53</span> <span class="nv">E3</span>   <span class="nv">CMP</span>      <span class="nv">R3</span><span class="p">,</span> <span class="err">#</span><span class="mh">0x2D</span> <span class="c1">; perform R3 - 0x2D </span>
-<span class="err">05:</span> <span class="err">29</span> <span class="err">00</span> <span class="err">00</span> <span class="err">0</span><span class="nf">A</span>   <span class="nv">BEQ</span>      <span class="nv">loc_B348</span>
-<span class="err">06:</span> <span class="err">2</span><span class="nf">B</span> <span class="mi">00</span> <span class="mi">53</span> <span class="nv">E3</span>   <span class="nv">CMP</span>      <span class="nv">R3</span><span class="p">,</span> <span class="err">#</span><span class="mh">0x2B</span> <span class="c1">; perform R3 - 0x2B</span>
-<span class="err">07:</span> <span class="err">00</span> <span class="err">60</span> <span class="nf">A0</span> <span class="nv">E3</span>   <span class="nv">MOV</span>      <span class="nv">R6</span><span class="p">,</span> <span class="err">#</span><span class="mi">0</span> 
-<span class="err">08:</span> <span class="err">01</span> <span class="err">30</span> <span class="nf">F0</span> <span class="mi">05</span>   <span class="nv">LDREQB</span>   <span class="nv">R3</span><span class="p">,</span> <span class="p">[</span><span class="nv">R0</span><span class="p">,</span><span class="err">#</span><span class="mi">1</span><span class="p">]</span><span class="err">!</span> <span class="c1">; conditional load of one byte from memory at address R0+1 into R3, afterwards perform R0 = R0+1</span>
+<span class=err>09:</span>      <span class=nf>loc_B2AC</span>
+<span class=err>10:</span> <span class=err>30</span> <span class=err>00</span> <span class=err>53</span> <span class=nf>E3</span>   <span class=nv>CMP</span>      <span class=nv>R3</span><span class=p>,</span> <span class=err>#</span><span class=mh>0x30</span> <span class=c1>; perform R3 - 0x30 and update conditional flags</span>
+<span class=err>11:</span> <span class=err>04</span> <span class=err>00</span> <span class=err>00</span> <span class=err>1</span><span class=nf>A</span>   <span class=nv>BNE</span>      <span class=nv>loc</span> <span class=nv>B2C8</span> 
+<span class=err>12:</span> <span class=err>01</span> <span class=err>30</span> <span class=err>80</span> <span class=nf>E2</span>   <span class=nv>ADD</span>      <span class=nv>R3</span><span class=p>,</span> <span class=nv>R0</span><span class=p>,</span> <span class=err>#</span><span class=mi>1</span> <span class=c1>; R3 = R0 + 1</span>
 
-<span class="err">09:</span>      <span class="nf">loc_B2AC</span>
-<span class="err">10:</span> <span class="err">30</span> <span class="err">00</span> <span class="err">53</span> <span class="nf">E3</span>   <span class="nv">CMP</span>      <span class="nv">R3</span><span class="p">,</span> <span class="err">#</span><span class="mh">0x30</span> <span class="c1">; perform R3 - 0x30 and update conditional flags</span>
-<span class="err">11:</span> <span class="err">04</span> <span class="err">00</span> <span class="err">00</span> <span class="err">1</span><span class="nf">A</span>   <span class="nv">BNE</span>      <span class="nv">loc</span> <span class="nv">B2C8</span> 
-<span class="err">12:</span> <span class="err">01</span> <span class="err">30</span> <span class="err">80</span> <span class="nf">E2</span>   <span class="nv">ADD</span>      <span class="nv">R3</span><span class="p">,</span> <span class="nv">R0</span><span class="p">,</span> <span class="err">#</span><span class="mi">1</span> <span class="c1">; R3 = R0 + 1</span>
+<span class=err>13:</span>      <span class=nf>loc_B2B8</span>
+<span class=err>14:</span> <span class=err>03</span> <span class=err>00</span> <span class=nf>A0</span> <span class=nv>E1</span>   <span class=nv>MOV</span>      <span class=nv>R0</span><span class=p>,</span> <span class=nv>R3</span> 
+<span class=err>15:</span> <span class=err>01</span> <span class=err>20</span> <span class=nf>D3</span> <span class=nv>E4</span>   <span class=nv>LDRB</span>     <span class=nv>R2</span><span class=p>,</span> <span class=p>[</span><span class=nv>R3</span><span class=p>],</span><span class=err>#</span><span class=mi>1</span> <span class=c1>; load with post-indexed mode, R2 = [R3]; R3 = R3+1;</span>
+<span class=err>16:</span> <span class=err>30</span> <span class=err>00</span> <span class=err>52</span> <span class=nf>E3</span>   <span class=nv>CMP</span>      <span class=nv>R2</span><span class=p>,</span> <span class=err>#</span><span class=mh>0x30</span> <span class=c1>; </span>
+<span class=err>17:</span> <span class=nf>FB</span> <span class=nv>FF</span> <span class=nv>FF</span> <span class=mi>0</span><span class=nv>A</span>   <span class=nv>BEQ</span>      <span class=nv>loc_B2B8</span>
 
-<span class="err">13:</span>      <span class="nf">loc_B2B8</span>
-<span class="err">14:</span> <span class="err">03</span> <span class="err">00</span> <span class="nf">A0</span> <span class="nv">E1</span>   <span class="nv">MOV</span>      <span class="nv">R0</span><span class="p">,</span> <span class="nv">R3</span> 
-<span class="err">15:</span> <span class="err">01</span> <span class="err">20</span> <span class="nf">D3</span> <span class="nv">E4</span>   <span class="nv">LDRB</span>     <span class="nv">R2</span><span class="p">,</span> <span class="p">[</span><span class="nv">R3</span><span class="p">],</span><span class="err">#</span><span class="mi">1</span> <span class="c1">; load with post-indexed mode, R2 = [R3]; R3 = R3+1;</span>
-<span class="err">16:</span> <span class="err">30</span> <span class="err">00</span> <span class="err">52</span> <span class="nf">E3</span>   <span class="nv">CMP</span>      <span class="nv">R2</span><span class="p">,</span> <span class="err">#</span><span class="mh">0x30</span> <span class="c1">; </span>
-<span class="err">17:</span> <span class="nf">FB</span> <span class="nv">FF</span> <span class="nv">FF</span> <span class="mi">0</span><span class="nv">A</span>   <span class="nv">BEQ</span>      <span class="nv">loc_B2B8</span>
+<span class=err>18:</span>      <span class=nf>loc_B2C8</span>
+<span class=err>19:</span> <span class=err>00</span> <span class=nf>C0</span> <span class=nv>A0</span> <span class=nv>E3</span>   <span class=nv>MOV</span>      <span class=nv>R12</span><span class=p>,</span> <span class=err>#</span><span class=mi>0</span> <span class=c1>; R3!=  0x30</span>
+<span class=err>20:</span> <span class=err>00</span> <span class=err>40</span> <span class=nf>A0</span> <span class=nv>E3</span>   <span class=nv>MOV</span>      <span class=nv>R4</span><span class=p>,</span> <span class=err>#</span><span class=mi>0</span>
+<span class=err>21:</span> <span class=err>00</span> <span class=err>50</span> <span class=nf>A0</span> <span class=nv>E3</span>   <span class=nv>MOV</span>      <span class=nv>R5</span><span class=p>,</span> <span class=err>#</span><span class=mi>0</span>
+<span class=err>22:</span> <span class=err>0</span><span class=nf>A</span> <span class=mi>80</span> <span class=nv>A0</span> <span class=nv>E3</span>   <span class=nv>MOV</span>      <span class=nv>R8</span><span class=p>,</span> <span class=err>#</span><span class=mh>0xA</span>
+<span class=err>23:</span> <span class=err>01</span> <span class=err>00</span> <span class=err>00</span> <span class=nf>EA</span>   <span class=nv>B</span>        <span class=nv>loc_B2E4</span>
 
-<span class="err">18:</span>      <span class="nf">loc_B2C8</span>
-<span class="err">19:</span> <span class="err">00</span> <span class="nf">C0</span> <span class="nv">A0</span> <span class="nv">E3</span>   <span class="nv">MOV</span>      <span class="nv">R12</span><span class="p">,</span> <span class="err">#</span><span class="mi">0</span> <span class="c1">; R3!=  0x30</span>
-<span class="err">20:</span> <span class="err">00</span> <span class="err">40</span> <span class="nf">A0</span> <span class="nv">E3</span>   <span class="nv">MOV</span>      <span class="nv">R4</span><span class="p">,</span> <span class="err">#</span><span class="mi">0</span>
-<span class="err">21:</span> <span class="err">00</span> <span class="err">50</span> <span class="nf">A0</span> <span class="nv">E3</span>   <span class="nv">MOV</span>      <span class="nv">R5</span><span class="p">,</span> <span class="err">#</span><span class="mi">0</span>
-<span class="err">22:</span> <span class="err">0</span><span class="nf">A</span> <span class="mi">80</span> <span class="nv">A0</span> <span class="nv">E3</span>   <span class="nv">MOV</span>      <span class="nv">R8</span><span class="p">,</span> <span class="err">#</span><span class="mh">0xA</span>
-<span class="err">23:</span> <span class="err">01</span> <span class="err">00</span> <span class="err">00</span> <span class="nf">EA</span>   <span class="nv">B</span>        <span class="nv">loc_B2E4</span>
+<span class=err>24:</span>      <span class=nf>loc_B2DC</span>
+<span class=err>25:</span> <span class=err>07</span> <span class=err>40</span> <span class=err>92</span> <span class=nf>E0</span>   <span class=nv>ADDS</span>     <span class=nv>R4</span><span class=p>,</span> <span class=nv>R2</span><span class=p>,</span> <span class=nv>R7</span>
+<span class=err>26:</span> <span class=nf>C7</span> <span class=mi>5</span><span class=nv>F</span> <span class=nv>A3</span> <span class=nv>E0</span>   <span class=nv>ADC</span>      <span class=nv>R5</span><span class=p>,</span> <span class=nv>R3</span><span class=p>,</span> <span class=nv>R7</span><span class=p>,</span><span class=nv>ASR#31</span>
 
-<span class="err">24:</span>      <span class="nf">loc_B2DC</span>
-<span class="err">25:</span> <span class="err">07</span> <span class="err">40</span> <span class="err">92</span> <span class="nf">E0</span>   <span class="nv">ADDS</span>     <span class="nv">R4</span><span class="p">,</span> <span class="nv">R2</span><span class="p">,</span> <span class="nv">R7</span>
-<span class="err">26:</span> <span class="nf">C7</span> <span class="mi">5</span><span class="nv">F</span> <span class="nv">A3</span> <span class="nv">E0</span>   <span class="nv">ADC</span>      <span class="nv">R5</span><span class="p">,</span> <span class="nv">R3</span><span class="p">,</span> <span class="nv">R7</span><span class="p">,</span><span class="nv">ASR#31</span>
+<span class=err>27:</span>      <span class=nf>loc_B2E4</span>
+<span class=err>28:</span> <span class=err>0</span><span class=nf>C</span> <span class=mi>70</span> <span class=nv>D0</span> <span class=nv>E7</span>   <span class=nv>LDRB</span>     <span class=nv>R7</span><span class=p>,</span> <span class=p>[</span><span class=nv>R0</span><span class=p>,</span><span class=nv>R12</span><span class=p>]</span>
+<span class=err>29:</span> <span class=err>01</span> <span class=nf>c0</span> <span class=mi>8</span><span class=nv>C</span> <span class=nv>E2</span>   <span class=nv>ADD</span>      <span class=nv>R12</span><span class=p>,</span> <span class=nv>R12</span><span class=p>,</span> <span class=err>#</span><span class=mi>1</span>
+<span class=err>30:</span> <span class=err>94</span> <span class=err>28</span> <span class=err>83</span> <span class=nf>E0</span>   <span class=nv>UMULL</span>    <span class=nv>R2</span><span class=p>,</span> <span class=nv>R3</span><span class=p>,</span> <span class=nv>R4</span><span class=p>,</span> <span class=nv>R8</span>
+<span class=err>31:</span> <span class=err>30</span> <span class=err>70</span> <span class=err>57</span> <span class=nf>E2</span>   <span class=nv>SUBS</span>     <span class=nv>R7</span><span class=p>,</span> <span class=nv>R7</span><span class=p>,</span> <span class=err>#</span><span class=mh>0x30</span>
+<span class=err>32:</span> <span class=err>07</span> <span class=err>00</span> <span class=err>00</span> <span class=err>4</span><span class=nf>A</span>   <span class=nv>BMI</span>      <span class=nv>loc_B318</span>
+<span class=err>33:</span> <span class=err>09</span> <span class=err>00</span> <span class=err>57</span> <span class=nf>E3</span>   <span class=nv>CMP</span>      <span class=nv>R7</span><span class=p>,</span> <span class=err>#</span><span class=mi>9</span>
+<span class=err>34:</span> <span class=err>98</span> <span class=err>35</span> <span class=err>23</span> <span class=nf>E0</span>   <span class=nv>MLA</span>      <span class=nv>R3</span><span class=p>,</span> <span class=nv>R8</span><span class=p>,</span> <span class=nv>R5</span><span class=p>,</span> <span class=nv>R3</span>
+<span class=err>35:</span> <span class=err>04</span> <span class=err>00</span> <span class=err>00</span> <span class=nf>CA</span>   <span class=nv>BGT</span>      <span class=nv>loc_B318</span>
+<span class=err>36:</span> <span class=err>0</span><span class=nf>B</span> <span class=mi>00</span> <span class=mi>5</span><span class=nv>C</span> <span class=nv>E3</span>   <span class=nv>CMP</span>      <span class=nv>R12</span><span class=p>,</span> <span class=err>#</span><span class=mh>0xB</span>
+<span class=err>37:</span> <span class=nf>F3</span> <span class=nv>FF</span> <span class=nv>FF</span> <span class=mi>1</span><span class=nv>A</span>   <span class=nv>BNE</span>      <span class=nv>loc_B2DC</span> 
 
-<span class="err">27:</span>      <span class="nf">loc_B2E4</span>
-<span class="err">28:</span> <span class="err">0</span><span class="nf">C</span> <span class="mi">70</span> <span class="nv">D0</span> <span class="nv">E7</span>   <span class="nv">LDRB</span>     <span class="nv">R7</span><span class="p">,</span> <span class="p">[</span><span class="nv">R0</span><span class="p">,</span><span class="nv">R12</span><span class="p">]</span>
-<span class="err">29:</span> <span class="err">01</span> <span class="nf">c0</span> <span class="mi">8</span><span class="nv">C</span> <span class="nv">E2</span>   <span class="nv">ADD</span>      <span class="nv">R12</span><span class="p">,</span> <span class="nv">R12</span><span class="p">,</span> <span class="err">#</span><span class="mi">1</span>
-<span class="err">30:</span> <span class="err">94</span> <span class="err">28</span> <span class="err">83</span> <span class="nf">E0</span>   <span class="nv">UMULL</span>    <span class="nv">R2</span><span class="p">,</span> <span class="nv">R3</span><span class="p">,</span> <span class="nv">R4</span><span class="p">,</span> <span class="nv">R8</span>
-<span class="err">31:</span> <span class="err">30</span> <span class="err">70</span> <span class="err">57</span> <span class="nf">E2</span>   <span class="nv">SUBS</span>     <span class="nv">R7</span><span class="p">,</span> <span class="nv">R7</span><span class="p">,</span> <span class="err">#</span><span class="mh">0x30</span>
-<span class="err">32:</span> <span class="err">07</span> <span class="err">00</span> <span class="err">00</span> <span class="err">4</span><span class="nf">A</span>   <span class="nv">BMI</span>      <span class="nv">loc_B318</span>
-<span class="err">33:</span> <span class="err">09</span> <span class="err">00</span> <span class="err">57</span> <span class="nf">E3</span>   <span class="nv">CMP</span>      <span class="nv">R7</span><span class="p">,</span> <span class="err">#</span><span class="mi">9</span>
-<span class="err">34:</span> <span class="err">98</span> <span class="err">35</span> <span class="err">23</span> <span class="nf">E0</span>   <span class="nv">MLA</span>      <span class="nv">R3</span><span class="p">,</span> <span class="nv">R8</span><span class="p">,</span> <span class="nv">R5</span><span class="p">,</span> <span class="nv">R3</span>
-<span class="err">35:</span> <span class="err">04</span> <span class="err">00</span> <span class="err">00</span> <span class="nf">CA</span>   <span class="nv">BGT</span>      <span class="nv">loc_B318</span>
-<span class="err">36:</span> <span class="err">0</span><span class="nf">B</span> <span class="mi">00</span> <span class="mi">5</span><span class="nv">C</span> <span class="nv">E3</span>   <span class="nv">CMP</span>      <span class="nv">R12</span><span class="p">,</span> <span class="err">#</span><span class="mh">0xB</span>
-<span class="err">37:</span> <span class="nf">F3</span> <span class="nv">FF</span> <span class="nv">FF</span> <span class="mi">1</span><span class="nv">A</span>   <span class="nv">BNE</span>      <span class="nv">loc_B2DC</span> 
+<span class=err>38:</span>      <span class=nf>loc_B30C</span>
+<span class=err>39:</span> <span class=err>00</span> <span class=err>00</span> <span class=nf>A0</span> <span class=nv>E3</span>   <span class=nv>MOV</span>      <span class=nv>R0</span><span class=p>,</span> <span class=err>#</span><span class=mi>0</span>
 
-<span class="err">38:</span>      <span class="nf">loc_B30C</span>
-<span class="err">39:</span> <span class="err">00</span> <span class="err">00</span> <span class="nf">A0</span> <span class="nv">E3</span>   <span class="nv">MOV</span>      <span class="nv">R0</span><span class="p">,</span> <span class="err">#</span><span class="mi">0</span>
+<span class=err>40:</span>      <span class=nf>loc_B310</span>
+<span class=err>41:</span> <span class=nf>F0</span> <span class=mi>01</span> <span class=nv>BD</span> <span class=nv>E8</span>   <span class=nv>LDMFD</span>    <span class=nb>SP</span><span class=err>!</span><span class=p>,</span> <span class=err>{</span><span class=nv>R4</span><span class=err>–</span><span class=nv>R8</span><span class=err>}</span> <span class=c1>; restore the contents of R4-R8 by loading from the memory</span>
+<span class=err>42:</span> <span class=err>1</span><span class=nf>E</span> <span class=nv>FF</span> <span class=mi>2</span><span class=nv>F</span> <span class=nv>E1</span>   <span class=nb>BX</span>       <span class=nv>LR</span> <span class=c1>; return, switch to Thumb mode (Branch and exchange)</span>
 
-<span class="err">40:</span>      <span class="nf">loc_B310</span>
-<span class="err">41:</span> <span class="nf">F0</span> <span class="mi">01</span> <span class="nv">BD</span> <span class="nv">E8</span>   <span class="nv">LDMFD</span>    <span class="nb">SP</span><span class="err">!</span><span class="p">,</span> <span class="err">{</span><span class="nv">R4</span><span class="err">–</span><span class="nv">R8</span><span class="err">}</span> <span class="c1">; restore the contents of R4-R8 by loading from the memory</span>
-<span class="err">42:</span> <span class="err">1</span><span class="nf">E</span> <span class="nv">FF</span> <span class="mi">2</span><span class="nv">F</span> <span class="nv">E1</span>   <span class="nb">BX</span>       <span class="nv">LR</span> <span class="c1">; return, switch to Thumb mode (Branch and exchange)</span>
+<span class=err>43:</span>      <span class=nf>loc_B318</span>
+<span class=err>44:</span> <span class=err>06</span> <span class=err>20</span> <span class=err>54</span> <span class=nf>E0</span>   <span class=nv>SUBS</span>     <span class=nv>R2</span><span class=p>,</span> <span class=nv>R4</span><span class=p>,</span> <span class=nv>R6</span>
+<span class=err>45:</span> <span class=nf>C6</span> <span class=mi>3</span><span class=nv>F</span> <span class=nv>C5</span> <span class=nv>E0</span>   <span class=nv>SBC</span>      <span class=nv>R3</span><span class=p>,</span> <span class=nv>R5</span><span class=p>,</span> <span class=nv>R6</span><span class=p>,</span><span class=nv>ASR#31</span>
+<span class=err>46:</span> <span class=err>02</span> <span class=err>01</span> <span class=err>52</span> <span class=nf>E3</span>   <span class=nv>CMP</span>      <span class=nv>R2</span><span class=p>,</span> <span class=err>#</span><span class=mh>0x80000000</span>
+<span class=err>47:</span> <span class=err>00</span> <span class=err>00</span> <span class=nf>D3</span> <span class=nv>E2</span>   <span class=nv>SBCS</span>     <span class=nv>R0</span><span class=p>,</span> <span class=nv>R3</span><span class=p>,</span> <span class=err>#</span><span class=mi>0</span>
+<span class=err>48:</span> <span class=nf>F7</span> <span class=nv>FF</span> <span class=nv>FF</span> <span class=nv>AA</span>   <span class=nv>BGE</span>      <span class=nv>loc_B30c</span>
 
-<span class="err">43:</span>      <span class="nf">loc_B318</span>
-<span class="err">44:</span> <span class="err">06</span> <span class="err">20</span> <span class="err">54</span> <span class="nf">E0</span>   <span class="nv">SUBS</span>     <span class="nv">R2</span><span class="p">,</span> <span class="nv">R4</span><span class="p">,</span> <span class="nv">R6</span>
-<span class="err">45:</span> <span class="nf">C6</span> <span class="mi">3</span><span class="nv">F</span> <span class="nv">C5</span> <span class="nv">E0</span>   <span class="nv">SBC</span>      <span class="nv">R3</span><span class="p">,</span> <span class="nv">R5</span><span class="p">,</span> <span class="nv">R6</span><span class="p">,</span><span class="nv">ASR#31</span>
-<span class="err">46:</span> <span class="err">02</span> <span class="err">01</span> <span class="err">52</span> <span class="nf">E3</span>   <span class="nv">CMP</span>      <span class="nv">R2</span><span class="p">,</span> <span class="err">#</span><span class="mh">0x80000000</span>
-<span class="err">47:</span> <span class="err">00</span> <span class="err">00</span> <span class="nf">D3</span> <span class="nv">E2</span>   <span class="nv">SBCS</span>     <span class="nv">R0</span><span class="p">,</span> <span class="nv">R3</span><span class="p">,</span> <span class="err">#</span><span class="mi">0</span>
-<span class="err">48:</span> <span class="nf">F7</span> <span class="nv">FF</span> <span class="nv">FF</span> <span class="nv">AA</span>   <span class="nv">BGE</span>      <span class="nv">loc_B30c</span>
+<span class=err>49:</span> <span class=err>00</span> <span class=err>00</span> <span class=err>56</span> <span class=nf>E3</span>   <span class=nv>CMP</span>      <span class=nv>R6</span><span class=p>,</span> <span class=err>#</span><span class=mi>0</span>
+<span class=err>50:</span> <span class=err>01</span> <span class=err>00</span> <span class=err>00</span> <span class=err>0</span><span class=nf>A</span>   <span class=nv>BEQ</span>      <span class=nv>loc_B33C</span> 
+<span class=err>51:</span> <span class=err>00</span> <span class=err>40</span> <span class=err>74</span> <span class=nf>E2</span>   <span class=nv>RSBS</span>     <span class=nv>R4</span><span class=p>,</span> <span class=nv>R4</span><span class=p>,</span> <span class=err>#</span><span class=mi>0</span>
+<span class=err>52:</span> <span class=err>00</span> <span class=err>50</span> <span class=nf>E5</span> <span class=nv>E2</span>   <span class=nv>RSC</span>      <span class=nv>R5</span><span class=p>,</span> <span class=nv>R5</span><span class=p>,</span> <span class=err>#</span><span class=mi>0</span>
 
-<span class="err">49:</span> <span class="err">00</span> <span class="err">00</span> <span class="err">56</span> <span class="nf">E3</span>   <span class="nv">CMP</span>      <span class="nv">R6</span><span class="p">,</span> <span class="err">#</span><span class="mi">0</span>
-<span class="err">50:</span> <span class="err">01</span> <span class="err">00</span> <span class="err">00</span> <span class="err">0</span><span class="nf">A</span>   <span class="nv">BEQ</span>      <span class="nv">loc_B33C</span> 
-<span class="err">51:</span> <span class="err">00</span> <span class="err">40</span> <span class="err">74</span> <span class="nf">E2</span>   <span class="nv">RSBS</span>     <span class="nv">R4</span><span class="p">,</span> <span class="nv">R4</span><span class="p">,</span> <span class="err">#</span><span class="mi">0</span>
-<span class="err">52:</span> <span class="err">00</span> <span class="err">50</span> <span class="nf">E5</span> <span class="nv">E2</span>   <span class="nv">RSC</span>      <span class="nv">R5</span><span class="p">,</span> <span class="nv">R5</span><span class="p">,</span> <span class="err">#</span><span class="mi">0</span>
+<span class=err>53:</span>      <span class=nf>loc_B33C</span>
+<span class=err>54:</span> <span class=err>00</span> <span class=err>40</span> <span class=err>81</span> <span class=nf>E5</span>   <span class=nv>STR</span>      <span class=nv>R4</span><span class=p>,</span> <span class=p>[</span><span class=nv>R1</span><span class=p>]</span>
+<span class=err>55:</span> <span class=err>01</span> <span class=err>00</span> <span class=nf>A0</span> <span class=nv>E3</span>   <span class=nv>MOV</span>      <span class=nv>R0</span><span class=p>,</span> <span class=err>#</span><span class=mi>1</span>
+<span class=err>56:</span> <span class=nf>F1</span> <span class=nv>FF</span> <span class=nv>FF</span> <span class=nv>EA</span>   <span class=nv>B</span>        <span class=nv>loc_B310</span>
 
-<span class="err">53:</span>      <span class="nf">loc_B33C</span>
-<span class="err">54:</span> <span class="err">00</span> <span class="err">40</span> <span class="err">81</span> <span class="nf">E5</span>   <span class="nv">STR</span>      <span class="nv">R4</span><span class="p">,</span> <span class="p">[</span><span class="nv">R1</span><span class="p">]</span>
-<span class="err">55:</span> <span class="err">01</span> <span class="err">00</span> <span class="nf">A0</span> <span class="nv">E3</span>   <span class="nv">MOV</span>      <span class="nv">R0</span><span class="p">,</span> <span class="err">#</span><span class="mi">1</span>
-<span class="err">56:</span> <span class="nf">F1</span> <span class="nv">FF</span> <span class="nv">FF</span> <span class="nv">EA</span>   <span class="nv">B</span>        <span class="nv">loc_B310</span>
+<span class=err>57:</span>      <span class=nf>loc_B348</span>
+<span class=err>58:</span> <span class=err>01</span> <span class=err>30</span> <span class=nf>F0</span> <span class=nv>E5</span>   <span class=nv>LDRB</span>     <span class=nv>R3</span><span class=p>,</span> <span class=p>[</span><span class=nv>R0</span><span class=p>,</span><span class=err>#</span><span class=mi>1</span><span class=p>]</span><span class=err>!</span>
+<span class=err>59:</span> <span class=err>01</span> <span class=err>60</span> <span class=nf>A0</span> <span class=nv>E3</span>   <span class=nv>MOV</span>      <span class=nv>R6</span><span class=p>,</span> <span class=err>#</span><span class=mi>1</span>
+<span class=err>60:</span> <span class=nf>D5</span> <span class=nv>FF</span> <span class=nv>FF</span> <span class=nv>EA</span>   <span class=nv>B</span>        <span class=nv>loc_B2Ac</span>
+<span class=err>61:</span>             <span class=c1>; End of function mystery1 </span>
+</code></pre></td></tr></table></div></div><h2 id=disassembly-analysis>Disassembly Analysis</h2><p>First of all, we notice that each instruction of the disassembly has a width of 32 bits, which is a strong indicator for ARM state rather than Thumb state. Furthermore, the contents of the registers <code>r4-r8</code> are stored on the stack with the <code>STMFD</code> command rather than with a <code>PUSH</code>, as in the case of Thumb state.</p><p>The very first instruction is <code>STMFD SP!, {R4-R8}</code>.</p><p><code>STMFD</code> is a synonym for <code>STMDB</code>, meaning to store multiple register values in memory in DB mode (decrement before). That is, the last location of the data written to memory will be stored 4 bytes below the previous value of <code>SP</code>. Due to the exclamation mark after <code>SP</code>, writeback is enabled and <code>SP</code> will point to the first location of the data written to memory.</p><p>The instruction <code>LDREQB  R3, [R0,#1]!</code>  deserves to be mentioned as well. It performs a load operation of a single unsigned byte from memory into the <code>R3</code> register. The addressing mode is pre-indexed, meaning <code>R0</code> (i.e., the base register) will be modified. The value will be retrieved from the memory location <code>[R0+1]</code> and <code>R0</code> will be afterwards updated to <code>R0+1</code>.</p><p><code>LDRB R2, [R3],#1</code> is a load operation with the post-index address mode. It loads the data at memory address <code>R3</code> into <code>R2</code> and afterwards sets <code>R3</code> to <code>R3+1</code>.</p><p><code>UMULL R2, R3, R4, R8</code> multiplies two 32-bit <strong>unsigned</strong> values to produce a 64 bit result. In particular, it will multiply the values stored in registers <code>R4</code> and <code>R8</code> and store the lower and upper 32 bits of the result in <code>R2</code> and <code>R3</code> respectively.</p><p><code>SUBS R7, R7, #0x30</code> performs the substraction <code>R7 = R7 - 0x30</code> and updates the arithmetic conditional flags depending on the result.</p><p><code>SBC R3, R5, R6,ASR#31</code> is another instruction worth of explaining. <code>SBC</code> stands for Substract with Carry and in the most basic scenario would perform the operation <code>Rd = Rn - Op2 - !C</code>, where C stands for the carry flag. In this case, however, we have an additional shift operation to perform, namely an arithmetic right shift operation of 31 bits with carry output. To summarize, the operation means the following: <code>R3 = R5 - (R6 >> 31) - !C</code></p><p><code>BMI loc_B318</code> means that a branch to address <code>loc_b318</code> is performed when the minus/negative flag is set, i.e., the N flag has the value 1.</p><p><code>MLA  R3, R8, R5, R3</code> has the following meaning: It multiplies the values in registers <code>R8</code> and <code>R5</code> and adds the value of <code>R3</code>. The lower 32 bits of the result are saved into register <code>R3</code>.</p><p><code>BGT loc_B318</code> performs a branch to <code>loc_B318</code> when the Z flag has the value 0 and the N (negative) flag matches the V (overflow) flag.</p><p><code>RSBS R4, R4, #0</code> carries out a Reverse Substract. More precisely, the register value is substracted from an immediate and the result is written to the destination register. In particular, <code>R4</code> is substracted from 0 and written back to <code>R4</code>. The conditional flags in <code>CPSR</code> will be updated due to the S suffix of the instruction.</p><p><code>RSC  R5, R5, #0</code> is actually very similar to <code>RSB</code> (reverse substract). The only difference is that <code>RSC</code> performs a reverse substract with carry. It substracts the R5 value and the value of NOT (Carry flag) from the immediate value #0. The result is written back to R5: <code>R5 = 0 - R5 - !(Carry flag)</code></p><p><code>STR R4, [R1]</code> is the basic Store Register operation to store a value from a register to memory. It takes the value from R4 and stores it in the memory area pointed to by the address in R1.</p><p><code>ADC R5, R3, R7,ASR#31</code> performs an addition with the Carry flag and stores the result in the destination register. Here, a arithmetic shift to the right (ASR) is contained as well. The equivalent of this instruction is as follows: <code>R5 = R3 + (R7 >> 31) + Carry flag</code>.</p><h2 id=function-analysis>Function Analysis:</h2><p>There are two possible values of <code>R0</code> when the function <code>mystery1()</code> exits, namely 0 and 1. Thus, we deduce that the data type of the function&rsquo;s return value is of type <code>BOOL</code>.</p><p>Current function prototype:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=n>BOOL</span> <span class=nf>mystery1</span><span class=p>();</span>
+</code></pre></td></tr></table></div></div><p>In the exercise description, we are already told <code>mystery1()</code> takes two arguments. The first argument is passed in <code>R0</code> and accessed right at the start of the function in line 03. The second argument, however, is not accessed before line 54. Both of the arguments contain addresses, i.e., they are pointers to some kind of structs.</p><p>Current function prototype:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=n>BOOL</span> <span class=nf>mystery1</span><span class=p>(</span><span class=kt>int</span><span class=o>*</span> <span class=n>arg1</span><span class=p>,</span> <span class=kt>int</span><span class=o>*</span> <span class=n>arg2</span><span class=p>);</span>
+</code></pre></td></tr></table></div></div><p>What is more, the return value of the function is 1 and data stored to the address at <code>R1</code> (arg2) if and only if the block in line 53 is executed. Otherwise, the return value is 0 and <code>R1</code> is not being accessed. This means that the return value should indicate to the caller whether a value was stored in the address contained in arg2. As a consequence, we modify the method name to reflect this behaviour:</p><p>Current function prototype:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=n>BOOL</span> <span class=nf>storeValue_mystery1</span><span class=p>(</span><span class=kt>int</span><span class=o>*</span> <span class=n>arg1</span><span class=p>,</span> <span class=kt>int</span><span class=o>*</span> <span class=n>arg2</span><span class=p>);</span>
+</code></pre></td></tr></table></div></div><p>We notice that all load operations (<code>LDR</code>) of the function only load single byte values and the original load address is taken from the first argument. The loaded byte values are being compared to fixed values such as <code>0x2d, 0x2b, 0x30</code>, whose ASCII character representation is <strong>-</strong>, <strong>+</strong> and <strong>0</strong> respectively.  Furthermore, the value of <code>R0</code> is increased in multiple locations by 1 (e.g., lines 08, 58, 12, 15). This strongly suggests the data type of argument1 is in fact a string or an array of characters.</p><p>Current function prototype:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=n>BOOL</span> <span class=nf>storeValue_mystery1</span><span class=p>(</span><span class=kt>char</span><span class=o>*</span> <span class=n>arg1</span><span class=p>,</span> <span class=kt>int</span><span class=o>*</span> <span class=n>arg2</span><span class=p>);</span>
+</code></pre></td></tr></table></div></div><p>The first blocks of the function check whether the first byte of arg1 matches the value <code>0x2d</code> (-) or <code>0x2b</code> (+). Depending on the outcome, the program sets the register <code>r6</code> with a value of 1 in the case of a &ldquo;-&rdquo; and 0 otherwise. When looking at the other parts of the program, it turns out <code>r6</code> can only assume the values 0 and 1, thus we deduce it is of type <code>BOOL</code>.</p><p>The program continues in line 9 to examine the second byte of arg1 for a value of <code>0x30</code> (0). The program continues to retrieve successive bytes from arg1 in a loop as long as the 0-character is read.</p><p>Up to line 18, we can make already a first attempt at the decompilation:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=n>BOOL</span> <span class=nf>storeValue_mystery1</span><span class=p>(</span><span class=kt>char</span><span class=o>*</span> <span class=n>arg1</span><span class=p>,</span> <span class=kt>int</span><span class=o>*</span> <span class=n>arg2</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>index</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>BOOL</span> <span class=n>minus</span><span class=p>;</span>
 
-<span class="err">57:</span>      <span class="nf">loc_B348</span>
-<span class="err">58:</span> <span class="err">01</span> <span class="err">30</span> <span class="nf">F0</span> <span class="nv">E5</span>   <span class="nv">LDRB</span>     <span class="nv">R3</span><span class="p">,</span> <span class="p">[</span><span class="nv">R0</span><span class="p">,</span><span class="err">#</span><span class="mi">1</span><span class="p">]</span><span class="err">!</span>
-<span class="err">59:</span> <span class="err">01</span> <span class="err">60</span> <span class="nf">A0</span> <span class="nv">E3</span>   <span class="nv">MOV</span>      <span class="nv">R6</span><span class="p">,</span> <span class="err">#</span><span class="mi">1</span>
-<span class="err">60:</span> <span class="nf">D5</span> <span class="nv">FF</span> <span class="nv">FF</span> <span class="nv">EA</span>   <span class="nv">B</span>        <span class="nv">loc_B2Ac</span>
-<span class="err">61:</span>             <span class="c1">; End of function mystery1 </span>
-</code></pre></td></tr></table>
-</div>
-</div><h2 id="disassembly-analysis">Disassembly Analysis</h2>
-<p>First of all, we notice that each instruction of the disassembly has a width of 32 bits, which is a strong indicator for ARM state rather than Thumb state. Furthermore, the contents of the registers <code>r4-r8</code> are stored on the stack with the <code>STMFD</code> command rather than with a <code>PUSH</code>, as in the case of Thumb state.</p>
-<p>The very first instruction is <code>STMFD SP!, {R4-R8}</code>.</p>
-<p><code>STMFD</code> is a synonym for <code>STMDB</code>, meaning to store multiple register values in memory in DB mode (decrement before). That is, the last location of the data written to memory will be stored 4 bytes below the previous value of <code>SP</code>. Due to the exclamation mark after <code>SP</code>, writeback is enabled and <code>SP</code> will point to the first location of the data written to memory.</p>
-<p>The instruction <code>LDREQB  R3, [R0,#1]!</code>  deserves to be mentioned as well. It performs a load operation of a single unsigned byte from memory into the <code>R3</code> register. The addressing mode is pre-indexed, meaning <code>R0</code> (i.e., the base register) will be modified. The value will be retrieved from the memory location <code>[R0+1]</code> and <code>R0</code> will be afterwards updated to <code>R0+1</code>.</p>
-<p><code>LDRB R2, [R3],#1</code> is a load operation with the post-index address mode. It loads the data at memory address <code>R3</code> into <code>R2</code> and afterwards sets <code>R3</code> to <code>R3+1</code>.</p>
-<p><code>UMULL R2, R3, R4, R8</code> multiplies two 32-bit <strong>unsigned</strong> values to produce a 64 bit result. In particular, it will multiply the values stored in registers <code>R4</code> and <code>R8</code> and store the lower and upper 32 bits of the result in <code>R2</code> and <code>R3</code> respectively.</p>
-<p><code>SUBS R7, R7, #0x30</code> performs the substraction <code>R7 = R7 - 0x30</code> and updates the arithmetic conditional flags depending on the result.</p>
-<p><code>SBC R3, R5, R6,ASR#31</code> is another instruction worth of explaining. <code>SBC</code> stands for Substract with Carry and in the most basic scenario would perform the operation <code>Rd = Rn - Op2 - !C</code>, where C stands for the carry flag. In this case, however, we have an additional shift operation to perform, namely an arithmetic right shift operation of 31 bits with carry output. To summarize, the operation means the following: <code>R3 = R5 - (R6 &gt;&gt; 31) - !C</code></p>
-<p><code>BMI loc_B318</code> means that a branch to address <code>loc_b318</code> is performed when the minus/negative flag is set, i.e., the N flag has the value 1.</p>
-<p><code>MLA  R3, R8, R5, R3</code> has the following meaning: It multiplies the values in registers <code>R8</code> and <code>R5</code> and adds the value of <code>R3</code>. The lower 32 bits of the result are saved into register <code>R3</code>.</p>
-<p><code>BGT loc_B318</code> performs a branch to <code>loc_B318</code> when the Z flag has the value 0 and the N (negative) flag matches the V (overflow) flag.</p>
-<p><code>RSBS R4, R4, #0</code> carries out a Reverse Substract. More precisely, the register value is substracted from an immediate and the result is written to the destination register. In particular, <code>R4</code> is substracted from 0 and written back to <code>R4</code>. The conditional flags in <code>CPSR</code> will be updated due to the S suffix of the instruction.</p>
-<p><code>RSC  R5, R5, #0</code> is actually very similar to <code>RSB</code> (reverse substract). The only difference is that <code>RSC</code> performs a reverse substract with carry. It substracts the R5 value and the value of NOT (Carry flag) from the immediate value #0. The result is written back to R5: <code>R5 = 0 - R5 - !(Carry flag)</code></p>
-<p><code>STR R4, [R1]</code> is the basic Store Register operation to store a value from a register to memory. It takes the value from R4 and stores it in the memory area pointed to by the address in R1.</p>
-<p><code>ADC R5, R3, R7,ASR#31</code> performs an addition with the Carry flag and stores the result in the destination register. Here, a arithmetic shift to the right (ASR) is contained as well. The equivalent of this instruction is as follows: <code>R5 = R3 + (R7 &gt;&gt; 31) + Carry flag</code>.</p>
-<h2 id="function-analysis">Function Analysis:</h2>
-<p>There are two possible values of <code>R0</code> when the function <code>mystery1()</code> exits, namely 0 and 1. Thus, we deduce that the data type of the function&rsquo;s return value is of type <code>BOOL</code>.</p>
-<p>Current function prototype:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">BOOL</span> <span class="nf">mystery1</span><span class="p">();</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>In the exercise description, we are already told <code>mystery1()</code> takes two arguments. The first argument is passed in <code>R0</code> and accessed right at the start of the function in line 03. The second argument, however, is not accessed before line 54. Both of the arguments contain addresses, i.e., they are pointers to some kind of structs.</p>
-<p>Current function prototype:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">BOOL</span> <span class="nf">mystery1</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">arg1</span><span class="p">,</span> <span class="kt">int</span><span class="o">*</span> <span class="n">arg2</span><span class="p">);</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>What is more, the return value of the function is 1 and data stored to the address at <code>R1</code> (arg2) if and only if the block in line 53 is executed. Otherwise, the return value is 0 and <code>R1</code> is not being accessed. This means that the return value should indicate to the caller whether a value was stored in the address contained in arg2. As a consequence, we modify the method name to reflect this behaviour:</p>
-<p>Current function prototype:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">BOOL</span> <span class="nf">storeValue_mystery1</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">arg1</span><span class="p">,</span> <span class="kt">int</span><span class="o">*</span> <span class="n">arg2</span><span class="p">);</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>We notice that all load operations (<code>LDR</code>) of the function only load single byte values and the original load address is taken from the first argument. The loaded byte values are being compared to fixed values such as <code>0x2d, 0x2b, 0x30</code>, whose ASCII character representation is <strong>-</strong>, <strong>+</strong> and <strong>0</strong> respectively.  Furthermore, the value of <code>R0</code> is increased in multiple locations by 1 (e.g., lines 08, 58, 12, 15). This strongly suggests the data type of argument1 is in fact a string or an array of characters.</p>
-<p>Current function prototype:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">BOOL</span> <span class="nf">storeValue_mystery1</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">arg1</span><span class="p">,</span> <span class="kt">int</span><span class="o">*</span> <span class="n">arg2</span><span class="p">);</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>The first blocks of the function check whether the first byte of arg1 matches the value <code>0x2d</code> (-) or <code>0x2b</code> (+). Depending on the outcome, the program sets the register <code>r6</code> with a value of 1 in the case of a &ldquo;-&rdquo; and 0 otherwise. When looking at the other parts of the program, it turns out <code>r6</code> can only assume the values 0 and 1, thus we deduce it is of type <code>BOOL</code>.</p>
-<p>The program continues in line 9 to examine the second byte of arg1 for a value of <code>0x30</code> (0). The program continues to retrieve successive bytes from arg1 in a loop as long as the 0-character is read.</p>
-<p>Up to line 18, we can make already a first attempt at the decompilation:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">BOOL</span> <span class="nf">storeValue_mystery1</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">arg1</span><span class="p">,</span> <span class="kt">int</span><span class="o">*</span> <span class="n">arg2</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="n">BOOL</span> <span class="n">minus</span><span class="p">;</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>arg1</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>==</span> <span class=sc>&#39;-&#39;</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>minus</span> <span class=o>=</span> <span class=n>TRUE</span><span class=p>;</span>
+        <span class=n>index</span> <span class=o>=</span> <span class=n>index</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=k>else</span> <span class=p>{</span>
+        <span class=n>minus</span> <span class=o>=</span> <span class=n>FALSE</span><span class=p>;</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>arg1</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>==</span> <span class=sc>&#39;+&#39;</span><span class=p>)</span> <span class=p>{</span>
+            <span class=n>index</span> <span class=o>=</span> <span class=n>index</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+        <span class=p>}</span>
+    <span class=p>}</span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">arg1</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;-&#39;</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">minus</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">;</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="k">else</span> <span class="p">{</span>
-        <span class="n">minus</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">arg1</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;+&#39;</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+    <span class=k>while</span> <span class=p>(</span><span class=n>arg1</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>==</span> <span class=sc>&#39;0&#39;</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>index</span> <span class=o>=</span> <span class=n>index</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=c1>// STOP - Line 18
+</span><span class=c1></span>    <span class=cm>/* TODO * /
+</span><span class=cm>       }
+</span></code></pre></td></tr></table></div></div><p>Up to now, we know that the input string matches the following regular
+expression:</p><p><code>"(+|-)0*"</code></p><p>Beginning with line 18, the disassembly becomes more involved. It seems the function checks whether the subsequent bytes are in the range <code>[0x30-0x39]</code>. The plot thickens: Their ASCII representation are the numbers 0 to 9. Line 36 ensures that at most 10 of these characters are read from arg1.</p><p>In register <code>R8</code>, there is a constant value <code>0xA</code>, whose decimal value is 10. This value is used in the multiplication operation in line 30.</p><p>We can add these new insights to our decompiled function:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=n>BOOL</span> <span class=nf>storeValue_mystery1</span><span class=p>(</span><span class=kt>char</span><span class=o>*</span> <span class=n>arg1</span><span class=p>,</span> <span class=kt>int</span><span class=o>*</span> <span class=n>arg2</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>index</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=kt>char</span> <span class=n>minus</span><span class=p>;</span>
 
-    <span class="k">while</span> <span class="p">(</span><span class="n">arg1</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;0&#39;</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="c1">// STOP - Line 18
-</span><span class="c1"></span>    <span class="cm">/* TODO * /
-</span><span class="cm">       }
-</span></code></pre></td></tr></table>
-</div>
-</div><p>Up to now, we know that the input string matches the following regular
-expression:</p>
-<p><code>&quot;(+|-)0*&quot;</code></p>
-<p>Beginning with line 18, the disassembly becomes more involved. It seems the function checks whether the subsequent bytes are in the range <code>[0x30-0x39]</code>. The plot thickens: Their ASCII representation are the numbers 0 to 9. Line 36 ensures that at most 10 of these characters are read from arg1.</p>
-<p>In register <code>R8</code>, there is a constant value <code>0xA</code>, whose decimal value is 10. This value is used in the multiplication operation in line 30.</p>
-<p>We can add these new insights to our decompiled function:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
-</span><span class="lnt">32
-</span><span class="lnt">33
-</span><span class="lnt">34
-</span><span class="lnt">35
-</span><span class="lnt">36
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">BOOL</span> <span class="nf">storeValue_mystery1</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">arg1</span><span class="p">,</span> <span class="kt">int</span><span class="o">*</span> <span class="n">arg2</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="kt">char</span> <span class="n">minus</span><span class="p">;</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>arg1</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>==</span> <span class=sc>&#39;-&#39;</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>minus</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+        <span class=n>index</span> <span class=o>=</span> <span class=n>index</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=k>else</span> <span class=p>{</span>
+        <span class=n>minus</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>arg1</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>==</span> <span class=sc>&#39;+&#39;</span><span class=p>)</span> <span class=p>{</span>
+            <span class=n>index</span> <span class=o>=</span> <span class=n>index</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+        <span class=p>}</span>
+    <span class=p>}</span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">arg1</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;-&#39;</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">minus</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="k">else</span> <span class="p">{</span>
-        <span class="n">minus</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">arg1</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;+&#39;</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+    <span class=k>while</span> <span class=p>(</span><span class=n>arg1</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>==</span> <span class=sc>&#39;0&#39;</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>index</span> <span class=o>=</span> <span class=n>index</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=p>}</span>
 
-    <span class="k">while</span> <span class="p">(</span><span class="n">arg1</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;0&#39;</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="p">}</span>
-
-    <span class="kt">int</span> <span class="n">indexNumbers</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="kt">long</span> <span class="kt">long</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class=kt>int</span> <span class=n>indexNumbers</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=kt>long</span> <span class=kt>long</span> <span class=n>result</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
 
 
-    <span class="k">while</span> <span class="p">((</span><span class="n">arg1</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="n">indexNumbers</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="sc">&#39;9&#39;</span><span class="p">)</span> <span class="n">AND</span> <span class="p">(</span><span class="n">arg1</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="n">indexNumbers</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="sc">&#39;0&#39;</span><span class="p">))</span> <span class="p">{</span>
-        <span class="kt">char</span> <span class="n">currentNumber</span> <span class="o">=</span> <span class="n">arg1</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="n">indexNumbers</span><span class="p">]</span> <span class="o">-</span> <span class="mh">0x30</span><span class="p">;</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">*</span> <span class="mi">10</span><span class="p">;</span>
-        <span class="n">indexNumbers</span> <span class="o">=</span> <span class="n">indexNumbers</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> <span class="n">currentNumber</span><span class="p">;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">indexNumbers</span> <span class="o">==</span> <span class="mi">11</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// reached maximum number of characters
-</span><span class="c1"></span>        <span class="p">}</span>
-    <span class="p">}</span>
+    <span class=k>while</span> <span class=p>((</span><span class=n>arg1</span><span class=p>[</span><span class=n>index</span><span class=o>+</span><span class=n>indexNumbers</span><span class=p>])</span> <span class=o>&lt;=</span> <span class=sc>&#39;9&#39;</span><span class=p>)</span> <span class=n>AND</span> <span class=p>(</span><span class=n>arg1</span><span class=p>[</span><span class=n>index</span><span class=o>+</span><span class=n>indexNumbers</span><span class=p>]</span> <span class=o>&gt;=</span> <span class=sc>&#39;0&#39;</span><span class=p>))</span> <span class=p>{</span>
+        <span class=kt>char</span> <span class=n>currentNumber</span> <span class=o>=</span> <span class=n>arg1</span><span class=p>[</span><span class=n>index</span><span class=o>+</span><span class=n>indexNumbers</span><span class=p>]</span> <span class=o>-</span> <span class=mh>0x30</span><span class=p>;</span>
+        <span class=n>result</span> <span class=o>=</span> <span class=n>result</span> <span class=o>*</span> <span class=mi>10</span><span class=p>;</span>
+        <span class=n>indexNumbers</span> <span class=o>=</span> <span class=n>indexNumbers</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+        <span class=n>result</span> <span class=o>=</span> <span class=n>result</span> <span class=o>+</span> <span class=n>currentNumber</span><span class=p>;</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>indexNumbers</span> <span class=o>==</span> <span class=mi>11</span><span class=p>)</span> <span class=p>{</span>
+            <span class=k>return</span> <span class=mi>0</span><span class=p>;</span> <span class=c1>// reached maximum number of characters
+</span><span class=c1></span>        <span class=p>}</span>
+    <span class=p>}</span>
 
-    <span class="cm">/* TODO */</span>
+    <span class=cm>/* TODO */</span>
 
-<span class="p">}</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>As soon as the input string contains no further valid numeric characters, we arrive in the block of line 43. The result in <code>r4</code> is decremented by the minus character value and written to a different register. Afterwards, the modified result is compared to the hexadecimal value <code>0x8000000</code>, which is the hexadecimal representation of 2^31. When the modified result is greater or equal than this value, the function aborts and returns 0.  Notice that the range of signed 32 bit integers is <code>[-2^31; 2^31 - 1]</code>.</p>
-<p>When the minus character is set, the result value is negated (line 51: <code>R4 = 0 - R4</code>). Finally, the result value is written to the memory address contained in <code>R1</code> (line 54) and 1 is returned (line 55).  We can now complete the function decompilation:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
-</span><span class="lnt">32
-</span><span class="lnt">33
-</span><span class="lnt">34
-</span><span class="lnt">35
-</span><span class="lnt">36
-</span><span class="lnt">37
-</span><span class="lnt">38
-</span><span class="lnt">39
-</span><span class="lnt">40
-</span><span class="lnt">41
-</span><span class="lnt">42
-</span><span class="lnt">43
-</span><span class="lnt">44
-</span><span class="lnt">45
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">BOOL</span> <span class="nf">convertStringToInteger</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">source</span><span class="p">,</span> <span class="kt">int</span><span class="o">*</span> <span class="n">destination</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="kt">char</span> <span class="n">minus</span><span class="p">;</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>As soon as the input string contains no further valid numeric characters, we arrive in the block of line 43. The result in <code>r4</code> is decremented by the minus character value and written to a different register. Afterwards, the modified result is compared to the hexadecimal value <code>0x8000000</code>, which is the hexadecimal representation of 2^31. When the modified result is greater or equal than this value, the function aborts and returns 0.  Notice that the range of signed 32 bit integers is <code>[-2^31; 2^31 - 1]</code>.</p><p>When the minus character is set, the result value is negated (line 51: <code>R4 = 0 - R4</code>). Finally, the result value is written to the memory address contained in <code>R1</code> (line 54) and 1 is returned (line 55). We can now complete the function decompilation:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=n>BOOL</span> <span class=nf>convertStringToInteger</span><span class=p>(</span><span class=kt>char</span><span class=o>*</span> <span class=n>source</span><span class=p>,</span> <span class=kt>int</span><span class=o>*</span> <span class=n>destination</span><span class=p>)</span> <span class=p>{</span>
+    <span class=kt>int</span> <span class=n>index</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=kt>char</span> <span class=n>minus</span><span class=p>;</span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">source</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;-&#39;</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">minus</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="k">else</span> <span class="p">{</span>
-        <span class="n">minus</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">source</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;+&#39;</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>source</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>==</span> <span class=sc>&#39;-&#39;</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>minus</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+        <span class=n>index</span> <span class=o>=</span> <span class=n>index</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=p>}</span>
+    <span class=k>else</span> <span class=p>{</span>
+        <span class=n>minus</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>source</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>==</span> <span class=sc>&#39;+&#39;</span><span class=p>)</span> <span class=p>{</span>
+            <span class=n>index</span> <span class=o>=</span> <span class=n>index</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+        <span class=p>}</span>
+    <span class=p>}</span>
 
-    <span class="k">while</span> <span class="p">(</span><span class="n">source</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;0&#39;</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="p">}</span>
+    <span class=k>while</span> <span class=p>(</span><span class=n>source</span><span class=p>[</span><span class=n>index</span><span class=p>]</span> <span class=o>==</span> <span class=sc>&#39;0&#39;</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>index</span> <span class=o>=</span> <span class=n>index</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=p>}</span>
 
-    <span class="kt">int</span> <span class="n">indexNumbers</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="kt">long</span> <span class="kt">long</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class=kt>int</span> <span class=n>indexNumbers</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=kt>long</span> <span class=kt>long</span> <span class=n>result</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
 
 
-    <span class="k">while</span> <span class="p">((</span><span class="n">source</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="n">indexNumbers</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="sc">&#39;9&#39;</span><span class="p">)</span> <span class="n">AND</span> <span class="p">(</span><span class="n">source</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="n">indexNumbers</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="sc">&#39;0&#39;</span><span class="p">))</span> <span class="p">{</span>
-        <span class="kt">char</span> <span class="n">currentNumber</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="n">indexNumbers</span><span class="p">]</span> <span class="o">-</span> <span class="mh">0x30</span><span class="p">;</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">*</span> <span class="mi">10</span><span class="p">;</span>
-        <span class="n">indexNumbers</span> <span class="o">=</span> <span class="n">indexNumbers</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> <span class="n">currentNumber</span><span class="p">;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">indexNumbers</span> <span class="o">==</span> <span class="mi">11</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// reached maximum number of characters
-</span><span class="c1"></span>        <span class="p">}</span>
-    <span class="p">}</span>
+    <span class=k>while</span> <span class=p>((</span><span class=n>source</span><span class=p>[</span><span class=n>index</span><span class=o>+</span><span class=n>indexNumbers</span><span class=p>])</span> <span class=o>&lt;=</span> <span class=sc>&#39;9&#39;</span><span class=p>)</span> <span class=n>AND</span> <span class=p>(</span><span class=n>source</span><span class=p>[</span><span class=n>index</span><span class=o>+</span><span class=n>indexNumbers</span><span class=p>]</span> <span class=o>&gt;=</span> <span class=sc>&#39;0&#39;</span><span class=p>))</span> <span class=p>{</span>
+        <span class=kt>char</span> <span class=n>currentNumber</span> <span class=o>=</span> <span class=n>source</span><span class=p>[</span><span class=n>index</span><span class=o>+</span><span class=n>indexNumbers</span><span class=p>]</span> <span class=o>-</span> <span class=mh>0x30</span><span class=p>;</span>
+        <span class=n>result</span> <span class=o>=</span> <span class=n>result</span> <span class=o>*</span> <span class=mi>10</span><span class=p>;</span>
+        <span class=n>indexNumbers</span> <span class=o>=</span> <span class=n>indexNumbers</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+        <span class=n>result</span> <span class=o>=</span> <span class=n>result</span> <span class=o>+</span> <span class=n>currentNumber</span><span class=p>;</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>indexNumbers</span> <span class=o>==</span> <span class=mi>11</span><span class=p>)</span> <span class=p>{</span>
+            <span class=k>return</span> <span class=mi>0</span><span class=p>;</span> <span class=c1>// reached maximum number of characters
+</span><span class=c1></span>        <span class=p>}</span>
+    <span class=p>}</span>
 
-    <span class="kt">long</span> <span class="kt">long</span> <span class="n">modifiedResult</span> <span class="o">=</span> <span class="n">result</span> <span class="o">-</span> <span class="n">minus</span><span class="p">;</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">abs</span><span class="p">(</span><span class="n">modifiedResult</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="o">^</span><span class="mi">31</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="p">}</span>
+    <span class=kt>long</span> <span class=kt>long</span> <span class=n>modifiedResult</span> <span class=o>=</span> <span class=n>result</span> <span class=o>-</span> <span class=n>minus</span><span class=p>;</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>abs</span><span class=p>(</span><span class=n>modifiedResult</span><span class=p>)</span> <span class=o>&gt;=</span> <span class=mi>2</span><span class=o>^</span><span class=mi>31</span><span class=p>)</span> <span class=p>{</span>
+        <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=p>}</span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">minus</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">modifiedResult</span> <span class="o">=</span> <span class="o">-</span> <span class="n">modifiedResult</span><span class="p">;</span>
-    <span class="p">}</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>minus</span> <span class=o>==</span> <span class=mi>1</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>modifiedResult</span> <span class=o>=</span> <span class=o>-</span> <span class=n>modifiedResult</span><span class=p>;</span>
+    <span class=p>}</span>
 
-    <span class="o">*</span><span class="n">destination</span> <span class="o">=</span> <span class="n">modifiedResult</span><span class="p">;</span>
-    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
-</div>
-</div></div><div class="post-footer" id="post-footer">
-    <div class="post-info">
-        <div class="post-info-line">
-            <div class="post-info-mod">
-                <span>Updated on 2017-12-01</span>
-            </div>
-            <div class="post-info-license"></div>
-        </div>
-        <div class="post-info-line">
-            <div class="post-info-md"></div>
-            <div class="post-info-share">
-                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/" data-title="Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1" data-via="evisneffos" data-hashtags="ARM,Practical Reverse Engineering"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/" data-hashtag="ARM"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/"><i class="fab fa-linkedin fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/" data-title="Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1" data-web><i class="fab fa-whatsapp fa-fw"></i></a></span>
-            </div>
-        </div>
-    </div>
-
-    <div class="post-info-more">
-        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/arm/">ARM</a>,&nbsp;<a href="/tags/practical-reverse-engineering/">Practical Reverse Engineering</a></section>
-        <section>
-            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
-        </section>
-    </div>
-
-    <div class="post-nav"><a href="/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/" class="prev" rel="prev" title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11"><i class="fas fa-angle-left fa-fw"></i>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11</a>
-            <a href="/posts/practical-reverse-engineering/2017-12-02-practical-reverse-engineering-exercise-solutions-page-78-exercise-2/" class="next" rel="next" title="Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 2">Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 2<i class="fas fa-angle-right fa-fw"></i></a></div>
-</div>
-</article></div>
-            </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.83.1">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
-                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2017 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank"></a></span></div>
-        </div>
-    </footer></div>
-
-        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
-                <i class="fas fa-arrow-up fa-fw"></i>
-            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
-                <i class="fas fa-comment fa-fw"></i>
-            </a>
-        </div><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":1000},"comment":{}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
-</html>
+    <span class=o>*</span><span class=n>destination</span> <span class=o>=</span> <span class=n>modifiedResult</span><span class=p>;</span>
+    <span class=k>return</span> <span class=mi>1</span><span class=p>;</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>Updated on 2017-12-01</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href=javascript:void(0); title="Share on Twitter" data-sharer=twitter data-url=https://www.soffensive.com/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/ data-title="Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1" data-via=evisneffos data-hashtags="ARM,Practical Reverse Engineering"><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="Share on Facebook" data-sharer=facebook data-url=https://www.soffensive.com/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/ data-hashtag=ARM><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="Share on Linkedin" data-sharer=linkedin data-url=https://www.soffensive.com/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="Share on WhatsApp" data-sharer=whatsapp data-url=https://www.soffensive.com/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/ data-title="Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1" data-web><i class="fab fa-whatsapp fa-fw"></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/arm/>ARM</a>,&nbsp;<a href=/tags/practical-reverse-engineering/>Practical Reverse Engineering</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>Back</a></span>&nbsp;|&nbsp;<span><a href=/>Home</a></span></section></div><div class=post-nav><a href=/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/ class=prev rel=prev title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11"><i class="fas fa-angle-left fa-fw"></i>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11</a>
+<a href=/posts/practical-reverse-engineering/2017-12-02-practical-reverse-engineering-exercise-solutions-page-78-exercise-2/ class=next rel=next title="Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 2">Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 2<i class="fas fa-angle-right fa-fw"></i></a></div></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>Powered by <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.83.1">Hugo</a> | Theme - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a></div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2021</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=/ target=_blank></a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title="Back to Top"><i class="fas fa-arrow-up fa-fw"></i>
+</a><a href=# id=view-comments class=fixed-button title="View Comments"><i class="fas fa-comment fa-fw"></i></a></div><script type=text/javascript src=/lib/smooth-scroll/smooth-scroll.min.js></script><script type=text/javascript src=/lib/lazysizes/lazysizes.min.js></script><script type=text/javascript src=/lib/clipboard/clipboard.min.js></script><script type=text/javascript src=/lib/sharer/sharer.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"Copy to clipboard",maxShownLines:1e3},comment:{}}</script><script type=text/javascript src=/js/theme.min.js></script></body></html>

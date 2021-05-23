@@ -1,16 +1,3 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-    <channel>
-        <title>web security - Tag - soffensive blog</title>
-        <link>http://localhost:1313/tags/web-security/</link>
-        <description>web security - Tag - soffensive blog</description>
-        <generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 23 Apr 2018 08:04:00 -0700</lastBuildDate><atom:link href="http://localhost:1313/tags/web-security/" rel="self" type="application/rss+xml" /><item>
-    <title>Exploiting misconfigured CORS Null Origin</title>
-    <link>http://localhost:1313/posts/web-app-sec/2018-04-23-exploiting-misconfigured-cors-null-origin/</link>
-    <pubDate>Mon, 23 Apr 2018 08:04:00 -0700</pubDate>
-    <author>Author</author>
-    <guid>http://localhost:1313/posts/web-app-sec/2018-04-23-exploiting-misconfigured-cors-null-origin/</guid>
-    <description><![CDATA[Almost two years ago, in October 2016, James Kettle published an excellent blog post about the various types of Cross-Origin Resource Sharing (CORS) misconfigurations and how they can be exploited.
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>web security - Tag - soffensive blog</title><link>https://www.soffensive.com/tags/web-security/</link><description>web security - Tag - soffensive blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 23 Apr 2018 08:04:00 -0700</lastBuildDate><atom:link href="https://www.soffensive.com/tags/web-security/" rel="self" type="application/rss+xml"/><item><title>Exploiting misconfigured CORS Null Origin</title><link>https://www.soffensive.com/posts/web-app-sec/2018-04-23-exploiting-misconfigured-cors-null-origin/</link><pubDate>Mon, 23 Apr 2018 08:04:00 -0700</pubDate><author>Author</author><guid>https://www.soffensive.com/posts/web-app-sec/2018-04-23-exploiting-misconfigured-cors-null-origin/</guid><description>Almost two years ago, in October 2016, James Kettle published an excellent blog post about the various types of Cross-Origin Resource Sharing (CORS) misconfigurations and how they can be exploited.
 Recently, I encountered a web application that allowed for two-way interaction with the so-called null origin. More precisely, when sending an HTTP request specifying the header:
-1  Origin: null   the server would respond with the following two HTTP headers:]]></description>
-</item></channel>
-</rss>
+1 Origin: null the server would respond with the following two HTTP headers:</description></item></channel></rss>

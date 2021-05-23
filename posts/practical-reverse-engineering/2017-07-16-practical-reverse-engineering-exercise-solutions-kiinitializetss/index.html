@@ -1,298 +1,140 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="robots" content="noodp" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
-        <title>Practical Reverse Engineering Exercise Solutions: KiInitializeTSS - soffensive blog</title><meta name="Description" content=""><meta property="og:title" content="Practical Reverse Engineering Exercise Solutions: KiInitializeTSS" />
-<meta property="og:description" content="Another exercise for us is the decompilation of the KiInitializeTSS function:
-1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  nt!KiInitializeTSS: 82847359 8bff mov edi,edi 8284735b 55 push ebp 8284735c 8bec mov ebp,esp 8284735e 8b4508 mov eax,dword ptr [ebp&#43;8] 82847361 b9ac200000 mov ecx,20ACh 82847366 66894866 mov word ptr [eax&#43;66h],cx 8284736a 33c9 xor ecx,ecx 8284736c 6a10 push 10h 8284736e 66894864 mov word ptr [eax&#43;64h],cx 82847372 66894860 mov word ptr [eax&#43;60h],cx 82847376 59 pop ecx 82847377 66894808 mov word ptr [eax&#43;8],cx 8284737b 5d pop ebp 8284737c c20400 ret 4   We obtain the function prototype: (source)" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2017-07-16T05:33:00-07:00" />
-<meta property="article:modified_time" content="2017-07-16T05:33:00-07:00" />
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta http-equiv=x-ua-compatible content="IE=edge, chrome=1"><title>Practical Reverse Engineering Exercise Solutions: KiInitializeTSS - soffensive blog</title><meta name=Description content><meta property="og:title" content="Practical Reverse Engineering Exercise Solutions: KiInitializeTSS"><meta property="og:description" content="Another exercise for us is the decompilation of the KiInitializeTSS function:
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  nt!KiInitializeTSS: 82847359 8bff mov edi,edi 8284735b 55 push ebp 8284735c 8bec mov ebp,esp 8284735e 8b4508 mov eax,dword ptr [ebp+8] 82847361 b9ac200000 mov ecx,20ACh 82847366 66894866 mov word ptr [eax+66h],cx 8284736a 33c9 xor ecx,ecx 8284736c 6a10 push 10h 8284736e 66894864 mov word ptr [eax+64h],cx 82847372 66894860 mov word ptr [eax+60h],cx 82847376 59 pop ecx 82847377 66894808 mov word ptr [eax+8],cx 8284737b 5d pop ebp 8284737c c20400 ret 4   We obtain the function prototype: (source)"><meta property="og:type" content="article"><meta property="og:url" content="https://www.soffensive.com/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2017-07-16T05:33:00-07:00"><meta property="article:modified_time" content="2017-07-16T05:33:00-07:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Practical Reverse Engineering Exercise Solutions: KiInitializeTSS"><meta name=twitter:description content="Another exercise for us is the decompilation of the KiInitializeTSS function:
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  nt!KiInitializeTSS: 82847359 8bff mov edi,edi 8284735b 55 push ebp 8284735c 8bec mov ebp,esp 8284735e 8b4508 mov eax,dword ptr [ebp+8] 82847361 b9ac200000 mov ecx,20ACh 82847366 66894866 mov word ptr [eax+66h],cx 8284736a 33c9 xor ecx,ecx 8284736c 6a10 push 10h 8284736e 66894864 mov word ptr [eax+64h],cx 82847372 66894860 mov word ptr [eax+60h],cx 82847376 59 pop ecx 82847377 66894808 mov word ptr [eax+8],cx 8284737b 5d pop ebp 8284737c c20400 ret 4   We obtain the function prototype: (source)"><meta name=application-name content="soffensive blog"><meta name=apple-mobile-web-app-title content="soffensive blog"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://www.soffensive.com/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/><link rel=prev href=https://www.soffensive.com/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kereadythread/><link rel=next href=https://www.soffensive.com/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/><link rel=stylesheet href=/lib/normalize/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=/lib/fontawesome-free/all.min.css><link rel=stylesheet href=/lib/animate/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Practical Reverse Engineering Exercise Solutions: KiInitializeTSS","inLanguage":"en","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/www.soffensive.com\/posts\/practical-reverse-engineering\/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss\/"},"genre":"posts","keywords":"Practical Reverse Engineering, x64, x86","wordcount":389,"url":"https:\/\/www.soffensive.com\/posts\/practical-reverse-engineering\/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss\/","datePublished":"2017-07-16T05:33:00-07:00","dateModified":"2017-07-16T05:33:00-07:00","publisher":{"@type":"Organization","name":"soffensive"},"author":{"@type":"Person","name":"soffensive"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':''==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:''==='dark')&&document.body.setAttribute('theme','dark')</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="soffensive blog">soffensive blog</a></div><div class=menu><div class=menu-inner><a class=menu-item href=/posts/>Posts </a><a class=menu-item href=/tags/>Tags </a><a class=menu-item href=/categories/>Categories </a><a class=menu-item href=/about/>About </a><a class=menu-item href=https://github.com/soffensive title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><a class=menu-item href=https://twitter.com/evisneffos title=Twitter rel="noopener noreffer" target=_blank><i class="fab fa-twitter fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title="Switch Theme"><i class="fas fa-adjust fa-fw"></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="soffensive blog">soffensive blog</a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>Posts</a><a class=menu-item href=/tags/ title>Tags</a><a class=menu-item href=/categories/ title>Categories</a><a class=menu-item href=/about/ title>About</a><a class=menu-item href=https://github.com/soffensive title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a class=menu-item href=https://twitter.com/evisneffos title=Twitter rel="noopener noreffer" target=_blank><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title="Switch Theme">
+<i class="fas fa-adjust fa-fw"></i></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>Contents</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Practical Reverse Engineering Exercise Solutions: KiInitializeTSS</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=/ title=Author rel=" author" class=author><i class="fas fa-user-circle fa-fw"></i>soffensive</a></span>&nbsp;<span class=post-category>included in <a href=/categories/practical-reverse-engineering/><i class="far fa-folder fa-fw"></i>practical reverse engineering</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2017-07-16>2017-07-16</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;389 words&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;2 minutes&nbsp;</div></div><div class="details toc" id=toc-static kept><div class="details-summary toc-title"><span>Contents</span>
+<span><i class="details-icon fas fa-angle-right"></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents></nav></div></div><div class=content id=content><p>Another exercise for us is the decompilation of the <code>KiInitializeTSS</code> function:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nasm data-lang=nasm><span class=nf>nt</span><span class=err>!</span><span class=nv>KiInitializeTSS</span><span class=p>:</span>
+<span class=err>82847359</span> <span class=err>8</span><span class=nf>bff</span>            <span class=nv>mov</span>     <span class=nb>edi</span><span class=p>,</span><span class=nb>edi</span>
+<span class=err>8284735</span><span class=nf>b</span> <span class=mi>55</span>              <span class=nv>push</span>    <span class=nb>ebp</span>
+<span class=err>8284735</span><span class=nf>c</span> <span class=mi>8</span><span class=nv>bec</span>            <span class=nv>mov</span>     <span class=nb>ebp</span><span class=p>,</span><span class=nb>esp</span>
+<span class=err>8284735</span><span class=nf>e</span> <span class=mi>8</span><span class=nv>b4508</span>          <span class=nv>mov</span>     <span class=nb>eax</span><span class=p>,</span><span class=kt>dword</span> <span class=nv>ptr</span> <span class=p>[</span><span class=nb>ebp</span><span class=o>+</span><span class=mi>8</span><span class=p>]</span>
+<span class=err>82847361</span> <span class=nf>b9ac200000</span>      <span class=nv>mov</span>     <span class=nb>ecx</span><span class=p>,</span><span class=mh>20ACh</span>
+<span class=err>82847366</span> <span class=err>66894866</span>        <span class=nf>mov</span>     <span class=kt>word</span> <span class=nv>ptr</span> <span class=p>[</span><span class=nb>eax</span><span class=o>+</span><span class=mh>66h</span><span class=p>],</span><span class=nb>cx</span>
+<span class=err>8284736</span><span class=nf>a</span> <span class=mi>33</span><span class=nv>c9</span>            <span class=nv>xor</span>     <span class=nb>ecx</span><span class=p>,</span><span class=nb>ecx</span>
+<span class=err>8284736</span><span class=nf>c</span> <span class=mi>6</span><span class=nv>a10</span>            <span class=nv>push</span>    <span class=mh>10h</span>
+<span class=err>8284736</span><span class=nf>e</span> <span class=mi>66894864</span>        <span class=nv>mov</span>     <span class=kt>word</span> <span class=nv>ptr</span> <span class=p>[</span><span class=nb>eax</span><span class=o>+</span><span class=mh>64h</span><span class=p>],</span><span class=nb>cx</span>
+<span class=err>82847372</span> <span class=err>66894860</span>        <span class=nf>mov</span>     <span class=kt>word</span> <span class=nv>ptr</span> <span class=p>[</span><span class=nb>eax</span><span class=o>+</span><span class=mh>60h</span><span class=p>],</span><span class=nb>cx</span>
+<span class=err>82847376</span> <span class=err>59</span>              <span class=nf>pop</span>     <span class=nb>ecx</span>
+<span class=err>82847377</span> <span class=err>66894808</span>        <span class=nf>mov</span>     <span class=kt>word</span> <span class=nv>ptr</span> <span class=p>[</span><span class=nb>eax</span><span class=o>+</span><span class=mi>8</span><span class=p>],</span><span class=nb>cx</span>
+<span class=err>8284737</span><span class=nf>b</span> <span class=mi>5</span><span class=nv>d</span>              <span class=nv>pop</span>     <span class=nb>ebp</span>
+<span class=err>8284737</span><span class=nf>c</span> <span class=nv>c20400</span>          <span class=nv>ret</span>     <span class=mi>4</span>
+</code></pre></td></tr></table></div></div><p>We obtain the function prototype: (<a href=https://github.com/hoangduit/reactos/blob/63682957b86d77c7d82e7b887797ef82ea92d271/reactos/ntoskrnl/ke/powerpc/cpu.c target=_blank rel="noopener noreffer">source</a>)</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=n>VOID</span>
+<span class=n>NTAPI</span>
+<span class=nf>KiInitializeTSS</span><span class=p>(</span><span class=n>IN</span> <span class=n>PKTSS</span> <span class=n>Tss</span><span class=p>)</span>
+<span class=p>{</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>Structure of <code>_KTSS</code>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nix data-lang=nix><span class=n>kd</span><span class=o>&gt;</span> <span class=n>dt</span> <span class=n>nt</span><span class=o>!</span><span class=n>_ktss</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x000</span> <span class=n>Backlink</span>         <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x002</span> <span class=n>Reserved0</span>        <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x004</span> <span class=n>Esp0</span>             <span class=p>:</span> <span class=n>Uint4B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x008</span> <span class=n>Ss0</span>              <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x00a</span> <span class=n>Reserved1</span>        <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x00c</span> <span class=n>NotUsed1</span>         <span class=p>:</span> <span class=p>[</span><span class=mi>4</span><span class=p>]</span> <span class=n>Uint4B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x01c</span> <span class=n>CR3</span>              <span class=p>:</span> <span class=n>Uint4B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x020</span> <span class=n>Eip</span>              <span class=p>:</span> <span class=n>Uint4B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x024</span> <span class=n>EFlags</span>           <span class=p>:</span> <span class=n>Uint4B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x028</span> <span class=n>Eax</span>              <span class=p>:</span> <span class=n>Uint4B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x02c</span> <span class=n>Ecx</span>              <span class=p>:</span> <span class=n>Uint4B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x030</span> <span class=n>Edx</span>              <span class=p>:</span> <span class=n>Uint4B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x034</span> <span class=n>Ebx</span>              <span class=p>:</span> <span class=n>Uint4B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x038</span> <span class=n>Esp</span>              <span class=p>:</span> <span class=n>Uint4B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x03c</span> <span class=n>Ebp</span>              <span class=p>:</span> <span class=n>Uint4B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x040</span> <span class=n>Esi</span>              <span class=p>:</span> <span class=n>Uint4B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x044</span> <span class=n>Edi</span>              <span class=p>:</span> <span class=n>Uint4B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x048</span> <span class=n>Es</span>               <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x04a</span> <span class=n>Reserved2</span>        <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x04c</span> <span class=n>Cs</span>               <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x04e</span> <span class=n>Reserved3</span>        <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x050</span> <span class=n>Ss</span>               <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x052</span> <span class=n>Reserved4</span>        <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x054</span> <span class=n>Ds</span>               <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x056</span> <span class=n>Reserved5</span>        <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x058</span> <span class=n>Fs</span>               <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x05a</span> <span class=n>Reserved6</span>        <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x05c</span> <span class=n>Gs</span>               <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x05e</span> <span class=n>Reserved7</span>        <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x060</span> <span class=n>LDT</span>              <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x062</span> <span class=n>Reserved8</span>        <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x064</span> <span class=n>Flags</span>            <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x066</span> <span class=n>IoMapBase</span>        <span class=p>:</span> <span class=n>Uint2B</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x068</span> <span class=n>IoMaps</span>           <span class=p>:</span> <span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=n>_KiIoAccessMap</span>
+   <span class=o>+</span><span class=err>0</span><span class=n>x208c</span> <span class=n>IntDirectionMap</span>  <span class=p>:</span> <span class=p>[</span><span class=mi>32</span><span class=p>]</span> <span class=n>UChar</span>
+</code></pre></td></tr></table></div></div><p>Translaction to C:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=n>VOID</span> <span class=n>NTAPI</span> <span class=nf>iInitializeTSS</span><span class=p>(</span><span class=n>IN</span> <span class=n>PKTSS</span> <span class=n>Tss</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=n>Tss</span><span class=o>-&gt;</span><span class=n>IoMapBase</span> <span class=o>=</span> <span class=mh>0x20AC</span><span class=p>;</span>
+    <span class=n>Tss</span><span class=o>-&gt;</span><span class=n>Flags</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>Tss</span><span class=o>-&gt;</span><span class=n>LDT</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+    <span class=n>Tss</span><span class=o>-&gt;</span><span class=n>Ss0</span> <span class=o>=</span> <span class=mh>0x10</span><span class=p>;</span>
+<span class=p>}</span>
 
-<meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Practical Reverse Engineering Exercise Solutions: KiInitializeTSS"/>
-<meta name="twitter:description" content="Another exercise for us is the decompilation of the KiInitializeTSS function:
-1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  nt!KiInitializeTSS: 82847359 8bff mov edi,edi 8284735b 55 push ebp 8284735c 8bec mov ebp,esp 8284735e 8b4508 mov eax,dword ptr [ebp&#43;8] 82847361 b9ac200000 mov ecx,20ACh 82847366 66894866 mov word ptr [eax&#43;66h],cx 8284736a 33c9 xor ecx,ecx 8284736c 6a10 push 10h 8284736e 66894864 mov word ptr [eax&#43;64h],cx 82847372 66894860 mov word ptr [eax&#43;60h],cx 82847376 59 pop ecx 82847377 66894808 mov word ptr [eax&#43;8],cx 8284737b 5d pop ebp 8284737c c20400 ret 4   We obtain the function prototype: (source)"/>
-<meta name="application-name" content="soffensive blog">
-<meta name="apple-mobile-web-app-title" content="soffensive blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/" /><link rel="prev" href="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kereadythread/" /><link rel="next" href="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
-    {
-        "@context": "http://schema.org",
-        "@type": "BlogPosting",
-        "headline": "Practical Reverse Engineering Exercise Solutions: KiInitializeTSS",
-        "inLanguage": "en",
-        "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": "http:\/\/localhost:1313\/posts\/practical-reverse-engineering\/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss\/"
-        },"genre": "posts","keywords": "Practical Reverse Engineering, x64, x86","wordcount":  389 ,
-        "url": "http:\/\/localhost:1313\/posts\/practical-reverse-engineering\/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss\/","datePublished": "2017-07-16T05:33:00-07:00","dateModified": "2017-07-16T05:33:00-07:00","publisher": {
-            "@type": "Organization",
-            "name": "soffensive"},"author": {
-                "@type": "Person",
-                "name": "soffensive"
-            },"description": ""
-    }
-    </script></head>
-    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
-
-        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
-    <div class="header-wrapper">
-        <div class="header-title">
-            <a href="/" title="soffensive blog">soffensive blog</a>
-        </div>
-        <div class="menu">
-            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i>  </a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i>  </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
-                    <i class="fas fa-adjust fa-fw"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-</header><header class="mobile" id="header-mobile">
-    <div class="header-container">
-        <div class="header-wrapper">
-            <div class="header-title">
-                <a href="/" title="soffensive blog">soffensive blog</a>
-            </div>
-            <div class="menu-toggle" id="menu-toggle-mobile">
-                <span></span><span></span><span></span>
-            </div>
-        </div>
-        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i></a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i></a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
-                <i class="fas fa-adjust fa-fw"></i>
-            </a></div>
-    </div>
-</header>
-<div class="search-dropdown desktop">
-    <div id="search-dropdown-desktop"></div>
-</div>
-<div class="search-dropdown mobile">
-    <div id="search-dropdown-mobile"></div>
-</div>
-<main class="main">
-                <div class="container"><div class="toc" id="toc-auto">
-            <h2 class="toc-title">Contents</h2>
-            <div class="toc-content" id="toc-content-auto"></div>
-        </div><article class="page single"><h1 class="single-title animated flipInX">Practical Reverse Engineering Exercise Solutions: KiInitializeTSS</h1><div class="post-meta">
-            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>soffensive</a></span>&nbsp;<span class="post-category">included in <a href="/categories/practical-reverse-engineering/"><i class="far fa-folder fa-fw"></i>practical reverse engineering</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2017-07-16">2017-07-16</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;389 words&nbsp;
-                <i class="far fa-clock fa-fw"></i>&nbsp;2 minutes&nbsp;</div>
-        </div><div class="details toc" id="toc-static"  kept="">
-                <div class="details-summary toc-title">
-                    <span>Contents</span>
-                    <span><i class="details-icon fas fa-angle-right"></i></span>
-                </div>
-                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents"></nav></div>
-            </div><div class="content" id="content"><p>Another exercise for us is the decompilation of the <code>KiInitializeTSS</code> function:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="nf">nt</span><span class="err">!</span><span class="nv">KiInitializeTSS</span><span class="p">:</span>
-<span class="err">82847359</span> <span class="err">8</span><span class="nf">bff</span>            <span class="nv">mov</span>     <span class="nb">edi</span><span class="p">,</span><span class="nb">edi</span>
-<span class="err">8284735</span><span class="nf">b</span> <span class="mi">55</span>              <span class="nv">push</span>    <span class="nb">ebp</span>
-<span class="err">8284735</span><span class="nf">c</span> <span class="mi">8</span><span class="nv">bec</span>            <span class="nv">mov</span>     <span class="nb">ebp</span><span class="p">,</span><span class="nb">esp</span>
-<span class="err">8284735</span><span class="nf">e</span> <span class="mi">8</span><span class="nv">b4508</span>          <span class="nv">mov</span>     <span class="nb">eax</span><span class="p">,</span><span class="kt">dword</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="mi">8</span><span class="p">]</span>
-<span class="err">82847361</span> <span class="nf">b9ac200000</span>      <span class="nv">mov</span>     <span class="nb">ecx</span><span class="p">,</span><span class="mh">20ACh</span>
-<span class="err">82847366</span> <span class="err">66894866</span>        <span class="nf">mov</span>     <span class="kt">word</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mh">66h</span><span class="p">],</span><span class="nb">cx</span>
-<span class="err">8284736</span><span class="nf">a</span> <span class="mi">33</span><span class="nv">c9</span>            <span class="nv">xor</span>     <span class="nb">ecx</span><span class="p">,</span><span class="nb">ecx</span>
-<span class="err">8284736</span><span class="nf">c</span> <span class="mi">6</span><span class="nv">a10</span>            <span class="nv">push</span>    <span class="mh">10h</span>
-<span class="err">8284736</span><span class="nf">e</span> <span class="mi">66894864</span>        <span class="nv">mov</span>     <span class="kt">word</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mh">64h</span><span class="p">],</span><span class="nb">cx</span>
-<span class="err">82847372</span> <span class="err">66894860</span>        <span class="nf">mov</span>     <span class="kt">word</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mh">60h</span><span class="p">],</span><span class="nb">cx</span>
-<span class="err">82847376</span> <span class="err">59</span>              <span class="nf">pop</span>     <span class="nb">ecx</span>
-<span class="err">82847377</span> <span class="err">66894808</span>        <span class="nf">mov</span>     <span class="kt">word</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mi">8</span><span class="p">],</span><span class="nb">cx</span>
-<span class="err">8284737</span><span class="nf">b</span> <span class="mi">5</span><span class="nv">d</span>              <span class="nv">pop</span>     <span class="nb">ebp</span>
-<span class="err">8284737</span><span class="nf">c</span> <span class="nv">c20400</span>          <span class="nv">ret</span>     <span class="mi">4</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>We obtain the function prototype: (<a href="https://github.com/hoangduit/reactos/blob/63682957b86d77c7d82e7b887797ef82ea92d271/reactos/ntoskrnl/ke/powerpc/cpu.c" target="_blank" rel="noopener noreffer">source</a>)</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">VOID</span>
-<span class="n">NTAPI</span>
-<span class="nf">KiInitializeTSS</span><span class="p">(</span><span class="n">IN</span> <span class="n">PKTSS</span> <span class="n">Tss</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>Structure of <code>_KTSS</code>:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
-</span><span class="lnt">32
-</span><span class="lnt">33
-</span><span class="lnt">34
-</span><span class="lnt">35
-</span><span class="lnt">36
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">nt</span><span class="o">!</span><span class="n">_ktss</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x000</span> <span class="n">Backlink</span>         <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x002</span> <span class="n">Reserved0</span>        <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x004</span> <span class="n">Esp0</span>             <span class="p">:</span> <span class="n">Uint4B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x008</span> <span class="n">Ss0</span>              <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x00a</span> <span class="n">Reserved1</span>        <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x00c</span> <span class="n">NotUsed1</span>         <span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="n">Uint4B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x01c</span> <span class="n">CR3</span>              <span class="p">:</span> <span class="n">Uint4B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x020</span> <span class="n">Eip</span>              <span class="p">:</span> <span class="n">Uint4B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x024</span> <span class="n">EFlags</span>           <span class="p">:</span> <span class="n">Uint4B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x028</span> <span class="n">Eax</span>              <span class="p">:</span> <span class="n">Uint4B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x02c</span> <span class="n">Ecx</span>              <span class="p">:</span> <span class="n">Uint4B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x030</span> <span class="n">Edx</span>              <span class="p">:</span> <span class="n">Uint4B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x034</span> <span class="n">Ebx</span>              <span class="p">:</span> <span class="n">Uint4B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x038</span> <span class="n">Esp</span>              <span class="p">:</span> <span class="n">Uint4B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x03c</span> <span class="n">Ebp</span>              <span class="p">:</span> <span class="n">Uint4B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x040</span> <span class="n">Esi</span>              <span class="p">:</span> <span class="n">Uint4B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x044</span> <span class="n">Edi</span>              <span class="p">:</span> <span class="n">Uint4B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x048</span> <span class="n">Es</span>               <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x04a</span> <span class="n">Reserved2</span>        <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x04c</span> <span class="n">Cs</span>               <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x04e</span> <span class="n">Reserved3</span>        <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x050</span> <span class="n">Ss</span>               <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x052</span> <span class="n">Reserved4</span>        <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x054</span> <span class="n">Ds</span>               <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x056</span> <span class="n">Reserved5</span>        <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x058</span> <span class="n">Fs</span>               <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x05a</span> <span class="n">Reserved6</span>        <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x05c</span> <span class="n">Gs</span>               <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x05e</span> <span class="n">Reserved7</span>        <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x060</span> <span class="n">LDT</span>              <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x062</span> <span class="n">Reserved8</span>        <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x064</span> <span class="n">Flags</span>            <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x066</span> <span class="n">IoMapBase</span>        <span class="p">:</span> <span class="n">Uint2B</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x068</span> <span class="n">IoMaps</span>           <span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="n">_KiIoAccessMap</span>
-   <span class="o">+</span><span class="err">0</span><span class="n">x208c</span> <span class="n">IntDirectionMap</span>  <span class="p">:</span> <span class="p">[</span><span class="mi">32</span><span class="p">]</span> <span class="n">UChar</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>Translaction to C:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span><span class="lnt">8
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">VOID</span> <span class="n">NTAPI</span> <span class="nf">iInitializeTSS</span><span class="p">(</span><span class="n">IN</span> <span class="n">PKTSS</span> <span class="n">Tss</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">Tss</span><span class="o">-&gt;</span><span class="n">IoMapBase</span> <span class="o">=</span> <span class="mh">0x20AC</span><span class="p">;</span>
-    <span class="n">Tss</span><span class="o">-&gt;</span><span class="n">Flags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="n">Tss</span><span class="o">-&gt;</span><span class="n">LDT</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="n">Tss</span><span class="o">-&gt;</span><span class="n">Ss0</span> <span class="o">=</span> <span class="mh">0x10</span><span class="p">;</span>
-<span class="p">}</span>
-
-</code></pre></td></tr></table>
-</div>
-</div><p>Although we are technically done with the decompilation, it is worthwhile to note the meaning of the hexadecimal values. </p>
-<p>While hexadecimal <code>0x10</code> is 16 in decimal notation, <code>0x20AC</code> is 8364.</p>
-<p>We can obtain the size of the data structure <code>_KTSS</code> in WinDbg with the following command. The size coincides with the value assigned to <code>IoMapBase</code>:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="n">kd</span><span class="o">&gt;</span> <span class="o">??</span> <span class="n">sizeof</span><span class="p">(</span><span class="n">_KTSS</span><span class="p">)</span>
-<span class="n">unsigned</span> <span class="n">int</span> <span class="err">0</span><span class="n">x20ac</span>
-</code></pre></td></tr></table>
-</div>
-</div></div><div class="post-footer" id="post-footer">
-    <div class="post-info">
-        <div class="post-info-line">
-            <div class="post-info-mod">
-                <span>Updated on 2017-07-16</span>
-            </div>
-            <div class="post-info-license"></div>
-        </div>
-        <div class="post-info-line">
-            <div class="post-info-md"></div>
-            <div class="post-info-share">
-                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/" data-title="Practical Reverse Engineering Exercise Solutions: KiInitializeTSS" data-via="evisneffos" data-hashtags="Practical Reverse Engineering,x64,x86"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/" data-hashtag="Practical Reverse Engineering"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/"><i class="fab fa-linkedin fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/" data-title="Practical Reverse Engineering Exercise Solutions: KiInitializeTSS" data-web><i class="fab fa-whatsapp fa-fw"></i></a></span>
-            </div>
-        </div>
-    </div>
-
-    <div class="post-info-more">
-        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/practical-reverse-engineering/">Practical Reverse Engineering</a>,&nbsp;<a href="/tags/x64/">x64</a>,&nbsp;<a href="/tags/x86/">x86</a></section>
-        <section>
-            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
-        </section>
-    </div>
-
-    <div class="post-nav"><a href="/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kereadythread/" class="prev" rel="prev" title="Practical Reverse Engineering Exercise Solutions: KeReadyThread"><i class="fas fa-angle-left fa-fw"></i>Practical Reverse Engineering Exercise Solutions: KeReadyThread</a>
-            <a href="/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/" class="next" rel="next" title="Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet">Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet<i class="fas fa-angle-right fa-fw"></i></a></div>
-</div>
-</article></div>
-            </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.83.1">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
-                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2017 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank"></a></span></div>
-        </div>
-    </footer></div>
-
-        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
-                <i class="fas fa-arrow-up fa-fw"></i>
-            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
-                <i class="fas fa-comment fa-fw"></i>
-            </a>
-        </div><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":1000},"comment":{}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
-</html>
+</code></pre></td></tr></table></div></div><p>Although we are technically done with the decompilation, it is worthwhile to note the meaning of the hexadecimal values. </p><p>While hexadecimal <code>0x10</code> is 16 in decimal notation, <code>0x20AC</code> is 8364.</p><p>We can obtain the size of the data structure <code>_KTSS</code> in WinDbg with the following command. The size coincides with the value assigned to <code>IoMapBase</code>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nix data-lang=nix><span class=n>kd</span><span class=o>&gt;</span> <span class=o>??</span> <span class=n>sizeof</span><span class=p>(</span><span class=n>_KTSS</span><span class=p>)</span>
+<span class=n>unsigned</span> <span class=n>int</span> <span class=err>0</span><span class=n>x20ac</span>
+</code></pre></td></tr></table></div></div></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>Updated on 2017-07-16</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href=javascript:void(0); title="Share on Twitter" data-sharer=twitter data-url=https://www.soffensive.com/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/ data-title="Practical Reverse Engineering Exercise Solutions: KiInitializeTSS" data-via=evisneffos data-hashtags="Practical Reverse Engineering,x64,x86"><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="Share on Facebook" data-sharer=facebook data-url=https://www.soffensive.com/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/ data-hashtag="Practical Reverse Engineering"><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="Share on Linkedin" data-sharer=linkedin data-url=https://www.soffensive.com/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="Share on WhatsApp" data-sharer=whatsapp data-url=https://www.soffensive.com/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/ data-title="Practical Reverse Engineering Exercise Solutions: KiInitializeTSS" data-web><i class="fab fa-whatsapp fa-fw"></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/practical-reverse-engineering/>Practical Reverse Engineering</a>,&nbsp;<a href=/tags/x64/>x64</a>,&nbsp;<a href=/tags/x86/>x86</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>Back</a></span>&nbsp;|&nbsp;<span><a href=/>Home</a></span></section></div><div class=post-nav><a href=/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kereadythread/ class=prev rel=prev title="Practical Reverse Engineering Exercise Solutions: KeReadyThread"><i class="fas fa-angle-left fa-fw"></i>Practical Reverse Engineering Exercise Solutions: KeReadyThread</a>
+<a href=/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/ class=next rel=next title="Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet">Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet<i class="fas fa-angle-right fa-fw"></i></a></div></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>Powered by <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.83.1">Hugo</a> | Theme - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a></div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2021</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=/ target=_blank></a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title="Back to Top"><i class="fas fa-arrow-up fa-fw"></i>
+</a><a href=# id=view-comments class=fixed-button title="View Comments"><i class="fas fa-comment fa-fw"></i></a></div><script type=text/javascript src=/lib/smooth-scroll/smooth-scroll.min.js></script><script type=text/javascript src=/lib/lazysizes/lazysizes.min.js></script><script type=text/javascript src=/lib/clipboard/clipboard.min.js></script><script type=text/javascript src=/lib/sharer/sharer.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"Copy to clipboard",maxShownLines:1e3},comment:{}}</script><script type=text/javascript src=/js/theme.min.js></script></body></html>

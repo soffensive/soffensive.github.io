@@ -1,395 +1,171 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="robots" content="noodp" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
-        <title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11 - soffensive blog</title><meta name="Description" content=""><meta property="og:title" content="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11" />
-<meta property="og:description" content="Read the Virtual Memory chapter in Intel Software Developer Manual, Volume 3 and AMD64 Architecture Programmer’s Manual, Volume 2: System Programming. Perform a few virtual address to physical address translations yourself and verify the result with a kernel debugger. Explain how data execution prevention (DEP) works.
- For this exercise, we first have to set up a remote kernel debugging session. (see https://codemetrix.net/windows-kernel-debugging-setup/, https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/ and http://securityblog.gr/3023/windows-kernel-debugging/ for excellent explanations)" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2017-09-20T02:37:00-07:00" />
-<meta property="article:modified_time" content="2017-09-20T02:37:00-07:00" />
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta http-equiv=x-ua-compatible content="IE=edge, chrome=1"><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11 - soffensive blog</title><meta name=Description content><meta property="og:title" content="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11"><meta property="og:description" content="Read the Virtual Memory chapter in Intel Software Developer Manual, Volume 3 and AMD64 Architecture Programmer’s Manual, Volume 2: System Programming. Perform a few virtual address to physical address translations yourself and verify the result with a kernel debugger. Explain how data execution prevention (DEP) works.
+ For this exercise, we first have to set up a remote kernel debugging session. (see https://codemetrix.net/windows-kernel-debugging-setup/, https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/ and http://securityblog.gr/3023/windows-kernel-debugging/ for excellent explanations)"><meta property="og:type" content="article"><meta property="og:url" content="https://www.soffensive.com/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2017-09-20T02:37:00-07:00"><meta property="article:modified_time" content="2017-09-20T02:37:00-07:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11"><meta name=twitter:description content="Read the Virtual Memory chapter in Intel Software Developer Manual, Volume 3 and AMD64 Architecture Programmer’s Manual, Volume 2: System Programming. Perform a few virtual address to physical address translations yourself and verify the result with a kernel debugger. Explain how data execution prevention (DEP) works.
+ For this exercise, we first have to set up a remote kernel debugging session. (see https://codemetrix.net/windows-kernel-debugging-setup/, https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/ and http://securityblog.gr/3023/windows-kernel-debugging/ for excellent explanations)"><meta name=application-name content="soffensive blog"><meta name=apple-mobile-web-app-title content="soffensive blog"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://www.soffensive.com/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/><link rel=prev href=https://www.soffensive.com/posts/practical-reverse-engineering/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/><link rel=next href=https://www.soffensive.com/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/><link rel=stylesheet href=/lib/normalize/normalize.min.css><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=/lib/fontawesome-free/all.min.css><link rel=stylesheet href=/lib/animate/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11","inLanguage":"en","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/www.soffensive.com\/posts\/practical-reverse-engineering\/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11\/"},"genre":"posts","keywords":"Practical Reverse Engineering, x64, x86","wordcount":827,"url":"https:\/\/www.soffensive.com\/posts\/practical-reverse-engineering\/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11\/","datePublished":"2017-09-20T02:37:00-07:00","dateModified":"2017-09-20T02:37:00-07:00","publisher":{"@type":"Organization","name":"soffensive"},"author":{"@type":"Person","name":"soffensive"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':''==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:''==='dark')&&document.body.setAttribute('theme','dark')</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="soffensive blog">soffensive blog</a></div><div class=menu><div class=menu-inner><a class=menu-item href=/posts/>Posts </a><a class=menu-item href=/tags/>Tags </a><a class=menu-item href=/categories/>Categories </a><a class=menu-item href=/about/>About </a><a class=menu-item href=https://github.com/soffensive title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><a class=menu-item href=https://twitter.com/evisneffos title=Twitter rel="noopener noreffer" target=_blank><i class="fab fa-twitter fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item theme-switch" title="Switch Theme"><i class="fas fa-adjust fa-fw"></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="soffensive blog">soffensive blog</a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><a class=menu-item href=/posts/ title>Posts</a><a class=menu-item href=/tags/ title>Tags</a><a class=menu-item href=/categories/ title>Categories</a><a class=menu-item href=/about/ title>About</a><a class=menu-item href=https://github.com/soffensive title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a class=menu-item href=https://twitter.com/evisneffos title=Twitter rel="noopener noreffer" target=_blank><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title="Switch Theme">
+<i class="fas fa-adjust fa-fw"></i></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>Contents</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=/ title=Author rel=" author" class=author><i class="fas fa-user-circle fa-fw"></i>soffensive</a></span>&nbsp;<span class=post-category>included in <a href=/categories/practical-reverse-engineering/><i class="far fa-folder fa-fw"></i>practical reverse engineering</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime=2017-09-20>2017-09-20</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;827 words&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;4 minutes&nbsp;</div></div><div class="details toc" id=toc-static kept><div class="details-summary toc-title"><span>Contents</span>
+<span><i class="details-icon fas fa-angle-right"></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#1-virtual-address-0x8283c054>1. Virtual address: <code>0x8283c054</code></a></li><li><a href=#2-virtual-address-0x83e31738>2. Virtual address: <code>0x83e31738</code></a></li><li><a href=#3-how-does-dep-work>3. How does DEP work?</a></li></ul></nav></div></div><div class=content id=content><blockquote><p>Read the Virtual Memory chapter in Intel Software Developer Manual, Volume 3 and AMD64 Architecture Programmer’s Manual, Volume 2: System Programming. Perform a few virtual address to physical address translations yourself and verify the result with a kernel debugger. Explain how data execution prevention (DEP) works.</p></blockquote><p>For this exercise, we first have to set up a remote kernel debugging session. (see <a href=https://codemetrix.net/windows-kernel-debugging-setup/>https://codemetrix.net/windows-kernel-debugging-setup/</a>, <a href=https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/>https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/</a> and
+<a href=http://securityblog.gr/3023/windows-kernel-debugging/>http://securityblog.gr/3023/windows-kernel-debugging/</a> for excellent explanations)</p><p>Local kernel debugging is not an option in this case since examining register contents requires remote kernel debugging. As a reminder, WinDbg has two different commands for inspecting memory contents:</p><ul><li><strong>d*</strong> commands (e.g., db): Display memory data at a specified virtual address</li><li><strong>!d*</strong> commands (e.g., !db): Display data at a specified physical address</li></ul><p>We perform a couple of translations from virtual addresses to physical addresses:</p><h2 id=1-virtual-address-0x8283c054>1. Virtual address: <code>0x8283c054</code></h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nix data-lang=nix><span class=n>kd</span><span class=o>&gt;</span> <span class=n>db</span> <span class=err>8283</span><span class=n>c054</span> <span class=n>L8</span>
+<span class=err>8283</span><span class=n>c054</span>  <span class=mi>72</span> <span class=err>6</span><span class=n>f</span> <span class=mi>67</span> <span class=mi>72</span> <span class=mi>61</span> <span class=err>6</span><span class=n>d</span> <span class=mi>20</span> <span class=mi>63</span> <span class=n>rogram</span> <span class=n>c</span>
+</code></pre></td></tr></table></div></div><p>The binary representation of this address yields:</p><p>‭<code>10000010100000111100000001010100‬</code></p><p>By splitting this binary representation into groups, we obtain the indices for the PT:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nix data-lang=nix><span class=err>‭</span><span class=mi>10</span> <span class=mi>000010100</span> <span class=mi>000111100</span> <span class=mi>000001010100</span><span class=err>‬</span>
 
-<meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11"/>
-<meta name="twitter:description" content="Read the Virtual Memory chapter in Intel Software Developer Manual, Volume 3 and AMD64 Architecture Programmer’s Manual, Volume 2: System Programming. Perform a few virtual address to physical address translations yourself and verify the result with a kernel debugger. Explain how data execution prevention (DEP) works.
- For this exercise, we first have to set up a remote kernel debugging session. (see https://codemetrix.net/windows-kernel-debugging-setup/, https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/ and http://securityblog.gr/3023/windows-kernel-debugging/ for excellent explanations)"/>
-<meta name="application-name" content="soffensive blog">
-<meta name="apple-mobile-web-app-title" content="soffensive blog"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://localhost:1313/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/" /><link rel="prev" href="http://localhost:1313/posts/practical-reverse-engineering/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/" /><link rel="next" href="http://localhost:1313/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
-    {
-        "@context": "http://schema.org",
-        "@type": "BlogPosting",
-        "headline": "Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11",
-        "inLanguage": "en",
-        "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": "http:\/\/localhost:1313\/posts\/practical-reverse-engineering\/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11\/"
-        },"genre": "posts","keywords": "Practical Reverse Engineering, x64, x86","wordcount":  827 ,
-        "url": "http:\/\/localhost:1313\/posts\/practical-reverse-engineering\/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11\/","datePublished": "2017-09-20T02:37:00-07:00","dateModified": "2017-09-20T02:37:00-07:00","publisher": {
-            "@type": "Organization",
-            "name": "soffensive"},"author": {
-                "@type": "Person",
-                "name": "soffensive"
-            },"description": ""
-    }
-    </script></head>
-    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+<span class=n>Index</span> <span class=n>into</span> <span class=n>page</span> <span class=n>directory</span> <span class=n>pointer</span> <span class=n>table</span> <span class=p>(</span><span class=n>PDPT</span><span class=p>):</span> <span class=mi>10</span>  <span class=p>(</span><span class=err>0</span><span class=n>x2</span><span class=p>)</span>
+<span class=n>Index</span> <span class=n>into</span> <span class=n>page</span> <span class=n>directory</span> <span class=p>(</span><span class=n>PD</span><span class=p>):</span> <span class=mi>000010100</span> <span class=p>(</span><span class=err>0</span><span class=n>x14</span><span class=p>)</span>
+<span class=n>Index</span> <span class=n>into</span>  <span class=n>page</span> <span class=n>table</span> <span class=p>(</span><span class=n>PT</span><span class=p>):</span><span class=mi>000111100</span> <span class=p>(</span><span class=err>0</span><span class=n>x3C</span><span class=p>)</span>
+<span class=n>Page</span> <span class=n>offset</span><span class=p>:</span> <span class=mi>000001010100</span><span class=err>‬</span> <span class=p>(</span><span class=err>0</span><span class=n>x54</span><span class=p>)</span>
 
-        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
-    <div class="header-wrapper">
-        <div class="header-title">
-            <a href="/" title="soffensive blog">soffensive blog</a>
-        </div>
-        <div class="menu">
-            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i>  </a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i>  </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
-                    <i class="fas fa-adjust fa-fw"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-</header><header class="mobile" id="header-mobile">
-    <div class="header-container">
-        <div class="header-wrapper">
-            <div class="header-title">
-                <a href="/" title="soffensive blog">soffensive blog</a>
-            </div>
-            <div class="menu-toggle" id="menu-toggle-mobile">
-                <span></span><span></span><span></span>
-            </div>
-        </div>
-        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a class="menu-item" href="https://github.com/soffensive" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i></a><a class="menu-item" href="https://twitter.com/evisneffos" title="Twitter" rel="noopener noreffer" target="_blank"><i class='fab fa-twitter fa-fw'></i></a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
-                <i class="fas fa-adjust fa-fw"></i>
-            </a></div>
-    </div>
-</header>
-<div class="search-dropdown desktop">
-    <div id="search-dropdown-desktop"></div>
-</div>
-<div class="search-dropdown mobile">
-    <div id="search-dropdown-mobile"></div>
-</div>
-<main class="main">
-                <div class="container"><div class="toc" id="toc-auto">
-            <h2 class="toc-title">Contents</h2>
-            <div class="toc-content" id="toc-content-auto"></div>
-        </div><article class="page single"><h1 class="single-title animated flipInX">Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11</h1><div class="post-meta">
-            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>soffensive</a></span>&nbsp;<span class="post-category">included in <a href="/categories/practical-reverse-engineering/"><i class="far fa-folder fa-fw"></i>practical reverse engineering</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2017-09-20">2017-09-20</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;827 words&nbsp;
-                <i class="far fa-clock fa-fw"></i>&nbsp;4 minutes&nbsp;</div>
-        </div><div class="details toc" id="toc-static"  kept="">
-                <div class="details-summary toc-title">
-                    <span>Contents</span>
-                    <span><i class="details-icon fas fa-angle-right"></i></span>
-                </div>
-                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
-  <ul>
-    <li><a href="#1-virtual-address-0x8283c054">1. Virtual address: <code>0x8283c054</code></a></li>
-    <li><a href="#2-virtual-address-0x83e31738">2. Virtual address: <code>0x83e31738</code></a></li>
-    <li><a href="#3-how-does-dep-work">3. How does DEP work?</a></li>
-  </ul>
-</nav></div>
-            </div><div class="content" id="content"><blockquote>
-<p>Read the Virtual Memory chapter in Intel Software Developer Manual, Volume 3 and AMD64 Architecture Programmer’s Manual, Volume 2: System Programming. Perform a few virtual address to physical address translations yourself and verify the result with a kernel debugger. Explain how data execution prevention (DEP) works.</p>
-</blockquote>
-<p>For this exercise, we first have to set up a remote kernel debugging session. (see <a href="https://codemetrix.net/windows-kernel-debugging-setup/">https://codemetrix.net/windows-kernel-debugging-setup/</a>, <a href="https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/">https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/</a> and
-<a href="http://securityblog.gr/3023/windows-kernel-debugging/">http://securityblog.gr/3023/windows-kernel-debugging/</a> for excellent explanations)</p>
-<p>Local kernel debugging is not an option in this case since examining register contents requires remote kernel debugging.  As a reminder, WinDbg has two different commands for inspecting memory contents:</p>
-<ul>
-<li><strong>d*</strong> commands (e.g., db): Display memory data at a specified virtual address</li>
-<li><strong>!d*</strong> commands (e.g., !db): Display data at a specified physical address</li>
-</ul>
-<p>We perform a couple of translations from virtual addresses to physical addresses:</p>
-<h2 id="1-virtual-address-0x8283c054">1. Virtual address: <code>0x8283c054</code></h2>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">db</span> <span class="err">8283</span><span class="n">c054</span> <span class="n">L8</span>
-<span class="err">8283</span><span class="n">c054</span>  <span class="mi">72</span> <span class="err">6</span><span class="n">f</span> <span class="mi">67</span> <span class="mi">72</span> <span class="mi">61</span> <span class="err">6</span><span class="n">d</span> <span class="mi">20</span> <span class="mi">63</span> <span class="n">rogram</span> <span class="n">c</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>The binary representation of this address yields:</p>
-<p>‭<code>10000010100000111100000001010100‬</code></p>
-<p>By splitting this binary representation into groups, we obtain the indices for the PT:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span><span class="lnt">8
-</span><span class="lnt">9
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="err">‭</span><span class="mi">10</span> <span class="mi">000010100</span> <span class="mi">000111100</span> <span class="mi">000001010100</span><span class="err">‬</span>
+<span class=n>kd</span><span class=o>&gt;</span> <span class=n>r</span> <span class=o>@</span><span class=n>cr3</span>
+<span class=n>cr3</span><span class=err>=</span><span class=mi>00185000</span>
+</code></pre></td></tr></table></div></div><p>The CR3 register contains the base address of the page directory pointer
+table (PDPT).<br>We continue to calculate the PDPT entry:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nix data-lang=nix><span class=n>kd</span><span class=o>&gt;</span> <span class=n>r</span> <span class=o>@</span><span class=n>cr3</span>
+<span class=n>cr3</span><span class=err>=</span><span class=mi>00185000</span>
 
-<span class="n">Index</span> <span class="n">into</span> <span class="n">page</span> <span class="n">directory</span> <span class="n">pointer</span> <span class="n">table</span> <span class="p">(</span><span class="n">PDPT</span><span class="p">):</span> <span class="mi">10</span>  <span class="p">(</span><span class="err">0</span><span class="n">x2</span><span class="p">)</span>
-<span class="n">Index</span> <span class="n">into</span> <span class="n">page</span> <span class="n">directory</span> <span class="p">(</span><span class="n">PD</span><span class="p">):</span> <span class="mi">000010100</span> <span class="p">(</span><span class="err">0</span><span class="n">x14</span><span class="p">)</span>
-<span class="n">Index</span> <span class="n">into</span>  <span class="n">page</span> <span class="n">table</span> <span class="p">(</span><span class="n">PT</span><span class="p">):</span><span class="mi">000111100</span> <span class="p">(</span><span class="err">0</span><span class="n">x3C</span><span class="p">)</span>
-<span class="n">Page</span> <span class="n">offset</span><span class="p">:</span> <span class="mi">000001010100</span><span class="err">‬</span> <span class="p">(</span><span class="err">0</span><span class="n">x54</span><span class="p">)</span>
+<span class=n>kd</span><span class=o>&gt;</span> <span class=o>!</span><span class=n>dq</span> <span class=o>@</span><span class=n>cr3</span><span class=o>+</span><span class=mi>2</span><span class=o>*</span><span class=mi>8</span> <span class=n>L1</span>
+<span class=c1>#  185010 00000000`00188001</span>
+</code></pre></td></tr></table></div></div><p>Of course, we could employ another program for converting, such as hexadecimal to binary representations. But WinDbg has already implemented a command for this very purpose, namely <code>.formats</code>.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nix data-lang=nix><span class=n>kd</span><span class=o>&gt;</span> <span class=o>.</span><span class=n>formats</span> <span class=mi>00000000</span><span class=err>`</span><span class=mi>00188001</span>
+<span class=n>Evaluate</span> <span class=n>expression</span><span class=p>:</span>
+  <span class=n>Hex</span><span class=p>:</span>     <span class=mi>00188001</span>
+  <span class=n>Decimal</span><span class=p>:</span> <span class=mi>1605633</span>
+  <span class=n>Octal</span><span class=p>:</span>   <span class=mi>00006100001</span>
+  <span class=n>Binary</span><span class=p>:</span>  <span class=mi>00000000</span> <span class=mi>00011000</span> <span class=mi>10000000</span> <span class=mi>00000001</span>
+  <span class=n>Chars</span><span class=p>:</span>   <span class=o>....</span>
+  <span class=n>Time</span><span class=p>:</span>    <span class=n>Mon</span> <span class=n>Jan</span> <span class=mi>19</span> <span class=mi>15</span><span class=p>:</span><span class=mi>00</span><span class=p>:</span><span class=mi>33</span> <span class=mi>1970</span>
+  <span class=n>Float</span><span class=p>:</span>   <span class=n>low</span> <span class=mi>2</span><span class=mf>.24997e-039</span> <span class=n>high</span> <span class=mi>0</span>
+  <span class=n>Double</span><span class=p>:</span>  <span class=mi>7</span><span class=mf>.93288e-318</span>
+</code></pre></td></tr></table></div></div><p>The bottom 12 bits of the PDPT entry have to be cleared, which yields:</p><p><code>00000000 00011000 10000000 00000000</code></p><p>Converted to hex: <code>0x188000</code></p><p>The page directory entry is in turn calculated by adding the index into PD to the PDPT base:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nix data-lang=nix><span class=n>kd</span><span class=o>&gt;</span> <span class=o>!</span><span class=n>dq</span> <span class=mi>188000</span><span class=o>+</span><span class=err>0</span><span class=n>x14</span><span class=o>*</span><span class=mi>8</span> <span class=n>L1</span>
+<span class=c1>#  1880a0 00000000`001d0063</span>
+</code></pre></td></tr></table></div></div><p>Converted to binary: <code>00000000 00011101 00000000 01100011</code></p><p>Similarly to the previous step, we have to clear the lowest 12 bits to calculate the base of the page table (PT):</p><p><code>00000000 00011101 00000000 00000000</code></p><p>Converted to hex: <code>0x‭1D0000</code></p><p>The page table entry is calculated as follows:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nix data-lang=nix><span class=n>kd</span><span class=o>&gt;</span> <span class=o>!</span><span class=n>dq</span> <span class=err>1</span><span class=n>D0000</span><span class=o>+</span><span class=err>0</span><span class=n>x3C</span><span class=o>*</span><span class=mi>8</span> <span class=n>L1</span>
+<span class=c1>#  1d01e0 00000000`0283c963</span>
+</code></pre></td></tr></table></div></div><p>Converted to binary: <code>00000010 10000011 11001001 01100011</code></p><p>Similarly to the previous step, we clear the lowest 12 bits and
+obtain:</p><p><code>00000010 10000011 11000000 00000000</code></p><p>Converted to hex: <code>0x283C000</code></p><p>Finally, we can add the page offset to the page entry base to calculate the page&rsquo;s physical address:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nix data-lang=nix><span class=n>kd</span><span class=o>&gt;</span> <span class=o>!</span><span class=n>db</span> <span class=err>0</span><span class=n>x283C000</span><span class=o>+</span><span class=err>0</span><span class=n>x54</span> <span class=n>L8</span>
+<span class=c1># 283c054 72 6f 67 72 61 6d 20 63 rogram c .L.....</span>
+</code></pre></td></tr></table></div></div><p>We can confirm the contents of physical address <code>0x283c054</code> and virtual address <code>0x8283c054</code> are identical:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nix data-lang=nix><span class=n>kd</span><span class=o>&gt;</span> <span class=n>db</span> <span class=err>0</span><span class=n>x8283c054</span> <span class=n>L8</span>
+<span class=err>8283</span><span class=n>c054</span>  <span class=mi>72</span> <span class=err>6</span><span class=n>f</span> <span class=mi>67</span> <span class=mi>72</span> <span class=mi>61</span> <span class=err>6</span><span class=n>d</span> <span class=mi>20</span> <span class=mi>63</span> <span class=n>rogram</span> <span class=n>c</span>
+</code></pre></td></tr></table></div></div><p>As the manual calculation is a rather cumbersome process, WinDbg has already implemented a function to calculate the physical address of a virtual address. In addition to the virtual address, it requires the base address of the page directory pointer table as an input (<a href=https://zerosum0x0.blogspot.de/2015/01/practical-reverse-engineering-p-36-11.html>https://zerosum0x0.blogspot.de/2015/01/practical-reverse-engineering-p-36-11.html</a>)</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nix data-lang=nix><span class=n>kd</span><span class=o>&gt;</span> <span class=o>!</span><span class=n>vtop</span> <span class=mi>00185000</span> <span class=err>8283</span><span class=n>c054</span>
+<span class=n>X86VtoP</span><span class=p>:</span> <span class=n>Virt</span> <span class=err>8283</span><span class=n>c054</span><span class=err>,</span> <span class=n>pagedir</span> <span class=mi>185000</span>
+<span class=n>X86VtoP</span><span class=p>:</span> <span class=n>PAE</span> <span class=n>PDPE</span> <span class=mi>185010</span><span class=o> - </span><span class=mi>0000000000188001</span>
+<span class=n>X86VtoP</span><span class=p>:</span> <span class=n>PAE</span> <span class=n>PDE</span> <span class=err>1880</span><span class=n>a0</span><span class=o> - </span><span class=err>00000000001</span><span class=n>d0063</span>
+<span class=n>X86VtoP</span><span class=p>:</span> <span class=n>PAE</span> <span class=n>PTE</span> <span class=err>1</span><span class=n>d01e0</span><span class=o> - </span><span class=err>000000000283</span><span class=n>c963</span>
+<span class=n>X86VtoP</span><span class=p>:</span> <span class=n>PAE</span> <span class=n>Mapped</span> <span class=n>phys</span> <span class=err>283</span><span class=n>c054</span>
+<span class=n>Virtual</span> <span class=n>address</span> <span class=err>8283</span><span class=n>c054</span> <span class=n>translates</span> <span class=n>to</span> <span class=n>physical</span> <span class=n>address</span> <span class=err>283</span><span class=n>c054</span><span class=o>.</span>
+</code></pre></td></tr></table></div></div><h2 id=2-virtual-address-0x83e31738>2. Virtual address: <code>0x83e31738</code></h2><p>Nevertheless, we perform another translation from virtual to physical address manually:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-nix data-lang=nix><span class=n>kd</span><span class=o>&gt;</span> <span class=n>db</span> <span class=err>83</span><span class=n>e31738</span> <span class=n>L8</span>
+<span class=err>83</span><span class=n>e31738</span>  <span class=mi>41</span> <span class=n>db</span> <span class=n>e8</span> <span class=mi>59</span> <span class=n>e9</span> <span class=err>0</span><span class=n>c</span> <span class=mi>00</span> <span class=mi>00</span>
 
-<span class="n">kd</span><span class="o">&gt;</span> <span class="n">r</span> <span class="o">@</span><span class="n">cr3</span>
-<span class="n">cr3</span><span class="err">=</span><span class="mi">00185000</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>The CR3 register contains the base address of the page directory pointer
-table (PDPT).<br>
-We continue to calculate the PDPT entry:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">r</span> <span class="o">@</span><span class="n">cr3</span>
-<span class="n">cr3</span><span class="err">=</span><span class="mi">00185000</span>
+<span class=n>Binary</span> <span class=n>representation</span> <span class=n>of</span> <span class=n>virtual</span> <span class=n>address</span><span class=p>:</span>
 
-<span class="n">kd</span><span class="o">&gt;</span> <span class="o">!</span><span class="n">dq</span> <span class="o">@</span><span class="n">cr3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="mi">8</span> <span class="n">L1</span>
-<span class="c1">#  185010 00000000`00188001</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>Of course, we could employ another program for converting, such as hexadecimal to binary representations.  But WinDbg has already implemented a command for this very purpose, namely <code>.formats</code>.</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="n">kd</span><span class="o">&gt;</span> <span class="o">.</span><span class="n">formats</span> <span class="mi">00000000</span><span class="err">`</span><span class="mi">00188001</span>
-<span class="n">Evaluate</span> <span class="n">expression</span><span class="p">:</span>
-  <span class="n">Hex</span><span class="p">:</span>     <span class="mi">00188001</span>
-  <span class="n">Decimal</span><span class="p">:</span> <span class="mi">1605633</span>
-  <span class="n">Octal</span><span class="p">:</span>   <span class="mi">00006100001</span>
-  <span class="n">Binary</span><span class="p">:</span>  <span class="mi">00000000</span> <span class="mi">00011000</span> <span class="mi">10000000</span> <span class="mi">00000001</span>
-  <span class="n">Chars</span><span class="p">:</span>   <span class="o">....</span>
-  <span class="n">Time</span><span class="p">:</span>    <span class="n">Mon</span> <span class="n">Jan</span> <span class="mi">19</span> <span class="mi">15</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">33</span> <span class="mi">1970</span>
-  <span class="n">Float</span><span class="p">:</span>   <span class="n">low</span> <span class="mi">2</span><span class="mf">.24997e-039</span> <span class="n">high</span> <span class="mi">0</span>
-  <span class="n">Double</span><span class="p">:</span>  <span class="mi">7</span><span class="mf">.93288e-318</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>The bottom 12 bits of the PDPT entry have to be cleared, which yields:</p>
-<p><code>00000000 00011000 10000000 00000000</code></p>
-<p>Converted to hex: <code>0x188000</code></p>
-<p>The page directory entry is in turn calculated by adding the index into PD to the PDPT base:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="n">kd</span><span class="o">&gt;</span> <span class="o">!</span><span class="n">dq</span> <span class="mi">188000</span><span class="o">+</span><span class="err">0</span><span class="n">x14</span><span class="o">*</span><span class="mi">8</span> <span class="n">L1</span>
-<span class="c1">#  1880a0 00000000`001d0063</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>Converted to binary: <code>00000000 00011101 00000000 01100011</code></p>
-<p>Similarly to the previous step, we have to clear the lowest 12 bits to calculate the base of the page table (PT):</p>
-<p><code>00000000 00011101 00000000 00000000</code></p>
-<p>Converted to hex: <code>0x‭1D0000</code></p>
-<p>The page table entry is calculated as follows:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="n">kd</span><span class="o">&gt;</span> <span class="o">!</span><span class="n">dq</span> <span class="err">1</span><span class="n">D0000</span><span class="o">+</span><span class="err">0</span><span class="n">x3C</span><span class="o">*</span><span class="mi">8</span> <span class="n">L1</span>
-<span class="c1">#  1d01e0 00000000`0283c963</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>Converted to binary: <code>00000010 10000011 11001001 01100011</code></p>
-<p>Similarly to the previous step, we clear the lowest 12 bits and
-obtain:</p>
-<p><code>00000010 10000011 11000000 00000000</code></p>
-<p>Converted to hex: <code>0x283C000</code></p>
-<p>Finally, we can add the page offset to the page entry base to calculate the page&rsquo;s physical address:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="n">kd</span><span class="o">&gt;</span> <span class="o">!</span><span class="n">db</span> <span class="err">0</span><span class="n">x283C000</span><span class="o">+</span><span class="err">0</span><span class="n">x54</span> <span class="n">L8</span>
-<span class="c1"># 283c054 72 6f 67 72 61 6d 20 63 rogram c .L.....</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>We can confirm the contents of physical address <code>0x283c054</code> and virtual address <code>0x8283c054</code> are identical:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">db</span> <span class="err">0</span><span class="n">x8283c054</span> <span class="n">L8</span>
-<span class="err">8283</span><span class="n">c054</span>  <span class="mi">72</span> <span class="err">6</span><span class="n">f</span> <span class="mi">67</span> <span class="mi">72</span> <span class="mi">61</span> <span class="err">6</span><span class="n">d</span> <span class="mi">20</span> <span class="mi">63</span> <span class="n">rogram</span> <span class="n">c</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>As the manual calculation is a rather cumbersome process, WinDbg has already implemented a function to calculate the physical address of a virtual address. In addition to the virtual address, it requires the base address of the page directory pointer table as an input (<a href="https://zerosum0x0.blogspot.de/2015/01/practical-reverse-engineering-p-36-11.html">https://zerosum0x0.blogspot.de/2015/01/practical-reverse-engineering-p-36-11.html</a>)</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="n">kd</span><span class="o">&gt;</span> <span class="o">!</span><span class="n">vtop</span> <span class="mi">00185000</span> <span class="err">8283</span><span class="n">c054</span>
-<span class="n">X86VtoP</span><span class="p">:</span> <span class="n">Virt</span> <span class="err">8283</span><span class="n">c054</span><span class="err">,</span> <span class="n">pagedir</span> <span class="mi">185000</span>
-<span class="n">X86VtoP</span><span class="p">:</span> <span class="n">PAE</span> <span class="n">PDPE</span> <span class="mi">185010</span><span class="o"> - </span><span class="mi">0000000000188001</span>
-<span class="n">X86VtoP</span><span class="p">:</span> <span class="n">PAE</span> <span class="n">PDE</span> <span class="err">1880</span><span class="n">a0</span><span class="o"> - </span><span class="err">00000000001</span><span class="n">d0063</span>
-<span class="n">X86VtoP</span><span class="p">:</span> <span class="n">PAE</span> <span class="n">PTE</span> <span class="err">1</span><span class="n">d01e0</span><span class="o"> - </span><span class="err">000000000283</span><span class="n">c963</span>
-<span class="n">X86VtoP</span><span class="p">:</span> <span class="n">PAE</span> <span class="n">Mapped</span> <span class="n">phys</span> <span class="err">283</span><span class="n">c054</span>
-<span class="n">Virtual</span> <span class="n">address</span> <span class="err">8283</span><span class="n">c054</span> <span class="n">translates</span> <span class="n">to</span> <span class="n">physical</span> <span class="n">address</span> <span class="err">283</span><span class="n">c054</span><span class="o">.</span>
-</code></pre></td></tr></table>
-</div>
-</div><h2 id="2-virtual-address-0x83e31738">2. Virtual address: <code>0x83e31738</code></h2>
-<p>Nevertheless, we perform another translation from virtual to physical address manually:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
-</span><span class="lnt">32
-</span><span class="lnt">33
-</span><span class="lnt">34
-</span><span class="lnt">35
-</span><span class="lnt">36
-</span><span class="lnt">37
-</span><span class="lnt">38
-</span><span class="lnt">39
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-nix" data-lang="nix"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">db</span> <span class="err">83</span><span class="n">e31738</span> <span class="n">L8</span>
-<span class="err">83</span><span class="n">e31738</span>  <span class="mi">41</span> <span class="n">db</span> <span class="n">e8</span> <span class="mi">59</span> <span class="n">e9</span> <span class="err">0</span><span class="n">c</span> <span class="mi">00</span> <span class="mi">00</span>
+<span class=err>‭</span><span class=mi>10</span> <span class=mi>000011111</span> <span class=mi>000110001</span> <span class=mi>011100111000</span><span class=err>‬</span>
 
-<span class="n">Binary</span> <span class="n">representation</span> <span class="n">of</span> <span class="n">virtual</span> <span class="n">address</span><span class="p">:</span>
+<span class=n>PDPT</span> <span class=n>Index</span><span class=p>:</span> <span class=err>0</span><span class=n>x2</span>
+<span class=n>PD</span> <span class=n>Index</span><span class=p>:</span> <span class=err>0</span><span class=n>x1F</span>
+<span class=n>PT</span> <span class=n>Index</span><span class=p>:</span> <span class=err>0</span><span class=n>x31</span>
+<span class=n>Page</span> <span class=n>Offset</span><span class=p>:</span> <span class=mi>0738</span>
 
-<span class="err">‭</span><span class="mi">10</span> <span class="mi">000011111</span> <span class="mi">000110001</span> <span class="mi">011100111000</span><span class="err">‬</span>
+<span class=n>kd</span><span class=o>&gt;</span> <span class=n>r</span> <span class=o>@</span><span class=n>cr3</span>
+<span class=n>cr3</span><span class=err>=</span><span class=mi>00185000</span>
 
-<span class="n">PDPT</span> <span class="n">Index</span><span class="p">:</span> <span class="err">0</span><span class="n">x2</span>
-<span class="n">PD</span> <span class="n">Index</span><span class="p">:</span> <span class="err">0</span><span class="n">x1F</span>
-<span class="n">PT</span> <span class="n">Index</span><span class="p">:</span> <span class="err">0</span><span class="n">x31</span>
-<span class="n">Page</span> <span class="n">Offset</span><span class="p">:</span> <span class="mi">0738</span>
+<span class=n>PDPT</span> <span class=n>base</span><span class=p>:</span> 
+<span class=n>kd</span><span class=o>&gt;</span> <span class=o>!</span><span class=n>dq</span> <span class=o>@</span><span class=n>cr3</span><span class=o>+</span><span class=err>0</span><span class=n>x2</span><span class=o>*</span><span class=mi>8</span> <span class=n>L1</span>
+<span class=c1>#  185010 00000000`00188001</span>
 
-<span class="n">kd</span><span class="o">&gt;</span> <span class="n">r</span> <span class="o">@</span><span class="n">cr3</span>
-<span class="n">cr3</span><span class="err">=</span><span class="mi">00185000</span>
+<span class=n>Binary</span><span class=p>:</span> <span class=mi>110001000000000000001</span>
+<span class=n>Truncated</span><span class=p>:</span> <span class=mi>110001000000000000000</span> <span class=p>(</span><span class=err>0</span><span class=n>x188000</span><span class=p>)</span>
 
-<span class="n">PDPT</span> <span class="n">base</span><span class="p">:</span> 
-<span class="n">kd</span><span class="o">&gt;</span> <span class="o">!</span><span class="n">dq</span> <span class="o">@</span><span class="n">cr3</span><span class="o">+</span><span class="err">0</span><span class="n">x2</span><span class="o">*</span><span class="mi">8</span> <span class="n">L1</span>
-<span class="c1">#  185010 00000000`00188001</span>
+<span class=n>PD</span> <span class=n>Base</span><span class=p>:</span> 
+<span class=n>kd</span><span class=o>&gt;</span> <span class=o>!</span><span class=n>dq</span> <span class=mi>188000</span><span class=o>+</span><span class=err>0</span><span class=n>x1F</span><span class=o>*</span><span class=mi>8</span> <span class=n>L1</span>
+<span class=c1>#  1880f8 00000000`1ff80863</span>
 
-<span class="n">Binary</span><span class="p">:</span> <span class="mi">110001000000000000001</span>
-<span class="n">Truncated</span><span class="p">:</span> <span class="mi">110001000000000000000</span> <span class="p">(</span><span class="err">0</span><span class="n">x188000</span><span class="p">)</span>
+<span class=n>Binary</span><span class=p>:</span> <span class=mi>11111111110000000100001100011</span>
+<span class=n>Truncated</span><span class=p>:</span> <span class=mi>11111111110000000000000000000</span> <span class=p>(</span><span class=err>0</span><span class=n>x1FF80000</span><span class=p>)</span>
 
-<span class="n">PD</span> <span class="n">Base</span><span class="p">:</span> 
-<span class="n">kd</span><span class="o">&gt;</span> <span class="o">!</span><span class="n">dq</span> <span class="mi">188000</span><span class="o">+</span><span class="err">0</span><span class="n">x1F</span><span class="o">*</span><span class="mi">8</span> <span class="n">L1</span>
-<span class="c1">#  1880f8 00000000`1ff80863</span>
+<span class=n>PT</span> <span class=n>Base</span><span class=p>:</span>
+<span class=n>kd</span><span class=o>&gt;</span> <span class=o>!</span><span class=n>dq</span> <span class=err>0</span><span class=n>x1FF80000</span><span class=o>+</span><span class=err>0</span><span class=n>x31</span><span class=o>*</span><span class=mi>8</span> <span class=n>L1</span>
+<span class=c1>#1ff80188 00000000`1fc31963</span>
 
-<span class="n">Binary</span><span class="p">:</span> <span class="mi">11111111110000000100001100011</span>
-<span class="n">Truncated</span><span class="p">:</span> <span class="mi">11111111110000000000000000000</span> <span class="p">(</span><span class="err">0</span><span class="n">x1FF80000</span><span class="p">)</span>
+<span class=n>Binary</span><span class=p>:</span> <span class=mi>11111110000110001100101100011</span>
+<span class=n>Truncated</span><span class=p>:</span> <span class=mi>11111110000110001000000000000</span> <span class=p>(</span><span class=err>0</span><span class=n>x1FC31000</span><span class=p>)</span>
 
-<span class="n">PT</span> <span class="n">Base</span><span class="p">:</span>
-<span class="n">kd</span><span class="o">&gt;</span> <span class="o">!</span><span class="n">dq</span> <span class="err">0</span><span class="n">x1FF80000</span><span class="o">+</span><span class="err">0</span><span class="n">x31</span><span class="o">*</span><span class="mi">8</span> <span class="n">L1</span>
-<span class="c1">#1ff80188 00000000`1fc31963</span>
-
-<span class="n">Binary</span><span class="p">:</span> <span class="mi">11111110000110001100101100011</span>
-<span class="n">Truncated</span><span class="p">:</span> <span class="mi">11111110000110001000000000000</span> <span class="p">(</span><span class="err">0</span><span class="n">x1FC31000</span><span class="p">)</span>
-
-<span class="n">Physical</span> <span class="n">address</span> <span class="n">and</span> <span class="n">contents</span><span class="p">:</span>
-<span class="n">kd</span><span class="o">&gt;</span> <span class="o">!</span><span class="n">db</span> <span class="err">1</span><span class="n">FC31000</span><span class="o">+</span><span class="err">0</span><span class="n">x738</span> <span class="n">L8</span>
-<span class="c1">#1fc31738 41 db e8 59 e9 0c 00</span>
-</code></pre></td></tr></table>
-</div>
-</div><h2 id="3-how-does-dep-work">3. How does DEP work?</h2>
-<p>Processors supporting the <code>PAE</code> (Physical Address Extension) can set a flag in the page directory entry, which specifies whether or not the contents of the page can be executed. More precisely, bit 63 of the page directory entry sets the <code>NX</code> flag, which control whether or not instruction fetches from the memory region controlled by this entry are allowed.</p>
-</div><div class="post-footer" id="post-footer">
-    <div class="post-info">
-        <div class="post-info-line">
-            <div class="post-info-mod">
-                <span>Updated on 2017-09-20</span>
-            </div>
-            <div class="post-info-license"></div>
-        </div>
-        <div class="post-info-line">
-            <div class="post-info-md"></div>
-            <div class="post-info-share">
-                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/" data-title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11" data-via="evisneffos" data-hashtags="Practical Reverse Engineering,x64,x86"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/" data-hashtag="Practical Reverse Engineering"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on Linkedin" data-sharer="linkedin" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/"><i class="fab fa-linkedin fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://localhost:1313/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/" data-title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11" data-web><i class="fab fa-whatsapp fa-fw"></i></a></span>
-            </div>
-        </div>
-    </div>
-
-    <div class="post-info-more">
-        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/practical-reverse-engineering/">Practical Reverse Engineering</a>,&nbsp;<a href="/tags/x64/">x64</a>,&nbsp;<a href="/tags/x86/">x86</a></section>
-        <section>
-            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
-        </section>
-    </div>
-
-    <div class="post-nav"><a href="/posts/practical-reverse-engineering/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/" class="prev" rel="prev" title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 10"><i class="fas fa-angle-left fa-fw"></i>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 10</a>
-            <a href="/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/" class="next" rel="next" title="Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1">Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1<i class="fas fa-angle-right fa-fw"></i></a></div>
-</div>
-</article></div>
-            </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.83.1">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
-                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2017 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank"></a></span></div>
-        </div>
-    </footer></div>
-
-        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
-                <i class="fas fa-arrow-up fa-fw"></i>
-            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
-                <i class="fas fa-comment fa-fw"></i>
-            </a>
-        </div><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":1000},"comment":{}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
-</html>
+<span class=n>Physical</span> <span class=n>address</span> <span class=n>and</span> <span class=n>contents</span><span class=p>:</span>
+<span class=n>kd</span><span class=o>&gt;</span> <span class=o>!</span><span class=n>db</span> <span class=err>1</span><span class=n>FC31000</span><span class=o>+</span><span class=err>0</span><span class=n>x738</span> <span class=n>L8</span>
+<span class=c1>#1fc31738 41 db e8 59 e9 0c 00</span>
+</code></pre></td></tr></table></div></div><h2 id=3-how-does-dep-work>3. How does DEP work?</h2><p>Processors supporting the <code>PAE</code> (Physical Address Extension) can set a flag in the page directory entry, which specifies whether or not the contents of the page can be executed. More precisely, bit 63 of the page directory entry sets the <code>NX</code> flag, which control whether or not instruction fetches from the memory region controlled by this entry are allowed.</p></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>Updated on 2017-09-20</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href=javascript:void(0); title="Share on Twitter" data-sharer=twitter data-url=https://www.soffensive.com/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/ data-title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11" data-via=evisneffos data-hashtags="Practical Reverse Engineering,x64,x86"><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="Share on Facebook" data-sharer=facebook data-url=https://www.soffensive.com/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/ data-hashtag="Practical Reverse Engineering"><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="Share on Linkedin" data-sharer=linkedin data-url=https://www.soffensive.com/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/><i class="fab fa-linkedin fa-fw"></i></a><a href=javascript:void(0); title="Share on WhatsApp" data-sharer=whatsapp data-url=https://www.soffensive.com/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/ data-title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11" data-web><i class="fab fa-whatsapp fa-fw"></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/practical-reverse-engineering/>Practical Reverse Engineering</a>,&nbsp;<a href=/tags/x64/>x64</a>,&nbsp;<a href=/tags/x86/>x86</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>Back</a></span>&nbsp;|&nbsp;<span><a href=/>Home</a></span></section></div><div class=post-nav><a href=/posts/practical-reverse-engineering/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/ class=prev rel=prev title="Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 10"><i class="fas fa-angle-left fa-fw"></i>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 10</a>
+<a href=/posts/practical-reverse-engineering/2017-12-01-practical-reverse-engineering-exercise-solutions-page-78-exercise-1/ class=next rel=next title="Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1">Practical Reverse Engineering Exercise Solutions: Page 78 / Exercise 1<i class="fas fa-angle-right fa-fw"></i></a></div></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>Powered by <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.83.1">Hugo</a> | Theme - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a></div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2017 - 2021</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=/ target=_blank></a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title="Back to Top"><i class="fas fa-arrow-up fa-fw"></i>
+</a><a href=# id=view-comments class=fixed-button title="View Comments"><i class="fas fa-comment fa-fw"></i></a></div><script type=text/javascript src=/lib/smooth-scroll/smooth-scroll.min.js></script><script type=text/javascript src=/lib/lazysizes/lazysizes.min.js></script><script type=text/javascript src=/lib/clipboard/clipboard.min.js></script><script type=text/javascript src=/lib/sharer/sharer.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"Copy to clipboard",maxShownLines:1e3},comment:{}}</script><script type=text/javascript src=/js/theme.min.js></script></body></html>
