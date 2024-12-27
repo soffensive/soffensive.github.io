@@ -1,0 +1,39 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Makefile - Tag - soffensive blog</title><link>https://soffensive.github.io/tags/makefile/</link><description>Makefile - Tag - soffensive blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 26 Dec 2024 05:35:00 -0700</lastBuildDate><atom:link href="https://soffensive.github.io/tags/makefile/" rel="self" type="application/rss+xml"/><item><title>make and makefile</title><link>https://soffensive.github.io/posts/various/2024-12-26-make-and-makefile-security/</link><pubDate>Thu, 26 Dec 2024 05:35:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/various/2024-12-26-make-and-makefile-security/</guid><description><![CDATA[<p>I am a C/C++ newbie, but occassionally I have to compile or build projects. Since make (and Makefiles) are quite prevalent and sometimes they have to be adjusted due to potential errors, I had to learn more about them and want to share my learning publicly here.</p>
+<h3 id="building-blocks">Building Blocks</h3>
+<p>First of all, what are the involved building blocks of make and Makefiles?</p>
+<ul>
+<li><strong>make</strong>:
+<ul>
+<li>The GNU make utility. This is the executable that you actually run in order to execute a series of commands in order to modify files, typically compiling programs.</li>
+<li>If you run the program without specifying an explicit input file with the -f option,  make will look for the makefiles GNUmakefile, makefile, and Makefile, in that order.</li>
+<li>make updates a target if it depends on prerequisite files that have been modified since the target was last modified, or if the target does not exist.</li>
+</ul>
+</li>
+<li><strong>makefile</strong>:
+<ul>
+<li>This is the input file for the make utility and consists of a series of instructions how to modify files.</li>
+<li>A makefile can contain one or more rules.</li>
+</ul>
+</li>
+<li><strong>rule</strong>:
+<ul>
+<li>A rule consists of one or more targets, prerequisites and commands.</li>
+</ul>
+</li>
+<li><strong>target</strong>:
+<ul>
+<li>A target is a file name and typically, there is only one per rule.</li>
+</ul>
+</li>
+<li><strong>prerequisite</strong>:
+<ul>
+<li>The prerequisites are file names, separated by spaces. These files need to exist before the commands for the target are run. These are also called dependencies.</li>
+</ul>
+</li>
+<li><strong>command</strong>:
+<ul>
+<li>The commands are a series of steps typically to make the target. They need to start with a tab character, not spaces.</li>
+</ul>
+</li>
+</ul>
+<p>The general format of a <code>Makefile</code> is as follows:</p>]]></description></item></channel></rss>
