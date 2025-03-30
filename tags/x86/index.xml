@@ -1,16 +1,13 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>X86 - Tag - soffensive blog</title><link>https://soffensive.github.io/tags/x86/</link><description>X86 - Tag - soffensive blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 20 Sep 2017 02:37:00 -0700</lastBuildDate><atom:link href="https://soffensive.github.io/tags/x86/" rel="self" type="application/rss+xml"/><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/</link><pubDate>Wed, 20 Sep 2017 02:37:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/</guid><description><![CDATA[<blockquote>
-<p>Read the Virtual Memory chapter in Intel Software Developer Manual, Volume 3 and AMD64 Architecture Programmer’s Manual, Volume 2: System Programming. Perform a few virtual address to physical address translations yourself and verify the result with a kernel debugger. Explain how data execution prevention (DEP) works.</p>
-</blockquote>
+<p>Read the Virtual Memory chapter in Intel Software Developer Manual, Volume 3 and AMD64 Architecture Programmer’s Manual, Volume 2: System Programming. Perform a few virtual address to physical address translations yourself and verify the result with a kernel debugger. Explain how data execution prevention (DEP) works.</p></blockquote>
 <p>For this exercise, we first have to set up a remote kernel debugging session. (see <a href="https://codemetrix.net/windows-kernel-debugging-setup/" target="_blank" rel="noopener noreffer ">https://codemetrix.net/windows-kernel-debugging-setup/</a>, <a href="https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/" target="_blank" rel="noopener noreffer ">https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/</a> and
 <a href="http://securityblog.gr/3023/windows-kernel-debugging/" target="_blank" rel="noopener noreffer ">http://securityblog.gr/3023/windows-kernel-debugging/</a> for excellent explanations)</p>]]></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 10</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/</link><pubDate>Sun, 17 Sep 2017 05:34:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/</guid><description><![CDATA[<p>Our task:</p>
 <blockquote>
-<p>If the current privilege level is encoded in CS, which is modifiable by user-mode code, why can’t user-mode code modify CS to change CPL?</p>
-</blockquote>
+<p>If the current privilege level is encoded in CS, which is modifiable by user-mode code, why can’t user-mode code modify CS to change CPL?</p></blockquote>
 <p>For a change, this is now a more theoretical than hands-on challenge.  In order to address the exercise appropriately, we have to make sure we understood it correctly.</p>
 <p><code>CS</code> (code segment) is the CPU segment register that contains the current ring level in bits 0 and 1. This encoded level is also commonly referred to as CPL (current privilege level).</p>]]></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 9</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/</link><pubDate>Fri, 15 Sep 2017 02:49:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/</guid><description><![CDATA[<p>Our task:</p>
 <blockquote>
-<p>Sample L. Explain what function <code>sub_1000CEA0</code> does and then decompile it back to C.</p>
-</blockquote>
+<p>Sample L. Explain what function <code>sub_1000CEA0</code> does and then decompile it back to C.</p></blockquote>
 <p>Here we have the function&rsquo;s disassembly:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -76,8 +73,7 @@
 </div>
 </div><p>Firstly, the function takes two arguments, at <code>ebp+0x8</code> (arg1) and <code>ebp+0x0C</code> (arg2) respectively. It follows the <strong>stdcall</strong> convention that arguments are pushed from right to left on the stack and the callee cleaning up the stack.</p>]]></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 8</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/</link><pubDate>Thu, 14 Sep 2017 05:12:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/</guid><description><![CDATA[<p>Our task as formulated in exercise 8:</p>
 <blockquote>
-<p>Sample H. Decompile <code>sub_11732</code> and explain the most likely programming construct used in the original code.</p>
-</blockquote>
+<p>Sample H. Decompile <code>sub_11732</code> and explain the most likely programming construct used in the original code.</p></blockquote>
 <p>The function&rsquo;s disassembly:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -175,8 +171,7 @@
 </div>
 </div><p>Obviously, the sought-after programming construct in this case is a <code>switch...case</code> statement.</p>]]></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 7</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-30-practical-reverse-engineering-exercise-solutions-page-35-exercise-7/</link><pubDate>Sun, 30 Jul 2017 03:55:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-30-practical-reverse-engineering-exercise-solutions-page-35-exercise-7/</guid><description><![CDATA[<p>Exercise 7 on page 35:</p>
 <blockquote>
-<p>Sample H. The function <code>sub_10BB6</code> has a loop searching for something. First recover the function prototype and then infer the types based on the context. Hint: You should probably have a copy of the PE specification nearby.</p>
-</blockquote>
+<p>Sample H. The function <code>sub_10BB6</code> has a loop searching for something. First recover the function prototype and then infer the types based on the context. Hint: You should probably have a copy of the PE specification nearby.</p></blockquote>
 <p>Due to alignment issues, our routine is located at <code>10BB2</code> and has the following disassembly:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
