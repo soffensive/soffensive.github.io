@@ -1,457 +1,505 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>X64 - Tag - soffensive blog</title><link>https://soffensive.github.io/tags/x64/</link><description>X64 - Tag - soffensive blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 20 Sep 2017 02:37:00 -0700</lastBuildDate><atom:link href="https://soffensive.github.io/tags/x64/" rel="self" type="application/rss+xml"/><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/</link><pubDate>Wed, 20 Sep 2017 02:37:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/</guid><description><![CDATA[<blockquote>
-<p>Read the Virtual Memory chapter in Intel Software Developer Manual, Volume 3 and AMD64 Architecture Programmer’s Manual, Volume 2: System Programming. Perform a few virtual address to physical address translations yourself and verify the result with a kernel debugger. Explain how data execution prevention (DEP) works.</p></blockquote>
-<p>For this exercise, we first have to set up a remote kernel debugging session. (see <a href="https://codemetrix.net/windows-kernel-debugging-setup/" target="_blank" rel="noopener noreffer ">https://codemetrix.net/windows-kernel-debugging-setup/</a>, <a href="https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/" target="_blank" rel="noopener noreffer ">https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/</a> and
-<a href="http://securityblog.gr/3023/windows-kernel-debugging/" target="_blank" rel="noopener noreffer ">http://securityblog.gr/3023/windows-kernel-debugging/</a> for excellent explanations)</p>]]></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 10</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/</link><pubDate>Sun, 17 Sep 2017 05:34:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/</guid><description><![CDATA[<p>Our task:</p>
-<blockquote>
-<p>If the current privilege level is encoded in CS, which is modifiable by user-mode code, why can’t user-mode code modify CS to change CPL?</p></blockquote>
-<p>For a change, this is now a more theoretical than hands-on challenge.  In order to address the exercise appropriately, we have to make sure we understood it correctly.</p>
-<p><code>CS</code> (code segment) is the CPU segment register that contains the current ring level in bits 0 and 1. This encoded level is also commonly referred to as CPL (current privilege level).</p>]]></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 9</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/</link><pubDate>Fri, 15 Sep 2017 02:49:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/</guid><description><![CDATA[<p>Our task:</p>
-<blockquote>
-<p>Sample L. Explain what function <code>sub_1000CEA0</code> does and then decompile it back to C.</p></blockquote>
-<p>Here we have the function&rsquo;s disassembly:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-nasm" data-lang="nasm"><span class="line"><span class="cl">                <span class="nf">push</span>    <span class="nb">ebp</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">mov</span>     <span class="nb">ebp</span><span class="p">,</span> <span class="nb">esp</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">push</span>    <span class="nb">edi</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">mov</span>     <span class="nb">edi</span><span class="p">,</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="mi">8</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">xor</span>     <span class="nb">eax</span><span class="p">,</span> <span class="nb">eax</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">or</span>      <span class="nb">ecx</span><span class="p">,</span> <span class="mh">0FFFFFFFFh</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">repne</span> <span class="nv">scasb</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">add</span>     <span class="nb">ecx</span><span class="p">,</span> <span class="mi">1</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">neg</span>     <span class="nb">ecx</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">sub</span>     <span class="nb">edi</span><span class="p">,</span> <span class="mi">1</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">mov</span>     <span class="nb">al</span><span class="p">,</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="mh">0Ch</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">std</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">repne</span> <span class="nv">scasb</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">add</span>     <span class="nb">edi</span><span class="p">,</span> <span class="mi">1</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">cmp</span>     <span class="p">[</span><span class="nb">edi</span><span class="p">],</span> <span class="nb">al</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">jz</span>      <span class="nv">short</span> <span class="nv">loc_1000CEC7</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">xor</span>     <span class="nb">eax</span><span class="p">,</span> <span class="nb">eax</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">jmp</span>     <span class="nv">short</span> <span class="nv">loc_1000CEC9</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nl">loc_1000CEC7:</span>                       
-</span></span><span class="line"><span class="cl">                <span class="nf">mov</span>     <span class="nb">eax</span><span class="p">,</span> <span class="nb">edi</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nl">loc_1000CEC9:</span>              
-</span></span><span class="line"><span class="cl">                <span class="nf">cld</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">pop</span>     <span class="nb">edi</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">leave</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">retn</span>
-</span></span><span class="line"><span class="cl">  <span class="nf">endp</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>Firstly, the function takes two arguments, at <code>ebp+0x8</code> (arg1) and <code>ebp+0x0C</code> (arg2) respectively. It follows the <strong>stdcall</strong> convention that arguments are pushed from right to left on the stack and the callee cleaning up the stack.</p>]]></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 8</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/</link><pubDate>Thu, 14 Sep 2017 05:12:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/</guid><description><![CDATA[<p>Our task as formulated in exercise 8:</p>
-<blockquote>
-<p>Sample H. Decompile <code>sub_11732</code> and explain the most likely programming construct used in the original code.</p></blockquote>
-<p>The function&rsquo;s disassembly:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
-</span><span class="lnt">32
-</span><span class="lnt">33
-</span><span class="lnt">34
-</span><span class="lnt">35
-</span><span class="lnt">36
-</span><span class="lnt">37
-</span><span class="lnt">38
-</span><span class="lnt">39
-</span><span class="lnt">40
-</span><span class="lnt">41
-</span><span class="lnt">42
-</span><span class="lnt">43
-</span><span class="lnt">44
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-nasm" data-lang="nasm"><span class="line"><span class="cl"><span class="nl">sub_1172E:</span>
-</span></span><span class="line"><span class="cl"><span class="nf">push</span>    <span class="nb">esi</span>
-</span></span><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="nb">esi</span><span class="p">,</span> <span class="p">[</span><span class="nb">esp</span><span class="o">+</span><span class="mi">8</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="nf">dec</span>     <span class="nb">esi</span>
-</span></span><span class="line"><span class="cl"><span class="nf">jz</span>      <span class="nv">short</span> <span class="nv">loc_1175F</span>
-</span></span><span class="line"><span class="cl"><span class="nf">dec</span>     <span class="nb">esi</span>
-</span></span><span class="line"><span class="cl"><span class="nf">jz</span>      <span class="nv">short</span> <span class="nv">loc_11755</span>
-</span></span><span class="line"><span class="cl"><span class="nf">dec</span>     <span class="nb">esi</span>
-</span></span><span class="line"><span class="cl"><span class="nf">jz</span>      <span class="nv">short</span> <span class="nv">loc_1174B</span>
-</span></span><span class="line"><span class="cl"><span class="nf">sub</span>     <span class="nb">esi</span><span class="p">,</span> <span class="mi">9</span>
-</span></span><span class="line"><span class="cl"><span class="nf">jnz</span>     <span class="nv">short</span> <span class="nv">loc_1176B</span>
-</span></span><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="nb">esi</span><span class="p">,</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mi">8</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="nf">shr</span>     <span class="nb">esi</span><span class="p">,</span> <span class="mi">1</span>
-</span></span><span class="line"><span class="cl"><span class="nf">add</span>     <span class="nb">eax</span><span class="p">,</span> <span class="mh">0Ch</span>
-</span></span><span class="line"><span class="cl"><span class="nf">jmp</span>     <span class="nv">short</span> <span class="nv">loc_11767</span>
-</span></span><span class="line"><span class="cl"><span class="c1">; ---------------------------------------------------------------------------</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nl">loc_1174B:</span>                             
-</span></span><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="nb">esi</span><span class="p">,</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mh">3Ch</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="nf">shr</span>     <span class="nb">esi</span><span class="p">,</span> <span class="mi">1</span>
-</span></span><span class="line"><span class="cl"><span class="nf">add</span>     <span class="nb">eax</span><span class="p">,</span> <span class="mh">5Eh</span>
-</span></span><span class="line"><span class="cl"><span class="nf">jmp</span>     <span class="nv">short</span> <span class="nv">loc_11767</span>
-</span></span><span class="line"><span class="cl"><span class="c1">; ---------------------------------------------------------------------------</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nl">loc_11755:</span>                           
-</span></span><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="nb">esi</span><span class="p">,</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mh">3Ch</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="nf">shr</span>     <span class="nb">esi</span><span class="p">,</span> <span class="mi">1</span>
-</span></span><span class="line"><span class="cl"><span class="nf">add</span>     <span class="nb">eax</span><span class="p">,</span> <span class="mh">44h</span>
-</span></span><span class="line"><span class="cl"><span class="nf">jmp</span>     <span class="nv">short</span> <span class="nv">loc_11767</span>
-</span></span><span class="line"><span class="cl"><span class="c1">; ---------------------------------------------------------------------------</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nl">loc_1175F:</span>                             
-</span></span><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="nb">esi</span><span class="p">,</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mh">3Ch</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="nf">shr</span>     <span class="nb">esi</span><span class="p">,</span> <span class="mi">1</span>
-</span></span><span class="line"><span class="cl"><span class="nf">add</span>     <span class="nb">eax</span><span class="p">,</span> <span class="mh">40h</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nl">loc_11767:</span>                             
-</span></span><span class="line"><span class="cl">        
-</span></span><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="p">[</span><span class="nb">ecx</span><span class="p">],</span> <span class="nb">esi</span>
-</span></span><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="p">[</span><span class="nb">edx</span><span class="p">],</span> <span class="nb">eax</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nl">loc_1176B:</span>                             
-</span></span><span class="line"><span class="cl"><span class="nf">pop</span>     <span class="nb">esi</span>
-</span></span><span class="line"><span class="cl"><span class="nf">retn</span>    <span class="mi">4</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>Obviously, the sought-after programming construct in this case is a <code>switch...case</code> statement.</p>]]></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 7</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-30-practical-reverse-engineering-exercise-solutions-page-35-exercise-7/</link><pubDate>Sun, 30 Jul 2017 03:55:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-30-practical-reverse-engineering-exercise-solutions-page-35-exercise-7/</guid><description><![CDATA[<p>Exercise 7 on page 35:</p>
-<blockquote>
-<p>Sample H. The function <code>sub_10BB6</code> has a loop searching for something. First recover the function prototype and then infer the types based on the context. Hint: You should probably have a copy of the PE specification nearby.</p></blockquote>
-<p>Due to alignment issues, our routine is located at <code>10BB2</code> and has the following disassembly:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
-</span><span class="lnt">32
-</span><span class="lnt">33
-</span><span class="lnt">34
-</span><span class="lnt">35
-</span><span class="lnt">36
-</span><span class="lnt">37
-</span><span class="lnt">38
-</span><span class="lnt">39
-</span><span class="lnt">40
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-nasm" data-lang="nasm"><span class="line"><span class="cl"><span class="nl">sub_10BB2:</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"> <span class="nf">mov</span>     <span class="nb">eax</span><span class="p">,</span> <span class="p">[</span><span class="nb">esp</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span>   
-</span></span><span class="line"><span class="cl"> <span class="nf">push</span>    <span class="nb">ebx</span>    
-</span></span><span class="line"><span class="cl"> <span class="nf">push</span>    <span class="nb">esi</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">mov</span>     <span class="nb">esi</span><span class="p">,</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mh">3Ch</span><span class="p">]</span> 
-</span></span><span class="line"><span class="cl"> <span class="nf">add</span>     <span class="nb">esi</span><span class="p">,</span> <span class="nb">eax</span>   
-</span></span><span class="line"><span class="cl"> <span class="nf">movzx</span>   <span class="nb">eax</span><span class="p">,</span> <span class="kt">word</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">esi</span><span class="o">+</span><span class="mh">14h</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">xor</span>     <span class="nb">ebx</span><span class="p">,</span> <span class="nb">ebx</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">cmp</span>     <span class="p">[</span><span class="nb">esi</span><span class="o">+</span><span class="mi">6</span><span class="p">],</span> <span class="nb">bx</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">push</span>    <span class="nb">edi</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">lea</span>     <span class="nb">edi</span><span class="p">,</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="nb">esi</span><span class="o">+</span><span class="mh">18h</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">jbe</span>     <span class="nv">short</span> <span class="nv">loc_10BEB</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nl">loc_10BCE:</span>                            
-</span></span><span class="line"><span class="cl"> <span class="nf">push</span>    <span class="p">[</span><span class="nb">esp</span><span class="o">+</span><span class="mh">0Ch</span><span class="o">+</span><span class="nv">arg_4</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">push</span>    <span class="nb">edi</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">call</span>    <span class="nb">ds</span><span class="p">:</span><span class="kt">dword</span><span class="nv">_169A4</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">test</span>    <span class="nb">eax</span><span class="p">,</span> <span class="nb">eax</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">pop</span>     <span class="nb">ecx</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">pop</span>     <span class="nb">ecx</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">jz</span>      <span class="nv">short</span> <span class="nv">loc_10BF3</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">movzx</span>   <span class="nb">eax</span><span class="p">,</span> <span class="kt">word</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">esi</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">add</span>     <span class="nb">edi</span><span class="p">,</span> <span class="mh">28h</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">inc</span>     <span class="nb">ebx</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">cmp</span>     <span class="nb">ebx</span><span class="p">,</span> <span class="nb">eax</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">jb</span>      <span class="nv">short</span> <span class="nv">loc_10BCE</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nl">loc_10BEB:</span>                              
-</span></span><span class="line"><span class="cl"> <span class="nf">xor</span>     <span class="nb">eax</span><span class="p">,</span> <span class="nb">eax</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nl">loc_10BED:</span>                             
-</span></span><span class="line"><span class="cl"> <span class="nf">pop</span>     <span class="nb">edi</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">pop</span>     <span class="nb">esi</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">pop</span>     <span class="nb">ebx</span>
-</span></span><span class="line"><span class="cl"> <span class="nf">retn</span>    <span class="mi">8</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nl">loc_10BF3:</span>                             
-</span></span><span class="line"><span class="cl">                <span class="nf">mov</span>     <span class="nb">eax</span><span class="p">,</span> <span class="nb">edi</span>
-</span></span><span class="line"><span class="cl">                <span class="nf">jmp</span>     <span class="nv">short</span> <span class="nv">loc_10BED</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>The PE file format and offsets have been described in detail here: <a href="http://www.sunshine2k.de/reversing/tuts/tut_pe.htm" target="_blank" rel="noopener noreffer ">http://www.sunshine2k.de/reversing/tuts/tut_pe.htm</a></p>]]></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 6</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-22-practical-reverse-engineering-exercise-solutions-page-35-exercise-6/</link><pubDate>Sat, 22 Jul 2017 23:49:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-22-practical-reverse-engineering-exercise-solutions-page-35-exercise-6/</guid><description><![CDATA[<p>Exercise 6 on page 35 of the book Practical Reverse Engineering presents us with a malware samples.</p>
-<p>These can be downloaded at the following page:</p>
-<p><a href="https://grsecurity.net/malware_research/" target="_blank" rel="noopener noreffer ">https://grsecurity.net/malware_research/</a></p>
-<p>In this exercise, we are expected to have a look at the following routine <code>sub_13842</code>:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-nasm" data-lang="nasm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00013842</span> <span class="nf">sub_13842</span>      
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00013842</span>                 <span class="nf">mov</span>     <span class="nb">eax</span><span class="p">,</span> <span class="p">[</span><span class="nb">ecx</span><span class="o">+</span><span class="mh">60h</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00013845</span>                 <span class="nf">push</span>    <span class="nb">esi</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00013846</span>                 <span class="nf">mov</span>     <span class="nb">esi</span><span class="p">,</span> <span class="p">[</span><span class="nb">edx</span><span class="o">+</span><span class="mi">8</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00013849</span>                 <span class="nf">dec</span>     <span class="kt">byte</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">ecx</span><span class="o">+</span><span class="mh">23h</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0001384</span><span class="nf">C</span>                 <span class="nv">sub</span>     <span class="nb">eax</span><span class="p">,</span> <span class="mh">24h</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0001384</span><span class="nf">F</span>                 <span class="nv">mov</span>     <span class="p">[</span><span class="nb">ecx</span><span class="o">+</span><span class="mh">60h</span><span class="p">],</span> <span class="nb">eax</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00013852</span>                 <span class="nf">mov</span>     <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mh">14h</span><span class="p">],</span> <span class="nb">edx</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00013855</span>                 <span class="nf">movzx</span>   <span class="nb">eax</span><span class="p">,</span> <span class="kt">byte</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">eax</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00013858</span>                 <span class="nf">push</span>    <span class="nb">ecx</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00013859</span>                 <span class="nf">push</span>    <span class="nb">edx</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0001385</span><span class="nf">A</span>                 <span class="nv">call</span>    <span class="kt">dword</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">esi</span><span class="o">+</span><span class="nb">eax</span><span class="o">*</span><span class="mi">4</span><span class="o">+</span><span class="mh">38h</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0001385</span><span class="nf">E</span>                 <span class="nv">pop</span>     <span class="nb">esi</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0001385</span><span class="nf">F</span>                 <span class="nv">retn</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>Firstly, we see that the function prototype takes two parameters, which are not saved on the stack but in the two registers <code>ecx</code> and <code>edx</code>. This can be deducted from the fact that these two registers are immediately referenced without prior initialization.</p>]]></description></item><item><title>Practical Reverse Engineering Exercise Solutions: RtlValidateUnicodeString</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-rtlvalidateunicodestring/</link><pubDate>Sun, 16 Jul 2017 12:50:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-rtlvalidateunicodestring/</guid><description><![CDATA[<p>This blog post contains my solution for the decompilation exercise of the <code>RtlValidateUnicodeString</code> function in the Windows Kernel. The following contains the disassembly without annotations:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-nasm" data-lang="nasm"><span class="line"><span class="cl"><span class="nf">kd</span><span class="o">&gt;</span> <span class="nv">uf</span> <span class="nv">rtlvalidateunicodestring</span>
-</span></span><span class="line"><span class="cl"><span class="nf">ntdll</span><span class="err">!</span><span class="nv">RtlValidateUnicodeString</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl"><span class="err">77686</span><span class="nf">f6c</span> <span class="mi">8</span><span class="nv">bff</span>            <span class="nv">mov</span>     <span class="nb">edi</span><span class="p">,</span><span class="nb">edi</span>
-</span></span><span class="line"><span class="cl"><span class="err">77686</span><span class="nf">f6e</span> <span class="mi">55</span>              <span class="nv">push</span>    <span class="nb">ebp</span>
-</span></span><span class="line"><span class="cl"><span class="err">77686</span><span class="nf">f6f</span> <span class="mi">8</span><span class="nv">bec</span>            <span class="nv">mov</span>     <span class="nb">ebp</span><span class="p">,</span><span class="nb">esp</span>
-</span></span><span class="line"><span class="cl"><span class="err">77686</span><span class="nf">f71</span> <span class="mi">837</span><span class="nv">d0800</span>        <span class="nv">cmp</span>     <span class="kt">dword</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="mi">8</span><span class="p">],</span><span class="mi">0</span>
-</span></span><span class="line"><span class="cl"><span class="err">77686</span><span class="nf">f75</span> <span class="mi">0</span><span class="nv">f85fc380300</span>    <span class="nv">jne</span>     <span class="nv">ntdll</span><span class="err">!</span><span class="nv">RtlValidateUnicodeString</span><span class="o">+</span><span class="mh">0xb</span> <span class="p">(</span><span class="mi">776</span><span class="nv">ba877</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nf">ntdll</span><span class="err">!</span><span class="nv">RtlValidateUnicodeString</span><span class="o">+</span><span class="mh">0x12</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl"><span class="err">77686</span><span class="nf">f7b</span> <span class="mi">6800010000</span>      <span class="nv">push</span>    <span class="mh">100h</span>
-</span></span><span class="line"><span class="cl"><span class="err">77686</span><span class="nf">f80</span> <span class="nv">ff750c</span>          <span class="nv">push</span>    <span class="kt">dword</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="mh">0Ch</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="err">77686</span><span class="nf">f83</span> <span class="nv">e809000000</span>      <span class="nv">call</span>    <span class="nv">ntdll</span><span class="err">!</span><span class="nv">RtlUnicodeStringValidateEx</span> <span class="p">(</span><span class="mi">77686</span><span class="nv">f91</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nf">ntdll</span><span class="err">!</span><span class="nv">RtlValidateUnicodeString</span><span class="o">+</span><span class="mh">0x1f</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl"><span class="err">77686</span><span class="nf">f88</span> <span class="mi">5</span><span class="nv">d</span>              <span class="nv">pop</span>     <span class="nb">ebp</span>
-</span></span><span class="line"><span class="cl"><span class="err">77686</span><span class="nf">f89</span> <span class="nv">c20800</span>          <span class="nv">ret</span>     <span class="mi">8</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nf">ntdll</span><span class="err">!</span><span class="nv">RtlValidateUnicodeString</span><span class="o">+</span><span class="mh">0xb</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl"><span class="err">776</span><span class="nf">ba877</span> <span class="nv">b80d0000c0</span>      <span class="nv">mov</span>     <span class="nb">eax</span><span class="p">,</span><span class="mh">0C000000Dh</span>
-</span></span><span class="line"><span class="cl"><span class="err">776</span><span class="nf">ba87c</span> <span class="nv">e907c7fcff</span>      <span class="nv">jmp</span>     <span class="nv">ntdll</span><span class="err">!</span><span class="nv">RtlValidateUnicodeString</span><span class="o">+</span><span class="mh">0x1f</span> <span class="p">(</span><span class="mi">77686</span><span class="nv">f88</span><span class="p">)</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>The function prototype is given <a href="https://github.com/CaledoniaProject/kekeo-with-asn-vs2013/blob/d926de6096d6f6d797e38ced1b5cbdf56d1734b9/modules/kull_m_string.h" target="_blank" rel="noopener noreffer ">here</a>:</p>]]></description></item><item><title>Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</link><pubDate>Sun, 16 Jul 2017 05:45:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</guid><description><![CDATA[<p>Here are a couple of commands I regularly use for reverse engineering:</p>
-<ul>
-<li><code>uf &lt;function&gt;</code>: Unassemble function</li>
-<li><code>dt nt!_ktss</code>: Show the definition of the data structure <code>_ktss</code></li>
-<li><code>?? sizeof(_ktss)</code>: Show the size the data structure <code>_ktss</code> occupies in memory</li>
-<li><code>.hh uf</code>: Show help for the function <code>uf</code></li>
-<li><code>x nt!*createfile*</code>: Search all functions having the string <code>createfile</code> in its name</li>
-<li><code>!vtop &lt;PDPT-pointer&gt; &lt;virtualAddress&gt;</code>: Compute physical address of given virtual address and the pointer to the page directory pointer table</li>
-</ul>]]></description></item><item><title>Practical Reverse Engineering Exercise Solutions: KiInitializeTSS</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/</link><pubDate>Sun, 16 Jul 2017 05:33:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/</guid><description><![CDATA[<p>Another exercise for us is the decompilation of the <code>KiInitializeTSS</code> function:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-nasm" data-lang="nasm"><span class="line"><span class="cl"><span class="nf">nt</span><span class="err">!</span><span class="nv">KiInitializeTSS</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl"><span class="err">82847359</span> <span class="err">8</span><span class="nf">bff</span>            <span class="nv">mov</span>     <span class="nb">edi</span><span class="p">,</span><span class="nb">edi</span>
-</span></span><span class="line"><span class="cl"><span class="err">8284735</span><span class="nf">b</span> <span class="mi">55</span>              <span class="nv">push</span>    <span class="nb">ebp</span>
-</span></span><span class="line"><span class="cl"><span class="err">8284735</span><span class="nf">c</span> <span class="mi">8</span><span class="nv">bec</span>            <span class="nv">mov</span>     <span class="nb">ebp</span><span class="p">,</span><span class="nb">esp</span>
-</span></span><span class="line"><span class="cl"><span class="err">8284735</span><span class="nf">e</span> <span class="mi">8</span><span class="nv">b4508</span>          <span class="nv">mov</span>     <span class="nb">eax</span><span class="p">,</span><span class="kt">dword</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="mi">8</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="err">82847361</span> <span class="nf">b9ac200000</span>      <span class="nv">mov</span>     <span class="nb">ecx</span><span class="p">,</span><span class="mh">20ACh</span>
-</span></span><span class="line"><span class="cl"><span class="err">82847366</span> <span class="err">66894866</span>        <span class="nf">mov</span>     <span class="kt">word</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mh">66h</span><span class="p">],</span><span class="nb">cx</span>
-</span></span><span class="line"><span class="cl"><span class="err">8284736</span><span class="nf">a</span> <span class="mi">33</span><span class="nv">c9</span>            <span class="nv">xor</span>     <span class="nb">ecx</span><span class="p">,</span><span class="nb">ecx</span>
-</span></span><span class="line"><span class="cl"><span class="err">8284736</span><span class="nf">c</span> <span class="mi">6</span><span class="nv">a10</span>            <span class="nv">push</span>    <span class="mh">10h</span>
-</span></span><span class="line"><span class="cl"><span class="err">8284736</span><span class="nf">e</span> <span class="mi">66894864</span>        <span class="nv">mov</span>     <span class="kt">word</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mh">64h</span><span class="p">],</span><span class="nb">cx</span>
-</span></span><span class="line"><span class="cl"><span class="err">82847372</span> <span class="err">66894860</span>        <span class="nf">mov</span>     <span class="kt">word</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mh">60h</span><span class="p">],</span><span class="nb">cx</span>
-</span></span><span class="line"><span class="cl"><span class="err">82847376</span> <span class="err">59</span>              <span class="nf">pop</span>     <span class="nb">ecx</span>
-</span></span><span class="line"><span class="cl"><span class="err">82847377</span> <span class="err">66894808</span>        <span class="nf">mov</span>     <span class="kt">word</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mi">8</span><span class="p">],</span><span class="nb">cx</span>
-</span></span><span class="line"><span class="cl"><span class="err">8284737</span><span class="nf">b</span> <span class="mi">5</span><span class="nv">d</span>              <span class="nv">pop</span>     <span class="nb">ebp</span>
-</span></span><span class="line"><span class="cl"><span class="err">8284737</span><span class="nf">c</span> <span class="nv">c20400</span>          <span class="nv">ret</span>     <span class="mi">4</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>We obtain the function prototype: (<a href="https://github.com/hoangduit/reactos/blob/63682957b86d77c7d82e7b887797ef82ea92d271/reactos/ntoskrnl/ke/powerpc/cpu.c" target="_blank" rel="noopener noreffer ">source</a>)</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">VOID</span>
-</span></span><span class="line"><span class="cl"><span class="n">NTAPI</span>
-</span></span><span class="line"><span class="cl"><span class="nf">KiInitializeTSS</span><span class="p">(</span><span class="n">IN</span> <span class="n">PKTSS</span> <span class="n">Tss</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">{</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>Structure of <code>_KTSS</code>:</p>]]></description></item><item><title>Practical Reverse Engineering Exercise Solutions: KeReadyThread</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kereadythread/</link><pubDate>Sun, 16 Jul 2017 03:44:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kereadythread/</guid><description><![CDATA[<p>Unfortunately I had no time in the past days to continue with the exercises. We continue with the decompilation of the KeReadyThread function in Windows 7.</p>
-<p>The following listing shows the disassembly:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-nasm" data-lang="nasm"><span class="line"><span class="cl"><span class="nf">nt</span><span class="err">!</span><span class="nv">KeReadyThread</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl"><span class="err">828</span><span class="nf">a8125</span> <span class="mi">8</span><span class="nv">bff</span>            <span class="nv">mov</span>     <span class="nb">edi</span><span class="p">,</span><span class="nb">edi</span>
-</span></span><span class="line"><span class="cl"><span class="err">828</span><span class="nf">a8127</span> <span class="mi">56</span>              <span class="nv">push</span>    <span class="nb">esi</span>
-</span></span><span class="line"><span class="cl"><span class="err">828</span><span class="nf">a8128</span> <span class="mi">8</span><span class="nv">bf0</span>            <span class="nv">mov</span>     <span class="nb">esi</span><span class="p">,</span><span class="nb">eax</span>
-</span></span><span class="line"><span class="cl"><span class="err">828</span><span class="nf">a812a</span> <span class="mi">8</span><span class="nv">b4650</span>          <span class="nv">mov</span>     <span class="nb">eax</span><span class="p">,</span><span class="kt">dword</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">esi</span><span class="o">+</span><span class="mh">50h</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="err">828</span><span class="nf">a812d</span> <span class="mi">8</span><span class="nv">b4874</span>          <span class="nv">mov</span>     <span class="nb">ecx</span><span class="p">,</span><span class="kt">dword</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nb">eax</span><span class="o">+</span><span class="mh">74h</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="err">828</span><span class="nf">a8130</span> <span class="nv">f6c107</span>          <span class="nv">test</span>    <span class="nb">cl</span><span class="p">,</span><span class="mi">7</span>
-</span></span><span class="line"><span class="cl"><span class="err">828</span><span class="nf">a8133</span> <span class="mi">7409</span>            <span class="nv">je</span>      <span class="nv">nt</span><span class="err">!</span><span class="nv">KeReadyThread</span><span class="o">+</span><span class="mh">0x19</span> <span class="p">(</span><span class="mi">828</span><span class="nv">a813e</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nf">nt</span><span class="err">!</span><span class="nv">KeReadyThread</span><span class="o">+</span><span class="mh">0x10</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl"><span class="err">828</span><span class="nf">a8135</span> <span class="nv">e8b74af8ff</span>      <span class="nv">call</span>    <span class="nv">nt</span><span class="err">!</span><span class="nv">KiInSwapSingleProcess</span> <span class="p">(</span><span class="mi">8282</span><span class="nv">cbf1</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="err">828</span><span class="nf">a813a</span> <span class="mi">84</span><span class="nv">c0</span>            <span class="nv">test</span>    <span class="nb">al</span><span class="p">,</span><span class="nb">al</span>
-</span></span><span class="line"><span class="cl"><span class="err">828</span><span class="nf">a813c</span> <span class="mi">7505</span>            <span class="nv">jne</span>     <span class="nv">nt</span><span class="err">!</span><span class="nv">KeReadyThread</span><span class="o">+</span><span class="mh">0x1e</span> <span class="p">(</span><span class="mi">828</span><span class="nv">a8143</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nf">nt</span><span class="err">!</span><span class="nv">KeReadyThread</span><span class="o">+</span><span class="mh">0x19</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl"><span class="err">828</span><span class="nf">a813e</span> <span class="nv">e892ef0000</span>      <span class="nv">call</span>    <span class="nv">nt</span><span class="err">!</span><span class="nv">KiFastReadyThread</span> <span class="p">(</span><span class="mi">828</span><span class="nv">b70d5</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nf">nt</span><span class="err">!</span><span class="nv">KeReadyThread</span><span class="o">+</span><span class="mh">0x1e</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl"><span class="err">828</span><span class="nf">a8143</span> <span class="mi">5</span><span class="nv">e</span>              <span class="nv">pop</span>     <span class="nb">esi</span>
-</span></span><span class="line"><span class="cl"><span class="err">828</span><span class="nf">a8144</span> <span class="nv">c3</span>              <span class="nv">ret</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>According to <a href="https://github.com/Zer0Mem0ry/ntoskrnl/blob/1ba25701dc670d5f63610b75b593c5841d291e7f/Ke/thredobj.c" target="_blank" rel="noopener noreffer ">this source</a>, it has the following prototype:</p>]]></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>X64 on soffensive blog</title><link>https://soffensive.github.io/tags/x64/</link><description>Recent content in X64 on soffensive blog</description><generator>Hugo</generator><language>en</language><lastBuildDate>Wed, 20 Sep 2017 02:37:00 -0700</lastBuildDate><atom:link href="https://soffensive.github.io/tags/x64/index.xml" rel="self" type="application/rss+xml"/><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 11</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/</link><pubDate>Wed, 20 Sep 2017 02:37:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-20-practical-reverse-engineering-exercise-solutions-page-35-exercise-11/</guid><description>&lt;blockquote>
+&lt;p>Read the Virtual Memory chapter in Intel Software Developer Manual, Volume 3 and AMD64 Architecture Programmer’s Manual, Volume 2: System Programming. Perform a few virtual address to physical address translations yourself and verify the result with a kernel debugger. Explain how data execution prevention (DEP) works.&lt;/p>&lt;/blockquote>
+&lt;p>For this exercise, we first have to set up a remote kernel debugging session. (see &lt;a href="https://codemetrix.net/windows-kernel-debugging-setup/" target="_blank" rel="noopener noreffer ">https://codemetrix.net/windows-kernel-debugging-setup/&lt;/a>, &lt;a href="https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/" target="_blank" rel="noopener noreffer ">https://securityblog.gr/3253/debug-user-mode-processes-using-a-kernel-debugger/&lt;/a> and
+&lt;a href="http://securityblog.gr/3023/windows-kernel-debugging/" target="_blank" rel="noopener noreffer ">http://securityblog.gr/3023/windows-kernel-debugging/&lt;/a> for excellent explanations)&lt;/p></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 10</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/</link><pubDate>Sun, 17 Sep 2017 05:34:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-17-practical-reverse-engineering-exercise-solutions-page-35-exercise-10/</guid><description>&lt;p>Our task:&lt;/p>
+&lt;blockquote>
+&lt;p>If the current privilege level is encoded in CS, which is modifiable by user-mode code, why can’t user-mode code modify CS to change CPL?&lt;/p>&lt;/blockquote>
+&lt;p>For a change, this is now a more theoretical than hands-on challenge. In order to address the exercise appropriately, we have to make sure we understood it correctly.&lt;/p>
+&lt;p>&lt;code>CS&lt;/code> (code segment) is the CPU segment register that contains the current ring level in bits 0 and 1. This encoded level is also commonly referred to as CPL (current privilege level).&lt;/p></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 9</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/</link><pubDate>Fri, 15 Sep 2017 02:49:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-15-practical-reverse-engineering-exercise-solutions-page-35-exercise-9/</guid><description>&lt;p>Our task:&lt;/p>
+&lt;blockquote>
+&lt;p>Sample L. Explain what function &lt;code>sub_1000CEA0&lt;/code> does and then decompile it back to C.&lt;/p>&lt;/blockquote>
+&lt;p>Here we have the function&amp;rsquo;s disassembly:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-nasm" data-lang="nasm">&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">push&lt;/span> &lt;span class="nb">ebp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">mov&lt;/span> &lt;span class="nb">ebp&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nb">esp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">push&lt;/span> &lt;span class="nb">edi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">mov&lt;/span> &lt;span class="nb">edi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">ebp&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">xor&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nb">eax&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">or&lt;/span> &lt;span class="nb">ecx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mh">0FFFFFFFFh&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">repne&lt;/span> &lt;span class="nv">scasb&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">add&lt;/span> &lt;span class="nb">ecx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">neg&lt;/span> &lt;span class="nb">ecx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">sub&lt;/span> &lt;span class="nb">edi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">mov&lt;/span> &lt;span class="nb">al&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">ebp&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">0Ch&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">std&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">repne&lt;/span> &lt;span class="nv">scasb&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">add&lt;/span> &lt;span class="nb">edi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">cmp&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">edi&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="nb">al&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">jz&lt;/span> &lt;span class="nv">short&lt;/span> &lt;span class="nv">loc_1000CEC7&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">xor&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nb">eax&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">jmp&lt;/span> &lt;span class="nv">short&lt;/span> &lt;span class="nv">loc_1000CEC9&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">loc_1000CEC7:&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">mov&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nb">edi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">loc_1000CEC9:&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">cld&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pop&lt;/span> &lt;span class="nb">edi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">leave&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">retn&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">endp&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Firstly, the function takes two arguments, at &lt;code>ebp+0x8&lt;/code> (arg1) and &lt;code>ebp+0x0C&lt;/code> (arg2) respectively. It follows the &lt;strong>stdcall&lt;/strong> convention that arguments are pushed from right to left on the stack and the callee cleaning up the stack.&lt;/p></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 8</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/</link><pubDate>Thu, 14 Sep 2017 05:12:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-09-14-practical-reverse-engineering-exercise-solutions-page-35-exercise-8/</guid><description>&lt;p>Our task as formulated in exercise 8:&lt;/p>
+&lt;blockquote>
+&lt;p>Sample H. Decompile &lt;code>sub_11732&lt;/code> and explain the most likely programming construct used in the original code.&lt;/p>&lt;/blockquote>
+&lt;p>The function&amp;rsquo;s disassembly:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-nasm" data-lang="nasm">&lt;span class="line">&lt;span class="cl">&lt;span class="nl">sub_1172E:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">push&lt;/span> &lt;span class="nb">esi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">mov&lt;/span> &lt;span class="nb">esi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">esp&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">dec&lt;/span> &lt;span class="nb">esi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">jz&lt;/span> &lt;span class="nv">short&lt;/span> &lt;span class="nv">loc_1175F&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">dec&lt;/span> &lt;span class="nb">esi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">jz&lt;/span> &lt;span class="nv">short&lt;/span> &lt;span class="nv">loc_11755&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">dec&lt;/span> &lt;span class="nb">esi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">jz&lt;/span> &lt;span class="nv">short&lt;/span> &lt;span class="nv">loc_1174B&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">sub&lt;/span> &lt;span class="nb">esi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">9&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">jnz&lt;/span> &lt;span class="nv">short&lt;/span> &lt;span class="nv">loc_1176B&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">mov&lt;/span> &lt;span class="nb">esi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">eax&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">shr&lt;/span> &lt;span class="nb">esi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">add&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mh">0Ch&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">jmp&lt;/span> &lt;span class="nv">short&lt;/span> &lt;span class="nv">loc_11767&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">; ---------------------------------------------------------------------------&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">loc_1174B:&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">mov&lt;/span> &lt;span class="nb">esi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">eax&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">3Ch&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">shr&lt;/span> &lt;span class="nb">esi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">add&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mh">5Eh&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">jmp&lt;/span> &lt;span class="nv">short&lt;/span> &lt;span class="nv">loc_11767&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">; ---------------------------------------------------------------------------&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">loc_11755:&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">mov&lt;/span> &lt;span class="nb">esi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">eax&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">3Ch&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">shr&lt;/span> &lt;span class="nb">esi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">add&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mh">44h&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">jmp&lt;/span> &lt;span class="nv">short&lt;/span> &lt;span class="nv">loc_11767&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">; ---------------------------------------------------------------------------&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">loc_1175F:&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">mov&lt;/span> &lt;span class="nb">esi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">eax&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">3Ch&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">shr&lt;/span> &lt;span class="nb">esi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">add&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mh">40h&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">loc_11767:&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">mov&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">ecx&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="nb">esi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">mov&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">edx&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="nb">eax&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">loc_1176B:&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">pop&lt;/span> &lt;span class="nb">esi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">retn&lt;/span> &lt;span class="mi">4&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Obviously, the sought-after programming construct in this case is a &lt;code>switch...case&lt;/code> statement.&lt;/p></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 7</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-30-practical-reverse-engineering-exercise-solutions-page-35-exercise-7/</link><pubDate>Sun, 30 Jul 2017 03:55:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-30-practical-reverse-engineering-exercise-solutions-page-35-exercise-7/</guid><description>&lt;p>Exercise 7 on page 35:&lt;/p>
+&lt;blockquote>
+&lt;p>Sample H. The function &lt;code>sub_10BB6&lt;/code> has a loop searching for something. First recover the function prototype and then infer the types based on the context. Hint: You should probably have a copy of the PE specification nearby.&lt;/p>&lt;/blockquote>
+&lt;p>Due to alignment issues, our routine is located at &lt;code>10BB2&lt;/code> and has the following disassembly:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-nasm" data-lang="nasm">&lt;span class="line">&lt;span class="cl">&lt;span class="nl">sub_10BB2:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">mov&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">esp&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="p">]&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">push&lt;/span> &lt;span class="nb">ebx&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">push&lt;/span> &lt;span class="nb">esi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">mov&lt;/span> &lt;span class="nb">esi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">eax&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">3Ch&lt;/span>&lt;span class="p">]&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">add&lt;/span> &lt;span class="nb">esi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nb">eax&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">movzx&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">word&lt;/span> &lt;span class="nv">ptr&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">esi&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">14h&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">xor&lt;/span> &lt;span class="nb">ebx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nb">ebx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">cmp&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">esi&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">6&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="nb">bx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">push&lt;/span> &lt;span class="nb">edi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">lea&lt;/span> &lt;span class="nb">edi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">eax&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="nb">esi&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">18h&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">jbe&lt;/span> &lt;span class="nv">short&lt;/span> &lt;span class="nv">loc_10BEB&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">loc_10BCE:&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">push&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">esp&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">0Ch&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="nv">arg_4&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">push&lt;/span> &lt;span class="nb">edi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">call&lt;/span> &lt;span class="nb">ds&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="kt">dword&lt;/span>&lt;span class="nv">_169A4&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">test&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nb">eax&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pop&lt;/span> &lt;span class="nb">ecx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pop&lt;/span> &lt;span class="nb">ecx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">jz&lt;/span> &lt;span class="nv">short&lt;/span> &lt;span class="nv">loc_10BF3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">movzx&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">word&lt;/span> &lt;span class="nv">ptr&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">esi&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">6&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">add&lt;/span> &lt;span class="nb">edi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mh">28h&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">inc&lt;/span> &lt;span class="nb">ebx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">cmp&lt;/span> &lt;span class="nb">ebx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nb">eax&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">jb&lt;/span> &lt;span class="nv">short&lt;/span> &lt;span class="nv">loc_10BCE&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">loc_10BEB:&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">xor&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nb">eax&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">loc_10BED:&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pop&lt;/span> &lt;span class="nb">edi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pop&lt;/span> &lt;span class="nb">esi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">pop&lt;/span> &lt;span class="nb">ebx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">retn&lt;/span> &lt;span class="mi">8&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">loc_10BF3:&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">mov&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nb">edi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">jmp&lt;/span> &lt;span class="nv">short&lt;/span> &lt;span class="nv">loc_10BED&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>The PE file format and offsets have been described in detail here: &lt;a href="http://www.sunshine2k.de/reversing/tuts/tut_pe.htm" target="_blank" rel="noopener noreffer ">http://www.sunshine2k.de/reversing/tuts/tut_pe.htm&lt;/a>&lt;/p></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Page 35 / Exercise 6</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-22-practical-reverse-engineering-exercise-solutions-page-35-exercise-6/</link><pubDate>Sat, 22 Jul 2017 23:49:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-22-practical-reverse-engineering-exercise-solutions-page-35-exercise-6/</guid><description>&lt;p>Exercise 6 on page 35 of the book Practical Reverse Engineering presents us with a malware samples.&lt;/p>
+&lt;p>These can be downloaded at the following page:&lt;/p>
+&lt;p>&lt;a href="https://grsecurity.net/malware_research/" target="_blank" rel="noopener noreffer ">https://grsecurity.net/malware_research/&lt;/a>&lt;/p>
+&lt;p>In this exercise, we are expected to have a look at the following routine &lt;code>sub_13842&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-nasm" data-lang="nasm">&lt;span class="line">&lt;span class="cl">&lt;span class="nl">.text:&lt;/span>&lt;span class="err">00013842&lt;/span> &lt;span class="nf">sub_13842&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">.text:&lt;/span>&lt;span class="err">00013842&lt;/span> &lt;span class="nf">mov&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">ecx&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">60h&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">.text:&lt;/span>&lt;span class="err">00013845&lt;/span> &lt;span class="nf">push&lt;/span> &lt;span class="nb">esi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">.text:&lt;/span>&lt;span class="err">00013846&lt;/span> &lt;span class="nf">mov&lt;/span> &lt;span class="nb">esi&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">edx&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">.text:&lt;/span>&lt;span class="err">00013849&lt;/span> &lt;span class="nf">dec&lt;/span> &lt;span class="kt">byte&lt;/span> &lt;span class="nv">ptr&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">ecx&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">23h&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">.text:&lt;/span>&lt;span class="err">0001384&lt;/span>&lt;span class="nf">C&lt;/span> &lt;span class="nv">sub&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mh">24h&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">.text:&lt;/span>&lt;span class="err">0001384&lt;/span>&lt;span class="nf">F&lt;/span> &lt;span class="nv">mov&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">ecx&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">60h&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="nb">eax&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">.text:&lt;/span>&lt;span class="err">00013852&lt;/span> &lt;span class="nf">mov&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">eax&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">14h&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="nb">edx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">.text:&lt;/span>&lt;span class="err">00013855&lt;/span> &lt;span class="nf">movzx&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">byte&lt;/span> &lt;span class="nv">ptr&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">eax&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">.text:&lt;/span>&lt;span class="err">00013858&lt;/span> &lt;span class="nf">push&lt;/span> &lt;span class="nb">ecx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">.text:&lt;/span>&lt;span class="err">00013859&lt;/span> &lt;span class="nf">push&lt;/span> &lt;span class="nb">edx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">.text:&lt;/span>&lt;span class="err">0001385&lt;/span>&lt;span class="nf">A&lt;/span> &lt;span class="nv">call&lt;/span> &lt;span class="kt">dword&lt;/span> &lt;span class="nv">ptr&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">esi&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="nb">eax&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">38h&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">.text:&lt;/span>&lt;span class="err">0001385&lt;/span>&lt;span class="nf">E&lt;/span> &lt;span class="nv">pop&lt;/span> &lt;span class="nb">esi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">.text:&lt;/span>&lt;span class="err">0001385&lt;/span>&lt;span class="nf">F&lt;/span> &lt;span class="nv">retn&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Firstly, we see that the function prototype takes two parameters, which are not saved on the stack but in the two registers &lt;code>ecx&lt;/code> and &lt;code>edx&lt;/code>. This can be deducted from the fact that these two registers are immediately referenced without prior initialization.&lt;/p></description></item><item><title>Practical Reverse Engineering Exercise Solutions: RtlValidateUnicodeString</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-rtlvalidateunicodestring/</link><pubDate>Sun, 16 Jul 2017 12:50:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-rtlvalidateunicodestring/</guid><description>&lt;p>This blog post contains my solution for the decompilation exercise of the &lt;code>RtlValidateUnicodeString&lt;/code> function in the Windows Kernel. The following contains the disassembly without annotations:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-nasm" data-lang="nasm">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">kd&lt;/span>&lt;span class="o">&amp;gt;&lt;/span> &lt;span class="nv">uf&lt;/span> &lt;span class="nv">rtlvalidateunicodestring&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">ntdll&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">RtlValidateUnicodeString&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">77686&lt;/span>&lt;span class="nf">f6c&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="nv">bff&lt;/span> &lt;span class="nv">mov&lt;/span> &lt;span class="nb">edi&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="nb">edi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">77686&lt;/span>&lt;span class="nf">f6e&lt;/span> &lt;span class="mi">55&lt;/span> &lt;span class="nv">push&lt;/span> &lt;span class="nb">ebp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">77686&lt;/span>&lt;span class="nf">f6f&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="nv">bec&lt;/span> &lt;span class="nv">mov&lt;/span> &lt;span class="nb">ebp&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="nb">esp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">77686&lt;/span>&lt;span class="nf">f71&lt;/span> &lt;span class="mi">837&lt;/span>&lt;span class="nv">d0800&lt;/span> &lt;span class="nv">cmp&lt;/span> &lt;span class="kt">dword&lt;/span> &lt;span class="nv">ptr&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">ebp&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="p">],&lt;/span>&lt;span class="mi">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">77686&lt;/span>&lt;span class="nf">f75&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="nv">f85fc380300&lt;/span> &lt;span class="nv">jne&lt;/span> &lt;span class="nv">ntdll&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">RtlValidateUnicodeString&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">0xb&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="mi">776&lt;/span>&lt;span class="nv">ba877&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">ntdll&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">RtlValidateUnicodeString&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">0x12&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">77686&lt;/span>&lt;span class="nf">f7b&lt;/span> &lt;span class="mi">6800010000&lt;/span> &lt;span class="nv">push&lt;/span> &lt;span class="mh">100h&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">77686&lt;/span>&lt;span class="nf">f80&lt;/span> &lt;span class="nv">ff750c&lt;/span> &lt;span class="nv">push&lt;/span> &lt;span class="kt">dword&lt;/span> &lt;span class="nv">ptr&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">ebp&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">0Ch&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">77686&lt;/span>&lt;span class="nf">f83&lt;/span> &lt;span class="nv">e809000000&lt;/span> &lt;span class="nv">call&lt;/span> &lt;span class="nv">ntdll&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">RtlUnicodeStringValidateEx&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="mi">77686&lt;/span>&lt;span class="nv">f91&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">ntdll&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">RtlValidateUnicodeString&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">0x1f&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">77686&lt;/span>&lt;span class="nf">f88&lt;/span> &lt;span class="mi">5&lt;/span>&lt;span class="nv">d&lt;/span> &lt;span class="nv">pop&lt;/span> &lt;span class="nb">ebp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">77686&lt;/span>&lt;span class="nf">f89&lt;/span> &lt;span class="nv">c20800&lt;/span> &lt;span class="nv">ret&lt;/span> &lt;span class="mi">8&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">ntdll&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">RtlValidateUnicodeString&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">0xb&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">776&lt;/span>&lt;span class="nf">ba877&lt;/span> &lt;span class="nv">b80d0000c0&lt;/span> &lt;span class="nv">mov&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="mh">0C000000Dh&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">776&lt;/span>&lt;span class="nf">ba87c&lt;/span> &lt;span class="nv">e907c7fcff&lt;/span> &lt;span class="nv">jmp&lt;/span> &lt;span class="nv">ntdll&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">RtlValidateUnicodeString&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">0x1f&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="mi">77686&lt;/span>&lt;span class="nv">f88&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>The function prototype is given &lt;a href="https://github.com/CaledoniaProject/kekeo-with-asn-vs2013/blob/d926de6096d6f6d797e38ced1b5cbdf56d1734b9/modules/kull_m_string.h" target="_blank" rel="noopener noreffer ">here&lt;/a>:&lt;/p></description></item><item><title>Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</link><pubDate>Sun, 16 Jul 2017 05:45:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</guid><description>&lt;p>Here are a couple of commands I regularly use for reverse engineering:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>uf &amp;lt;function&amp;gt;&lt;/code>: Unassemble function&lt;/li>
+&lt;li>&lt;code>dt nt!_ktss&lt;/code>: Show the definition of the data structure &lt;code>_ktss&lt;/code>&lt;/li>
+&lt;li>&lt;code>?? sizeof(_ktss)&lt;/code>: Show the size the data structure &lt;code>_ktss&lt;/code> occupies in memory&lt;/li>
+&lt;li>&lt;code>.hh uf&lt;/code>: Show help for the function &lt;code>uf&lt;/code>&lt;/li>
+&lt;li>&lt;code>x nt!*createfile*&lt;/code>: Search all functions having the string &lt;code>createfile&lt;/code> in its name&lt;/li>
+&lt;li>&lt;code>!vtop &amp;lt;PDPT-pointer&amp;gt; &amp;lt;virtualAddress&amp;gt;&lt;/code>: Compute physical address of given virtual address and the pointer to the page directory pointer table&lt;/li>
+&lt;/ul></description></item><item><title>Practical Reverse Engineering Exercise Solutions: KiInitializeTSS</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/</link><pubDate>Sun, 16 Jul 2017 05:33:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kiinitializetss/</guid><description>&lt;p>Another exercise for us is the decompilation of the &lt;code>KiInitializeTSS&lt;/code> function:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-nasm" data-lang="nasm">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">nt&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">KiInitializeTSS&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">82847359&lt;/span> &lt;span class="err">8&lt;/span>&lt;span class="nf">bff&lt;/span> &lt;span class="nv">mov&lt;/span> &lt;span class="nb">edi&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="nb">edi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">8284735&lt;/span>&lt;span class="nf">b&lt;/span> &lt;span class="mi">55&lt;/span> &lt;span class="nv">push&lt;/span> &lt;span class="nb">ebp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">8284735&lt;/span>&lt;span class="nf">c&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="nv">bec&lt;/span> &lt;span class="nv">mov&lt;/span> &lt;span class="nb">ebp&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="nb">esp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">8284735&lt;/span>&lt;span class="nf">e&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="nv">b4508&lt;/span> &lt;span class="nv">mov&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="kt">dword&lt;/span> &lt;span class="nv">ptr&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">ebp&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">82847361&lt;/span> &lt;span class="nf">b9ac200000&lt;/span> &lt;span class="nv">mov&lt;/span> &lt;span class="nb">ecx&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="mh">20ACh&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">82847366&lt;/span> &lt;span class="err">66894866&lt;/span> &lt;span class="nf">mov&lt;/span> &lt;span class="kt">word&lt;/span> &lt;span class="nv">ptr&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">eax&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">66h&lt;/span>&lt;span class="p">],&lt;/span>&lt;span class="nb">cx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">8284736&lt;/span>&lt;span class="nf">a&lt;/span> &lt;span class="mi">33&lt;/span>&lt;span class="nv">c9&lt;/span> &lt;span class="nv">xor&lt;/span> &lt;span class="nb">ecx&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="nb">ecx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">8284736&lt;/span>&lt;span class="nf">c&lt;/span> &lt;span class="mi">6&lt;/span>&lt;span class="nv">a10&lt;/span> &lt;span class="nv">push&lt;/span> &lt;span class="mh">10h&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">8284736&lt;/span>&lt;span class="nf">e&lt;/span> &lt;span class="mi">66894864&lt;/span> &lt;span class="nv">mov&lt;/span> &lt;span class="kt">word&lt;/span> &lt;span class="nv">ptr&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">eax&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">64h&lt;/span>&lt;span class="p">],&lt;/span>&lt;span class="nb">cx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">82847372&lt;/span> &lt;span class="err">66894860&lt;/span> &lt;span class="nf">mov&lt;/span> &lt;span class="kt">word&lt;/span> &lt;span class="nv">ptr&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">eax&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">60h&lt;/span>&lt;span class="p">],&lt;/span>&lt;span class="nb">cx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">82847376&lt;/span> &lt;span class="err">59&lt;/span> &lt;span class="nf">pop&lt;/span> &lt;span class="nb">ecx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">82847377&lt;/span> &lt;span class="err">66894808&lt;/span> &lt;span class="nf">mov&lt;/span> &lt;span class="kt">word&lt;/span> &lt;span class="nv">ptr&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">eax&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="p">],&lt;/span>&lt;span class="nb">cx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">8284737&lt;/span>&lt;span class="nf">b&lt;/span> &lt;span class="mi">5&lt;/span>&lt;span class="nv">d&lt;/span> &lt;span class="nv">pop&lt;/span> &lt;span class="nb">ebp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">8284737&lt;/span>&lt;span class="nf">c&lt;/span> &lt;span class="nv">c20400&lt;/span> &lt;span class="nv">ret&lt;/span> &lt;span class="mi">4&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>We obtain the function prototype: (&lt;a href="https://github.com/hoangduit/reactos/blob/63682957b86d77c7d82e7b887797ef82ea92d271/reactos/ntoskrnl/ke/powerpc/cpu.c" target="_blank" rel="noopener noreffer ">source&lt;/a>)&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">VOID&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">NTAPI&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">KiInitializeTSS&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">IN&lt;/span> &lt;span class="n">PKTSS&lt;/span> &lt;span class="n">Tss&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Structure of &lt;code>_KTSS&lt;/code>:&lt;/p></description></item><item><title>Practical Reverse Engineering Exercise Solutions: KeReadyThread</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kereadythread/</link><pubDate>Sun, 16 Jul 2017 03:44:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-kereadythread/</guid><description>&lt;p>Unfortunately I had no time in the past days to continue with the exercises. We continue with the decompilation of the KeReadyThread function in Windows 7.&lt;/p>
+&lt;p>The following listing shows the disassembly:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-nasm" data-lang="nasm">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">nt&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">KeReadyThread&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">828&lt;/span>&lt;span class="nf">a8125&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="nv">bff&lt;/span> &lt;span class="nv">mov&lt;/span> &lt;span class="nb">edi&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="nb">edi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">828&lt;/span>&lt;span class="nf">a8127&lt;/span> &lt;span class="mi">56&lt;/span> &lt;span class="nv">push&lt;/span> &lt;span class="nb">esi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">828&lt;/span>&lt;span class="nf">a8128&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="nv">bf0&lt;/span> &lt;span class="nv">mov&lt;/span> &lt;span class="nb">esi&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="nb">eax&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">828&lt;/span>&lt;span class="nf">a812a&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="nv">b4650&lt;/span> &lt;span class="nv">mov&lt;/span> &lt;span class="nb">eax&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="kt">dword&lt;/span> &lt;span class="nv">ptr&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">esi&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">50h&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">828&lt;/span>&lt;span class="nf">a812d&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="nv">b4874&lt;/span> &lt;span class="nv">mov&lt;/span> &lt;span class="nb">ecx&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="kt">dword&lt;/span> &lt;span class="nv">ptr&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nb">eax&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">74h&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">828&lt;/span>&lt;span class="nf">a8130&lt;/span> &lt;span class="nv">f6c107&lt;/span> &lt;span class="nv">test&lt;/span> &lt;span class="nb">cl&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="mi">7&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">828&lt;/span>&lt;span class="nf">a8133&lt;/span> &lt;span class="mi">7409&lt;/span> &lt;span class="nv">je&lt;/span> &lt;span class="nv">nt&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">KeReadyThread&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">0x19&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="mi">828&lt;/span>&lt;span class="nv">a813e&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">nt&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">KeReadyThread&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">0x10&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">828&lt;/span>&lt;span class="nf">a8135&lt;/span> &lt;span class="nv">e8b74af8ff&lt;/span> &lt;span class="nv">call&lt;/span> &lt;span class="nv">nt&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">KiInSwapSingleProcess&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="mi">8282&lt;/span>&lt;span class="nv">cbf1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">828&lt;/span>&lt;span class="nf">a813a&lt;/span> &lt;span class="mi">84&lt;/span>&lt;span class="nv">c0&lt;/span> &lt;span class="nv">test&lt;/span> &lt;span class="nb">al&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="nb">al&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">828&lt;/span>&lt;span class="nf">a813c&lt;/span> &lt;span class="mi">7505&lt;/span> &lt;span class="nv">jne&lt;/span> &lt;span class="nv">nt&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">KeReadyThread&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">0x1e&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="mi">828&lt;/span>&lt;span class="nv">a8143&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">nt&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">KeReadyThread&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">0x19&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">828&lt;/span>&lt;span class="nf">a813e&lt;/span> &lt;span class="nv">e892ef0000&lt;/span> &lt;span class="nv">call&lt;/span> &lt;span class="nv">nt&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">KiFastReadyThread&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="mi">828&lt;/span>&lt;span class="nv">b70d5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">nt&lt;/span>&lt;span class="err">!&lt;/span>&lt;span class="nv">KeReadyThread&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mh">0x1e&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">828&lt;/span>&lt;span class="nf">a8143&lt;/span> &lt;span class="mi">5&lt;/span>&lt;span class="nv">e&lt;/span> &lt;span class="nv">pop&lt;/span> &lt;span class="nb">esi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">828&lt;/span>&lt;span class="nf">a8144&lt;/span> &lt;span class="nv">c3&lt;/span> &lt;span class="nv">ret&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>According to &lt;a href="https://github.com/Zer0Mem0ry/ntoskrnl/blob/1ba25701dc670d5f63610b75b593c5841d291e7f/Ke/thredobj.c" target="_blank" rel="noopener noreffer ">this source&lt;/a>, it has the following prototype:&lt;/p></description></item><item><title>Practical Reverse Engineering Exercise Solutions: KeInitializeQueue</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-01-practical-reverse-engineering-exercise-solutions-keinitializequeue/</link><pubDate>Sat, 01 Jul 2017 05:39:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-01-practical-reverse-engineering-exercise-solutions-keinitializequeue/</guid><description>&lt;p>We are tasked with decompiling the Windows Kernel routine
+KeInitializeQueue.&lt;/p>
+&lt;p>Firstly, we obtain its disassembly:&lt;/p>
+&lt;p>&lt;a href="../images/2017-07-01-practical-reverse-engineering-exercise-solutions-keinitializequeue-001.png" rel="">&lt;img
+ class="lazyload"
+ src="https://soffensive.github.io/svg/loading.min.svg"
+ data-src="../images/thumbnails/2017-07-01-practical-reverse-engineering-exercise-solutions-keinitializequeue-001.png"
+ data-srcset="../images/thumbnails/2017-07-01-practical-reverse-engineering-exercise-solutions-keinitializequeue-001.png, ../images/thumbnails/2017-07-01-practical-reverse-engineering-exercise-solutions-keinitializequeue-001.png 1.5x, ../images/thumbnails/2017-07-01-practical-reverse-engineering-exercise-solutions-keinitializequeue-001.png 2x"
+ data-sizes="auto"
+ alt="../images/thumbnails/2017-07-01-practical-reverse-engineering-exercise-solutions-keinitializequeue-001.png"
+ title="../images/thumbnails/2017-07-01-practical-reverse-engineering-exercise-solutions-keinitializequeue-001.png" />&lt;/a> &lt;/p>
+&lt;p>Secondly, we consult &lt;a href="https://msdn.microsoft.com/en-us/library/windows/hardware/ff549547%28v=vs.85%29.aspx" target="_blank" rel="noopener noreffer ">MSDN&lt;/a> for its signature:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">VOID&lt;/span> &lt;span class="nf">KeInitializeQueue&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_Out_&lt;/span> &lt;span class="n">PRKQUEUE&lt;/span> &lt;span class="n">Queue&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_In_&lt;/span> &lt;span class="n">ULONG&lt;/span> &lt;span class="n">Count&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>The routine itself does not return anything. &lt;/p>
+&lt;p>We learn it takes two parameters and as the assembly contains the &lt;code>ret 8&lt;/code> instruction, the &lt;code>KeInitializeQueue&lt;/code> function cleans up the stack and thus, it uses the &lt;strong>stdcall&lt;/strong> convention.&lt;/p></description></item><item><title>Practical Reverse Engineering Exercise Solutions: ObFastDereferenceObject</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-06-29-practical-reverse-engineering-exercise-solutions-obfastdereferenceobject/</link><pubDate>Thu, 29 Jun 2017 09:46:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-06-29-practical-reverse-engineering-exercise-solutions-obfastdereferenceobject/</guid><description>&lt;p>First of all a quick reminder: This series of blog posts relates to exercises from the book Practical Reverse Engineering by Dang et al. Although it is called reverse engineering in general, it actually is mostly relevant to Microsoft Windows operating systems. This is simply due to the fact that Microsoft Windows is closed source in contrast to the Linux/Unix families, which means its source code is publicly available and so no reverse engineering endeavours are necessary.&lt;/p></description></item><item><title>Practical Reverse Engineering Exercise Solutions: KeInitializeApc Routine</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine/</link><pubDate>Mon, 19 Jun 2017 02:36:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-06-19-practical-reverse-engineering-exercise-solutions-keinitializeapc-routine/</guid><description>&lt;p>To keep me motivated and document my progress, I will create a series of
+blog posts with answers to some of the exercises from the book
+&amp;ldquo;Practical Reverse Engineering&amp;rdquo; by Dang, Gazet and Bachaalany.&lt;/p>
+&lt;p>In the last post, we introduced the Windows Kernel Debugger (KD) and some of the functions. I have learned that rather than using KD directly, we can use WinDbg&amp;rsquo;s interface which is more user-friendly. When calling livekd, simply append the &amp;ldquo;-w&amp;rdquo; parameter and WinDbg will start up:&lt;/p></description></item><item><title>Practical Reverse Engineering Exercise Solutions: Windows Kernel Routines</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-06-17-practical-reverse-engineering-exercise-solutions-windows-kernel-routines/</link><pubDate>Sat, 17 Jun 2017 00:01:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-06-17-practical-reverse-engineering-exercise-solutions-windows-kernel-routines/</guid><description>&lt;p>I am currently developing my reverse engineering skills and want to keep
+some important parts of this journey as well in this blog.&lt;/p>
+&lt;p>The first step of this series relates to disassembling Windows kernel
+routines, in my case Windows 7.&lt;/p>
+&lt;p>What are the prerequisites for this exercise?&lt;/p>
+&lt;ul>
+&lt;li>Ideally, install Windows inside a virtual machine&lt;/li>
+&lt;li>From Windows Vista onwards, the Kernel debugging mode has to be enabled with: &lt;code>bcdedit /debug on&lt;/code>&lt;/li>
+&lt;li>Install Debugging Tools for Windows (for example, as part of the Windows SDK - &lt;a href="https://www.microsoft.com/en-us/download/details.aspx?id=3138" target="_blank" rel="noopener noreffer ">https://www.microsoft.com/en-us/download/details.aspx?id=3138&lt;/a> for Windows 7, which contains the Kernel Debugger (KD))&lt;/li>
+&lt;li>Install LiveKD from the SysInternals Suite 
+&lt;ul>
+&lt;li>&lt;strong>IMPORTANT: the livekd.exe file should be placed in the system32
+folder&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>Notice that since we use LiveKD, we are essentially debugging the Kernel
+locally without a second system. With this approach, functions cannot be
+debugged as LiveKD uses a Kernel read-only memory dump as a basis.&lt;/p></description></item></channel></rss>

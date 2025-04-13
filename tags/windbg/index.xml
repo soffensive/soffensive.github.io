@@ -1,9 +1,9 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Windbg - Tag - soffensive blog</title><link>https://soffensive.github.io/tags/windbg/</link><description>Windbg - Tag - soffensive blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sun, 16 Jul 2017 05:45:00 -0700</lastBuildDate><atom:link href="https://soffensive.github.io/tags/windbg/" rel="self" type="application/rss+xml"/><item><title>Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</link><pubDate>Sun, 16 Jul 2017 05:45:00 -0700</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</guid><description><![CDATA[<p>Here are a couple of commands I regularly use for reverse engineering:</p>
-<ul>
-<li><code>uf &lt;function&gt;</code>: Unassemble function</li>
-<li><code>dt nt!_ktss</code>: Show the definition of the data structure <code>_ktss</code></li>
-<li><code>?? sizeof(_ktss)</code>: Show the size the data structure <code>_ktss</code> occupies in memory</li>
-<li><code>.hh uf</code>: Show help for the function <code>uf</code></li>
-<li><code>x nt!*createfile*</code>: Search all functions having the string <code>createfile</code> in its name</li>
-<li><code>!vtop &lt;PDPT-pointer&gt; &lt;virtualAddress&gt;</code>: Compute physical address of given virtual address and the pointer to the page directory pointer table</li>
-</ul>]]></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Windbg on soffensive blog</title><link>https://soffensive.github.io/tags/windbg/</link><description>Recent content in Windbg on soffensive blog</description><generator>Hugo</generator><language>en</language><lastBuildDate>Sun, 16 Jul 2017 05:45:00 -0700</lastBuildDate><atom:link href="https://soffensive.github.io/tags/windbg/index.xml" rel="self" type="application/rss+xml"/><item><title>Practical Reverse Engineering Exercise Solutions: LiveKd / WinDbg Cheat Sheet</title><link>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</link><pubDate>Sun, 16 Jul 2017 05:45:00 -0700</pubDate><guid>https://soffensive.github.io/posts/practical-reverse-engineering/2017-07-16-practical-reverse-engineering-exercise-solutions-livekd-windbg-cheat-sheet/</guid><description>&lt;p>Here are a couple of commands I regularly use for reverse engineering:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>uf &amp;lt;function&amp;gt;&lt;/code>: Unassemble function&lt;/li>
+&lt;li>&lt;code>dt nt!_ktss&lt;/code>: Show the definition of the data structure &lt;code>_ktss&lt;/code>&lt;/li>
+&lt;li>&lt;code>?? sizeof(_ktss)&lt;/code>: Show the size the data structure &lt;code>_ktss&lt;/code> occupies in memory&lt;/li>
+&lt;li>&lt;code>.hh uf&lt;/code>: Show help for the function &lt;code>uf&lt;/code>&lt;/li>
+&lt;li>&lt;code>x nt!*createfile*&lt;/code>: Search all functions having the string &lt;code>createfile&lt;/code> in its name&lt;/li>
+&lt;li>&lt;code>!vtop &amp;lt;PDPT-pointer&amp;gt; &amp;lt;virtualAddress&amp;gt;&lt;/code>: Compute physical address of given virtual address and the pointer to the page directory pointer table&lt;/li>
+&lt;/ul></description></item></channel></rss>

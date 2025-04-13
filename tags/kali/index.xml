@@ -1,29 +1,43 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Kali - Tag - soffensive blog</title><link>https://soffensive.github.io/tags/kali/</link><description>Kali - Tag - soffensive blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sun, 06 Apr 2025 19:27:16 +0200</lastBuildDate><atom:link href="https://soffensive.github.io/tags/kali/" rel="self" type="application/rss+xml"/><item><title>Kali Linux Long Term Usage Part 2: Systemd, Partitions, and Swap Space</title><link>https://soffensive.github.io/posts/various/2025-04-06-kali-linux-long-term-2/</link><pubDate>Sun, 06 Apr 2025 19:27:16 +0200</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/various/2025-04-06-kali-linux-long-term-2/</guid><description><![CDATA[<p>I am using Kali Linux on a regular basis inside a virtual machine (VirtualBox) and I have maintained my image for a couple of years.</p>
-<p>Over the last months and years, the booting time got worse and worse, until it reached the following startup time:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">└─$ systemd-analyze <span class="nb">time</span>                                                           
-</span></span><span class="line"><span class="cl">Startup finished in 34.355s <span class="o">(</span>kernel<span class="o">)</span> + 1min 42.261s <span class="o">(</span>userspace<span class="o">)</span> <span class="o">=</span> 2min 16.617s 
-</span></span><span class="line"><span class="cl">graphical.target reached after 1min 42.261s in userspace.
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>In the first part of the series, we covered some optimizations with regard to disk usage. In this part, we want to determine why the system takes so much time to start up, even though it has sufficient hardware resources.</p>]]></description></item><item><title>Kali Linux Long Term Usage Part 1: Disk Usage</title><link>https://soffensive.github.io/posts/various/2025-03-30-kali-linux-long-term-1/</link><pubDate>Sun, 06 Apr 2025 15:27:16 +0200</pubDate><author>soffensive</author><guid>https://soffensive.github.io/posts/various/2025-03-30-kali-linux-long-term-1/</guid><description><![CDATA[<p>I am using Kali Linux on a regular basis inside a virtual machine (VirtualBox) and I have maintained my image for a couple of years.</p>
-<p>Over the last months and years, the booting time got worse and worse, until it reached the following startup time:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">└─$ systemd-analyze <span class="nb">time</span>                                                           
-</span></span><span class="line"><span class="cl">Startup finished in 34.355s <span class="o">(</span>kernel<span class="o">)</span> + 1min 42.261s <span class="o">(</span>userspace<span class="o">)</span> <span class="o">=</span> 2min 16.617s 
-</span></span><span class="line"><span class="cl">graphical.target reached after 1min 42.261s in userspace.
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>Clearly, this is extraordinarily much, compared to other operating systems. The system has enough memory and computing resources, so clearly the culprit is inside the operating system.</p>]]></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Kali on soffensive blog</title><link>https://soffensive.github.io/tags/kali/</link><description>Recent content in Kali on soffensive blog</description><generator>Hugo</generator><language>en</language><lastBuildDate>Sun, 13 Apr 2025 15:27:16 +0200</lastBuildDate><atom:link href="https://soffensive.github.io/tags/kali/index.xml" rel="self" type="application/rss+xml"/><item><title>Kali Linux Long Term Usage Part 3: VirtualBox Guest Additions</title><link>https://soffensive.github.io/posts/various/2025-04-13-kali-linux-long-term-3/</link><pubDate>Sun, 13 Apr 2025 15:27:16 +0200</pubDate><guid>https://soffensive.github.io/posts/various/2025-04-13-kali-linux-long-term-3/</guid><description>&lt;p>I use Kali Linux on a regular basis inside a virtual machine (VirtualBox) and I have maintained my image for a couple of years.&lt;/p>
+&lt;p>Over the last months and years, the booting time got worse and worse, until it reached the following startup time:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">└─$ systemd-analyze &lt;span class="nb">time&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Startup finished in 34.355s &lt;span class="o">(&lt;/span>kernel&lt;span class="o">)&lt;/span> + 1min 42.261s &lt;span class="o">(&lt;/span>userspace&lt;span class="o">)&lt;/span> &lt;span class="o">=&lt;/span> 2min 16.617s 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">graphical.target reached after 1min 42.261s in userspace.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>In the first and second parts of the series, we covered some optimizations with regard to disk usage and potential problems with non-existing partitions.&lt;/p></description></item><item><title>Kali Linux Long Term Usage Part 2: Systemd, Partitions, and Swap Space</title><link>https://soffensive.github.io/posts/various/2025-04-06-kali-linux-long-term-2/</link><pubDate>Sun, 06 Apr 2025 19:27:16 +0200</pubDate><guid>https://soffensive.github.io/posts/various/2025-04-06-kali-linux-long-term-2/</guid><description>&lt;p>I am using Kali Linux on a regular basis inside a virtual machine (VirtualBox) and I have maintained my image for a couple of years.&lt;/p>
+&lt;p>Over the last months and years, the booting time got worse and worse, until it reached the following startup time:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">└─$ systemd-analyze &lt;span class="nb">time&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Startup finished in 34.355s &lt;span class="o">(&lt;/span>kernel&lt;span class="o">)&lt;/span> + 1min 42.261s &lt;span class="o">(&lt;/span>userspace&lt;span class="o">)&lt;/span> &lt;span class="o">=&lt;/span> 2min 16.617s 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">graphical.target reached after 1min 42.261s in userspace.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>In the first part of the series, we covered some optimizations with regard to disk usage. In this part, we want to determine why the system takes so much time to start up, even though it has sufficient hardware resources.&lt;/p></description></item><item><title>Kali Linux Long Term Usage Part 1: Disk Usage</title><link>https://soffensive.github.io/posts/various/2025-03-30-kali-linux-long-term-1/</link><pubDate>Sun, 06 Apr 2025 15:27:16 +0200</pubDate><guid>https://soffensive.github.io/posts/various/2025-03-30-kali-linux-long-term-1/</guid><description>&lt;p>I am using Kali Linux on a regular basis inside a virtual machine (VirtualBox) and I have maintained my image for a couple of years.&lt;/p>
+&lt;p>Over the last months and years, the booting time got worse and worse, until it reached the following startup time:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">└─$ systemd-analyze &lt;span class="nb">time&lt;/span> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Startup finished in 34.355s &lt;span class="o">(&lt;/span>kernel&lt;span class="o">)&lt;/span> + 1min 42.261s &lt;span class="o">(&lt;/span>userspace&lt;span class="o">)&lt;/span> &lt;span class="o">=&lt;/span> 2min 16.617s 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">graphical.target reached after 1min 42.261s in userspace.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Clearly, this is extraordinarily much, compared to other operating systems. The system has enough memory and computing resources, so clearly the culprit is inside the operating system.&lt;/p></description></item></channel></rss>
